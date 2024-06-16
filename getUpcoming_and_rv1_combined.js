@@ -3120,6 +3120,7 @@ getFullDocument({
     
     window.ReactNativeWebView.postMessage(JSON.stringify("full doc found. Getting rv1 preds"))
     const rv1Preds = await getRV1_Predictions(fullDoc)
+    alert(rv1Preds)
     window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds));
 
     
