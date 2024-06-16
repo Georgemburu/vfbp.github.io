@@ -2826,6 +2826,7 @@ async function getRV1_Predictions(fullDocument){
     }
     
     const ArrayOf_seasonStatsForOneSeasonAtATime = await getCertainSeasonNumbersRawResultsAndFormatAndGetStatsFromTheResults();
+    window.ReactNativeWebView.postMessage("(fn::ArrayOf_seasonStatsForOneSeasonAtATime)");
     /**
         * @type {import("./types_and_interfaces/RV1_Predictor_DB_Results_Interface").RV1_Predictor_DB_Results_Interface};
         */
@@ -2869,7 +2870,7 @@ async function getRV1_Predictions(fullDocument){
             RV1_Predictions.leagues_and_match_predictions[leagueName].push(v1Predictions)
         }
     }
-    
+     window.ReactNativeWebView.postMessage("(end off RV1_Predictions)");
     
     
     
