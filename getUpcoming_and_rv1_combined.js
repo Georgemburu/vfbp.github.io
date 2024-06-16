@@ -2797,7 +2797,8 @@ async function getFormatedRawResultsForOneSeason(seasonNumber){
 
 // APP.JS
 async function getRV1_Predictions(fullDocument){
-    window.ReactNativeWebView.postMessage("(fn::getRV1_Predictions)");
+    try {
+        window.ReactNativeWebView.postMessage("(fn::getRV1_Predictions)");
         // CALCULATE THE PREDICTIONS 
         const NUM_OF_PREVIOUS_DOCS_TO_CALCULATE_ON = 0;//10 
         const currentSeasonNumber = fullDocument.season_number;
@@ -2877,6 +2878,10 @@ async function getRV1_Predictions(fullDocument){
         // SAVE UPDATE DOC ON DB
     console.log(JSON.stringify(RV1_Predictions))
     return RV1_Predictions;
+    }catch(e){
+        window.ReactNativeWebView.postMessage(JSON.stringify(e));
+    }
+    
 }
 
 // GEET FULL DOC
