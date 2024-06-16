@@ -1,3 +1,4 @@
+alert("HERE")
 function checkIfASelectorIsPresentInPage(page,selector){
     if(document.querySelector(selector_))return true;
     return false;
