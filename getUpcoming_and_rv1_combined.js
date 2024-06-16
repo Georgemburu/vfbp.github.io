@@ -3119,7 +3119,7 @@ getFullDocument({
     console.log({fullDoc})
     
     window.ReactNativeWebView.postMessage(JSON.stringify(fullDoc))
-    return getRV1_Predictions(fullDoc).then((rv1Preds)=>{
+    getRV1_Predictions(fullDoc).then((rv1Preds)=>{
         window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds));
 
     })
