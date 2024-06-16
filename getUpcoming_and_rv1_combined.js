@@ -3113,7 +3113,7 @@ getFullDocument({
     window.ReactNativeWebView.postMessage(JSON.stringify(fullDoc)));
 
     const rv1Preds = getRV1_Predictions(fullDoc)
-    window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds)));
+    window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds));
 }).catch(e =>{
     console.log({e})
 })
