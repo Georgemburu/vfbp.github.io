@@ -1889,8 +1889,9 @@ async function getFullDocument({
 }
 
 
-const OBJ = window.obj;
-
+const OBJ = newObj;//window.obj;
+window.ReactNativeWebView.postMessage("Window.obj")
+window.ReactNativeWebView.postMessage(JSON.stringify({OBJ:OBJ}))
 getFullDocument({
     season_number: OBJ.season_number,
     game_round_name: OBJ.game_round_name,
