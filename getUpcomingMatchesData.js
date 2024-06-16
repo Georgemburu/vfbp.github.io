@@ -1,4 +1,3 @@
-alert("HERE")
 function checkIfASelectorIsPresentInPage(page,selector){
     if(document.querySelector(selector_))return true;
     return false;
@@ -1200,7 +1199,7 @@ const newObj = Object.assign({},obj,{
     htft_Odds_Obj: htft_Odds_Obj
 });
 // alert(JSON.stringify(newObj))
-window.ReactNativeWebView.postMessage(JSON.stringify(newObj));
+// window.ReactNativeWebView.postMessage(JSON.stringify(newObj));
 // window.ReactNativeWebView.postMessage(JSON.stringify("FFIINALLXXX"));
 // window.ReactNativeWebView.postMessage(JSON.stringify("final 2"));
   // document.write("SEASON_NUMBER:"+SEASON_NUMBER)
