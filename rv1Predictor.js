@@ -1890,7 +1890,6 @@ async function getFullDocument({
 
 
 const OBJ = window.obj;
-window.ReactNativeWebView.postMessage("Window.obj")
 
 getFullDocument({
     season_number: OBJ.season_number,
