@@ -1734,8 +1734,7 @@ async function getStandingsForOneSeason(seasonNumber){
         //  * Save the standings results in file
         //  */
 
-        // // await saveJSON("standings_"+seasonNumber+".json",JSON.stringify(standingsResponseData,null,2));
-
+        
         // return standingsResponseData;
         
 
@@ -1891,6 +1890,8 @@ async function getFullDocument({
 
 
 const OBJ = window.obj;
+window.ReactNativeWebView.postMessage("Window.obj")
+window.ReactNativeWebView.postMessage(OBJ)
 getFullDocument({
     season_number: OBJ.season_number,
     game_round_name: OBJ.game_round_name,
@@ -1902,8 +1903,9 @@ getFullDocument({
     marketDataAndSectorsFor_HTFT: OBJ.htft_Odds_Obj
 }).then(fullDoc =>{
     console.log({fullDoc})
-    getRV1_Predictions(fullDoc)
     window.ReactNativeWebView.postMessage(fullDoc)
+
+    getRV1_Predictions(fullDoc)
 }).catch(e =>{
     console.log({e})
 })
