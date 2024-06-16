@@ -2805,79 +2805,80 @@ async function getRV1_Predictions(fullDocument){
         /**
         * @type {number[]}
         */
-    const sesonNumbersArray = [currentSeasonNumber]// season numbeer of seasons to include in the calculations
-    // let i = currentSeasonNumber;
-    // const lastPreviousSeasonNumberToInclude = currentSeasonNumber-NUM_OF_PREVIOUS_DOCS_TO_CALCULATE_ON;
-    // for(i;i>lastPreviousSeasonNumberToInclude;i--){
-    //     sesonNumbersArray.unshift(i)
-    // };
-    const getCertainSeasonNumbersRawResultsAndFormatAndGetStatsFromTheResults = async ()=>{
-        return await Promise.all(sesonNumbersArray.map(async (seasonNumberToPerfomStats)=>{
-            const {formatedRawResults,idToTeamObject} = await getFormatedRawResultsForOneSeason(seasonNumberToPerfomStats);
-            // get stats on the parsed raw results
-            const seasonStats = await parseStatsFromAParticularFormatedRawSeasonResultAndReturn({
-                formatedRawSeasonresult:formatedRawResults,
-                idToTeamsObject: idToTeamObject,
-                seasonNumber: seasonNumberToPerfomStats 
-            })
-            
-            return seasonStats;
-    
-        }))
-    }
-    
-    const ArrayOf_seasonStatsForOneSeasonAtATime = await getCertainSeasonNumbersRawResultsAndFormatAndGetStatsFromTheResults();
-    window.ReactNativeWebView.postMessage("(fn::ArrayOf_seasonStatsForOneSeasonAtATime)");
-    /**
-        * @type {import("./types_and_interfaces/RV1_Predictor_DB_Results_Interface").RV1_Predictor_DB_Results_Interface};
-        */
-    const RV1_Predictions = {
-        game_round_name: fullDocument.game_round_name,
-        play_time_name: fullDocument.play_time_name,
-        season_number: fullDocument.season_number,
-        timestamp: fullDocument.play_time_timestamp,
-        leagues_and_match_predictions: {
-            "English League":[],
-            "French League":[],
-            "German League":[],
-            "Italian League":[],
-            "Spanish League":[],
-            "Dutch League":[],
-            "Portuguese League":[],
-        }
-    }
-    
-    // const newLeguesAndMatchesWithPredictionsArrayObject = {
-    //     "English League": [],
-    //     "Spanish League":[],
-    //     "French League":[],
-    //     "Italian League":[],
-    //     "German League":[],
+        const sesonNumbersArray = [currentSeasonNumber]// season numbeer of seasons to include in the calculations
+        // let i = currentSeasonNumber;
+        // const lastPreviousSeasonNumberToInclude = currentSeasonNumber-NUM_OF_PREVIOUS_DOCS_TO_CALCULATE_ON;
+        // for(i;i>lastPreviousSeasonNumberToInclude;i--){
+        //     sesonNumbersArray.unshift(i)
+        // };
+        const getCertainSeasonNumbersRawResultsAndFormatAndGetStatsFromTheResults = async ()=>{
+            window.ReactNativeWebView.postMessage("(fn::getCertainSeasonNumbersRawResultsAndFormatAndGetStatsFromTheResults)");
+            return await Promise.all(sesonNumbersArray.map(async (seasonNumberToPerfomStats)=>{
+                const {formatedRawResults,idToTeamObject} = await getFormatedRawResultsForOneSeason(seasonNumberToPerfomStats);
+                // get stats on the parsed raw results
+                const seasonStats = await parseStatsFromAParticularFormatedRawSeasonResultAndReturn({
+                    formatedRawSeasonresult:formatedRawResults,
+                    idToTeamsObject: idToTeamObject,
+                    seasonNumber: seasonNumberToPerfomStats 
+                })
+                
+                return seasonStats;
         
-    // }
-    for(const leagueName in fullDocument.leagues_and_teams){
-        const teams = fullDocument.leagues_and_teams[leagueName];
-        for(const team of teams){
-            const {away_team_name,home_team_name} = team;
-            let v1Predictions = V1_Predictor({
-                awayTeamName: away_team_name,
-                homeTeamName: home_team_name,
-                gameRoundName: fullDocument.game_round_name,
-                leagueName: leagueName,
-                seasonNumber: fullDocument.season_number,
-                seasonStats: ArrayOf_seasonStatsForOneSeasonAtATime[0]
-    
-            });
-            RV1_Predictions.leagues_and_match_predictions[leagueName].push(v1Predictions)
+            }))
         }
-    }
-     window.ReactNativeWebView.postMessage("(end off RV1_Predictions)");
-    
-    
-    
-        // SAVE UPDATE DOC ON DB
-    console.log(JSON.stringify(RV1_Predictions))
-    return RV1_Predictions;
+        window.ReactNativeWebView.postMessage("(fn::in ArrayOf_seasonStatsForOneSeasonAtATime)");
+        const ArrayOf_seasonStatsForOneSeasonAtATime = await getCertainSeasonNumbersRawResultsAndFormatAndGetStatsFromTheResults();
+        window.ReactNativeWebView.postMessage("(fn::out ArrayOf_seasonStatsForOneSeasonAtATime)");
+        /**
+            * @type {import("./types_and_interfaces/RV1_Predictor_DB_Results_Interface").RV1_Predictor_DB_Results_Interface};
+            */
+        const RV1_Predictions = {
+            game_round_name: fullDocument.game_round_name,
+            play_time_name: fullDocument.play_time_name,
+            season_number: fullDocument.season_number,
+            timestamp: fullDocument.play_time_timestamp,
+            leagues_and_match_predictions: {
+                "English League":[],
+                "French League":[],
+                "German League":[],
+                "Italian League":[],
+                "Spanish League":[],
+                "Dutch League":[],
+                "Portuguese League":[],
+            }
+        }
+        
+        // const newLeguesAndMatchesWithPredictionsArrayObject = {
+        //     "English League": [],
+        //     "Spanish League":[],
+        //     "French League":[],
+        //     "Italian League":[],
+        //     "German League":[],
+            
+        // }
+        for(const leagueName in fullDocument.leagues_and_teams){
+            const teams = fullDocument.leagues_and_teams[leagueName];
+            for(const team of teams){
+                const {away_team_name,home_team_name} = team;
+                let v1Predictions = V1_Predictor({
+                    awayTeamName: away_team_name,
+                    homeTeamName: home_team_name,
+                    gameRoundName: fullDocument.game_round_name,
+                    leagueName: leagueName,
+                    seasonNumber: fullDocument.season_number,
+                    seasonStats: ArrayOf_seasonStatsForOneSeasonAtATime[0]
+        
+                });
+                RV1_Predictions.leagues_and_match_predictions[leagueName].push(v1Predictions)
+            }
+        }
+         window.ReactNativeWebView.postMessage("(end off RV1_Predictions)");
+        
+        
+        
+            // SAVE UPDATE DOC ON DB
+        console.log(JSON.stringify(RV1_Predictions))
+        return RV1_Predictions;
     }catch(e){
         window.ReactNativeWebView.postMessage(JSON.stringify(e));
     }
