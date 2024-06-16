@@ -3115,14 +3115,12 @@ getFullDocument({
     marketDataAndSectorsFor_BTTS: OBJ.btts_Odds_Obj,
     marketDataAndSectorsFor_DC: OBJ.dc_Odds_Obj,
     marketDataAndSectorsFor_HTFT: OBJ.htft_Odds_Obj
-}).then(fullDoc =>{
+}).then(async (fullDoc) =>{
     console.log({fullDoc})
     
-    window.ReactNativeWebView.postMessage(JSON.stringify(fullDoc))
-    getRV1_Predictions(fullDoc).then((rv1Preds)=>{
-        window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds));
-
-    })
+    window.ReactNativeWebView.postMessage(JSON.stringify("full doc found. Getting rv1 preds"))
+    const rv1Preds = await getRV1_Predictions(fullDoc)
+    window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds));
 
     
 }).catch(e =>{
