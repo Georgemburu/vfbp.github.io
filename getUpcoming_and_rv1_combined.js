@@ -3110,9 +3110,10 @@ getFullDocument({
     marketDataAndSectorsFor_HTFT: OBJ.htft_Odds_Obj
 }).then(fullDoc =>{
     console.log({fullDoc})
-    window.ReactNativeWebView.postMessage(fullDoc)
+    window.ReactNativeWebView.postMessage(JSON.stringify(fullDoc)));
 
-    getRV1_Predictions(fullDoc)
+    const rv1Preds = getRV1_Predictions(fullDoc)
+    window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds)));
 }).catch(e =>{
     console.log({e})
 })
