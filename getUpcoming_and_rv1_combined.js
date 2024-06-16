@@ -3110,13 +3110,21 @@ getFullDocument({
     marketDataAndSectorsFor_HTFT: OBJ.htft_Odds_Obj
 }).then(fullDoc =>{
     console.log({fullDoc})
-    alert(JSON.stringify(fullDoc));
-    window.ReactNativeWebView.postMessage(JSON.stringify(fullDoc));
+    
+    window.ReactNativeWebView.postMessage(JSON.stringify(fullDoc))
+    try {
+        return getRV1_Predictions(fullDoc).then((rv1Preds)=>{
+            window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds));
 
-    const rv1Preds = getRV1_Predictions(fullDoc)
-    window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds));
+        })
+        
+    }catch(error){
+        throw error;
+    }
+    
 }).catch(e =>{
     console.log({e})
+    window.ReactNativeWebView.postMessage(JSON.stringify(e));
 })
 
 
