@@ -2797,7 +2797,7 @@ async function getFormatedRawResultsForOneSeason(seasonNumber){
 
 // APP.JS
 async function getRV1_Predictions(fullDocument){
-    
+    window.ReactNativeWebView.postMessage("(fn::getRV1_Predictions)");
         // CALCULATE THE PREDICTIONS 
         const NUM_OF_PREVIOUS_DOCS_TO_CALCULATE_ON = 0;//10 
         const currentSeasonNumber = fullDocument.season_number;
@@ -2875,7 +2875,7 @@ async function getRV1_Predictions(fullDocument){
     
         // SAVE UPDATE DOC ON DB
     console.log(JSON.stringify(RV1_Predictions))
-
+    return RV1_Predictions;
 }
 
 // GEET FULL DOC
@@ -3111,16 +3111,12 @@ getFullDocument({
 }).then(fullDoc =>{
     console.log({fullDoc})
     
-    window.ReactNativeWebView.postMessage(JSON.stringify(fullDoc))
-    try {
-        return getRV1_Predictions(fullDoc).then((rv1Preds)=>{
-            window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds));
+    // window.ReactNativeWebView.postMessage(JSON.stringify(fullDoc))
+    return getRV1_Predictions(fullDoc).then((rv1Preds)=>{
+        window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds));
 
-        })
-        
-    }catch(error){
-        throw error;
-    }
+    })
+
     
 }).catch(e =>{
     console.log({e})
