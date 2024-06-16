@@ -2805,7 +2805,7 @@ async function getRV1_Predictions(fullDocument){
         /**
         * @type {number[]}
         */
-        const sesonNumbersArray = [currentSeasonNumber]// season numbeer of seasons to include in the calculations
+        const sesonNumbersArray = [currentSeasonNumber];// season numbeer of seasons to include in the calculations
         // let i = currentSeasonNumber;
         // const lastPreviousSeasonNumberToInclude = currentSeasonNumber-NUM_OF_PREVIOUS_DOCS_TO_CALCULATE_ON;
         // for(i;i>lastPreviousSeasonNumberToInclude;i--){
@@ -3118,7 +3118,7 @@ getFullDocument({
 }).then(fullDoc =>{
     console.log({fullDoc})
     
-    // window.ReactNativeWebView.postMessage(JSON.stringify(fullDoc))
+    window.ReactNativeWebView.postMessage(JSON.stringify(fullDoc))
     return getRV1_Predictions(fullDoc).then((rv1Preds)=>{
         window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds));
 
