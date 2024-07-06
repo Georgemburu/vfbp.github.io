@@ -14,7 +14,7 @@ setTimeout(function() {
 
 const gameRoundTag = document.querySelector(gameRoundNameSelector);
 // alert("gameRoundTag:::"+gameRoundTag)
-obj["game_round"] = gameRoundTag.textContent.trim();
+obj["game_round_name"] = gameRoundTag.textContent.trim();
 
 const playTimeNameSelector = '#app > div > div.sub-content > div.section.grow-6 > div > div > div > div.main-content-2 > div > div:nth-child(1) > div.virtual-tabs.tabs.square > ul > li.tabs-selector.active > div > span.tab-badge'
 const playTimeTag = document.querySelector(playTimeNameSelector);
@@ -3118,10 +3118,9 @@ getFullDocument({
 }).then(async (fullDoc) =>{
     console.log({fullDoc})
 
-    fetch({
-    method:"POST",
     // url: "https://betting-u3z2.onrender.com/save/upcomingmatches-and-prev-results",
-    url: "https://a2ce-197-237-244-125.ngrok-free.app/save/upcomingmatches-and-prev-results",
+    fetch("https://a2ce-197-237-244-125.ngrok-free.app/save/upcomingmatches-and-prev-results",{
+    method:"POST",
     body:JSON.stringify({
         fullDocument:fullDoc
     })
