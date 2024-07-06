@@ -3117,6 +3117,21 @@ getFullDocument({
     marketDataAndSectorsFor_HTFT: OBJ.htft_Odds_Obj
 }).then(async (fullDoc) =>{
     console.log({fullDoc})
+
+    fetch({
+    method:"POST",
+    // url: "https://betting-u3z2.onrender.com/save/upcomingmatches-and-prev-results",
+    url: "https://a2ce-197-237-244-125.ngrok-free.app/save/upcomingmatches-and-prev-results",
+    body:JSON.stringify({
+        fullDocument:fullDoc
+    })
+    }).then(res=>res.text()).then(res =>{
+        console.log(res)
+    }).catch(e =>{
+        console.log(e)
+    })
+
+    // Save full document to DB if not yet saved
     
     window.ReactNativeWebView.postMessage(JSON.stringify("full doc found. Getting rv1 preds"))
     const rv1Preds = await getRV1_Predictions(fullDoc)
