@@ -3132,10 +3132,10 @@ getFullDocument({
 
     // Save full document to DB if not yet saved
     
-    window.ReactNativeWebView.postMessage(JSON.stringify("full doc found. Getting rv1 preds"))
-    const rv1Preds = await getRV1_Predictions(fullDoc)
-    //alert(JSON.stringify(rv1Preds))
-    window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds));
+    window.ReactNativeWebView.postMessage(JSON.stringify({gotFullDoc:true}))
+    // const rv1Preds = await getRV1_Predictions(fullDoc)
+    // //alert(JSON.stringify(rv1Preds))
+    // window.ReactNativeWebView.postMessage(JSON.stringify(rv1Preds));
 
     
 }).catch(e =>{
