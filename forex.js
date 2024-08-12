@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Get Started with VFBPredictor</title>
+    <link rel="stylesheet" href="./nav.css"/>
     <style>
-        body {
+        .body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             padding: 10px;
@@ -48,28 +49,39 @@
     </style>
 </head>
 <body>
-    <h1><br>
-    How to get started making money and profits with VFBPredictor #<br>
-    </h1>
+    <main class="body">
+        <h1><br>
+        How to get started making money and profits with VFBPredictor #<br>
+        </h1>
+    
+        <div class="step">
+            <p><strong>Three Step process:</strong></p>
+            <p><strong>Step 1️⃣ :</strong> Create this two money-making Account</p>
+            <p><a href="https://affs.click/X6pyx">https://affs.click/X6pyx</a></p>
+            <p>and <a href="https://track.deriv.com/_7Nhiq0l96up0QQMXeD9If2Nd7ZgqdRLk/1/">https://track.deriv.com/_7Nhiq0l96up0QQMXeD9If2Nd7ZgqdRLk/1/</a></p>
+        </div>
+    
+        <div class="step">
+            <p><strong>Step 2️⃣ :</strong> Deposit 100 USD in the account</p>
+            <p>~ Minimum is 10 USD.<br>
+            ~ You deposit using your local deposit methods.</p>
+        </div>
+    
+        <div class="step">
+            <p><strong>Step 3️⃣ :</strong> Wait for me to post tips of when to buy or sell and make profits.</p>
+        </div>
+    
+        <div class="footer">
+            <p>➡️ Send a message to <strong>@Speet_Official</strong> if you want to automate the trading process by "copy trading".</p>
+        </div>
 
-    <div class="step">
-        <p><strong>Three Step process:</strong></p>
-        <p><strong>Step 1️⃣ :</strong> Create this money-making Account</p>
-        <p><a href="https://affs.click/X6pyx">https://affs.click/X6pyx</a></p>
-    </div>
+    </main>
 
-    <div class="step">
-        <p><strong>Step 2️⃣ :</strong> Deposit 100 USD in the account</p>
-        <p>~ Minimum is 10 USD.<br>
-        ~ You deposit using your local deposit methods.</p>
-    </div>
-
-    <div class="step">
-        <p><strong>Step 3️⃣ :</strong> Wait for me to post tips of when to buy or sell and make profits.</p>
-    </div>
-
-    <div class="footer">
-        <p>➡️ Send a message to <strong>@Speet_Official</strong> if you want to automate the trading process by "copy trading".</p>
+     <!-- First Bottom Navigation -->
+     <div class="bottom-nav">
+        <a href="./index.html">Home</a>
+        <a href="./aviator.html">Aviator</a>
+        <a href="./forex.html" class="active">Forex</a>
     </div>
 </body>
 </html>
