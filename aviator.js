@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aviator Betting Strategy</title>
+    <link rel="stylesheet" href="./nav.css"/>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,20 +53,25 @@
             margin-top: 20px;
             font-size: 18px;
             color: #333;
-            visibility: hidden;
+            /* visibility: hidden; */
             text-align: center;
+            background-color: yellow;
         }
-        h1 {
+        h1,p {
             font-size: 24px;
             text-align: center;
-            margin-bottom: 20px;
+            /* margin-bottom: 20px; */
+            margin: 0;
+            padding: 0;
         }
+    
     </style>
 </head>
 <body>
 
     <h1>Aviator Betting Strategy</h1>
     <p>Click the button that coresponds with the previous outcome in aviator</p>
+    <div id="tip" class="tip">Hello</div>
     <div class="button-container">
         <button class="blue" onclick="handleBlueClick()">Blue < 1.20x</button>
         <button class="blue" onclick="handleBlueOver1point20Click()">Blue > 1.20x</button>
@@ -73,7 +79,7 @@
         <button class="pink" onclick="handlePinkClick()">Pink</button>
     </div>
 
-    <div id="tip" class="tip"></div>
+    <div id="tip" class="tip">Hello</div>
 
     <script>
         function handleBlueClick() {
@@ -82,7 +88,7 @@
         }
 
         function handlePurpleClick() {
-            document.getElementById('tip').textContent = "Tip: Bet next till 2.50x or 3.00x";
+            document.getElementById('tip').textContent = "Tip: Bet next rounds till u get 2.50x or 3.00x";
             document.getElementById('tip').style.visibility = "visible";
         }
 
@@ -97,5 +103,11 @@
         }
     </script>
 
+     <!-- First Bottom Navigation -->
+     <div class="bottom-nav">
+        <a href="./index.html">Home</a>
+        <a href="./aviator.html" class="active">Aviator</a>
+        <a href="./forex.html">Forex</a>
+    </div>
 </body>
 </html>
