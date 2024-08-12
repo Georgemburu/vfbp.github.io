@@ -4,68 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VFBPredictor</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            justify-content: space-between;
-            background-color: #f8f9fa;
-        }
-        .content {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            text-align: center;
-        }
-        .bottom-nav {
-            display: flex;
-            justify-content: space-around;
-            background-color: #007bff;
-            padding: 10px 0;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
-            z-index: 1000;
-        }
-        .bottom-nav a {
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-            text-align: center;
-            padding: 10px;
-            flex: 1;
-        }
-        .bottom-nav a:hover {
-            background-color: #0056b3;
-        }
-        .second-nav {
-            display: flex;
-            justify-content: space-around;
-            background-color: #343a40;
-            padding: 10px 0;
-            position: fixed;
-            width: 100%;
-            bottom: 50px;
-            z-index: 1000;
-        }
-        .second-nav a {
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-            text-align: center;
-            padding: 10px;
-            flex: 1;
-        }
-        .second-nav a:hover {
-            background-color: #23272b;
-        }
-    </style>
+    <link rel="stylesheet" href="./nav.css"/>
+    <link rel="stylesheet" href="./theme.css"/>
 </head>
 <body>
 
@@ -76,9 +16,9 @@
 
     <!-- First Bottom Navigation -->
     <div class="bottom-nav">
-        <a href="https://georgemburu.github.io/vfbp.github.io">Home</a>
-        <a href="https://georgemburu.github.io/vfbp.github.io//aviator.html">Aviator</a>
-        <a href="https://georgemburu.github.io/vfbp.github.io//forex.html">Forex</a>
+        <a href="./index.html" class="active">Home</a>
+        <a href="./aviator.html">Aviator</a>
+        <a href="./forex.html">Forex</a>
     </div>
 
 </body>
