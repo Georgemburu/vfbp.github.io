@@ -82,24 +82,44 @@
     <div id="tip" class="tip">Hello</div>
 
     <script>
+        function clearAnimateTip(){
+            return new Promise((resolve)=>{
+                document.getElementById('tip').textContent = "Loading...";
+                const timeout = setTimeout(()=>{
+                    clearTimeout(timeout);
+                    resolve(true);
+                },1000)
+            })
+        }
         function handleBlueClick() {
-            document.getElementById('tip').textContent = "Tip: Bet next as 1.20x";
-            document.getElementById('tip').style.visibility = "visible";
+            clearAnimateTip().then(()=>{
+                document.getElementById('tip').textContent = "Tip: Bet next as 1.20x";
+                document.getElementById('tip').style.visibility = "visible";
+            }).catch(_ =>{});
         }
 
         function handlePurpleClick() {
-            document.getElementById('tip').textContent = "Tip: Bet next rounds till u get 2.50x or 3.00x";
-            document.getElementById('tip').style.visibility = "visible";
+            clearAnimateTip().then(()=>{
+                document.getElementById('tip').textContent = "Tip: Bet next rounds till u get 2.50x or 3.00x";
+                document.getElementById('tip').style.visibility = "visible";
+
+            }).catch(_ =>{});
         }
 
         function handleBlueOver1point20Click() {
-            document.getElementById('tip').textContent = "Tip: Don't bet";
-            document.getElementById('tip').style.visibility = "visible";
+            clearAnimateTip().then(()=>{
+                document.getElementById('tip').textContent = "Tip: Don't bet";
+                document.getElementById('tip').style.visibility = "visible";
+                
+            }).catch(_ =>{});
         }
 
         function handlePinkClick() {
-            document.getElementById('tip').textContent = "Tip: Don't bet";
-            document.getElementById('tip').style.visibility = "visible";
+            clearAnimateTip().then(()=>{
+                document.getElementById('tip').textContent = "Tip: Don't bet";
+                document.getElementById('tip').style.visibility = "visible";
+                
+            }).catch(_ =>{});
         }
     </script>
 
