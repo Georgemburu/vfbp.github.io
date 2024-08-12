@@ -6,6 +6,7 @@
     <title>VFBPredictor</title>
     <link rel="stylesheet" href="./nav.css"/>
     <link rel="stylesheet" href="./theme.css"/>
+    <script type="text/javascript" src="./navigation.js"> </script>
 </head>
 <body>
 
@@ -16,10 +17,35 @@
 
     <!-- First Bottom Navigation -->
     <div class="bottom-nav">
-        <a href="./index.html" class="active">Home</a>
-        <a href="./aviator.html">Aviator</a>
-        <a href="./forex.html">Forex</a>
+        <a href="./index.html" class="active" id="homeNav">Home</a>
+        <a href="./aviator.html" id="aviatorNav">Aviator</a>
+        <a href="./forex.html" id="forexNav">Forex</a>
     </div>
 
+    <script>
+        const homeNav = document.querySelector("#homeNav")
+        const aviatorNav = document.querySelector("#aviatorNav")
+        const forexNav = document.querySelector("#forexNav")
+        homeNav.addEventListener("click",(e)=>{
+            e.preventDefault()
+            const href = e.target.getAttribute("href");
+            fetch(href).then(res => res.text()).
+            then(text => document.write(text));
+            // e.target.remove()
+        })
+        aviatorNav.addEventListener("click",(e)=>{
+            e.preventDefault()
+            const href = e.target.getAttribute("href");
+            fetch(href).then(res => res.text()).
+            then(text => document.write(text));
+            // e.target.remove()
+        })
+        forexNav.addEventListener("click",(e)=>{
+            e.preventDefault()
+            const href = e.target.getAttribute("href");
+            fetch(href).then(res => res.text()).
+            then(text => document.write(text));
+        })
+    </script>
 </body>
 </html>
