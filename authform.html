@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activation Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            /* background-color: #f2f2f2; */
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .container h2 {
+            margin-bottom: 20px;
+            color: #333333;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid #cccccc;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .error {
+            color: #ff4d4d;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div>
+            <p>We’ve just turned a killer Aviator strategy into awesome software, and we need your support! For just $29.99, you can get in on the action and be one of the first to try out our new Aviator Predictor. Your support helps us keep creating cool tools. Thanks a bunch—let’s win together!
+
+                Launch Our Telegram app here.
+                https://t.me/VFBPredictor_Bot/app
+                
+                Payment Method: Wallet in Telegram
+                
+                to admin @Speet_Official
+                
+                #aviator #aviatorpredictor #aviatorStrategy</p>
+        </div>
+        <h2>Enter Activation Code</h2>
+        <form id="activationForm">
+            <div class="input-group">
+                <input type="text" id="activationCode" placeholder="Activation Code" required>
+            </div>
+            <button type="submit" class="btn">Activate</button>
+            <div class="error" id="error">Please enter a valid activation code.</div>
+        </form>
+    </div>
+
+    <script>
+        class ActivationCodeStore {
+            actualCodes = ["123ABCX09X"]
+            code = "";
+            set(code){
+                this.code = code;
+            }
+            getCode(){
+                return this.code;
+            }
+            deleteCode(){
+                this.set("");
+            }
+            isLoggedIn(){
+                return this.actualCodes.includes(this.code);
+            }
+            
+        };
+        const activationCodeStore = new ActivationCodeStore();
+        function sendMessageToParent(messageObj) {
+            // const messageObj = {
+            //     message,
+            //     action: "AUTH_CODE_VALUE"
+            // };
+            parent.postMessage(JSON.stringify(messageObj,null,2), '*');
+        }
+        document.getElementById('activationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const activationCode = document.getElementById('activationCode').value;
+            activationCodeStore.set(activationCode.trim());
+            if (activationCode.trim() === '' || activationCode.length < 6 || activationCodeStore.isLoggedIn()==false
+            
+            ) {
+                document.getElementById('error').style.display = 'block';
+            } else {
+                document.getElementById('error').style.display = 'none';
+                // Here you can add your activation code validation logic
+                alert('Activation successful!');
+                sendMessageToParent({
+                    login:true
+                });
+                document.getElementById('activationCode').value = ""
+            }
+        });
+    </script>
+
+</body>
+</html>
