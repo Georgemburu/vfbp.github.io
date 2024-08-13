@@ -89,11 +89,16 @@
             const xmAffLink = document.getElementById("xmAffLink");
             const derivAffLink = document.getElementById("derivAffLink");
 
-            aviatorNav.addEventListener("click",(e)=>{
+            xmAffLink.addEventListener("click",(e)=>{
                 e.preventDefault()
                 const href = e.target.getAttribute("href");
                 window.Telegram.WebApp.openLink(href)
-            })
+            });
+            derivAffLink.addEventListener("click",(e)=>{
+                e.preventDefault()
+                const href = e.target.getAttribute("href");
+                window.Telegram.WebApp.openLink(href)
+            });
         });
     </script>
 </body>
