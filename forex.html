@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Get Started with VFBPredictor</title>
     <link rel="stylesheet" href="./nav.css"/>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         .body {
             font-family: Arial, sans-serif;
@@ -57,8 +58,8 @@
         <div class="step">
             <p><strong>Three Step process:</strong></p>
             <p><strong>Step 1️⃣ :</strong> Create this two money-making Account</p>
-            <p><a href="https://affs.click/X6pyx">https://affs.click/X6pyx</a></p>
-            <p>and <a href="https://track.deriv.com/_7Nhiq0l96up0QQMXeD9If2Nd7ZgqdRLk/1/">https://track.deriv.com/_7Nhiq0l96up0QQMXeD9If2Nd7ZgqdRLk/1/</a></p>
+            <p><a href="https://affs.click/X6pyx" id="xmAffLink">https://affs.click/X6pyx</a></p>
+            <p>and <a href="https://track.deriv.com/_7Nhiq0l96up0QQMXeD9If2Nd7ZgqdRLk/1/" id="derivAffLink">https://track.deriv.com/_7Nhiq0l96up0QQMXeD9If2Nd7ZgqdRLk/1/</a></p>
         </div>
     
         <div class="step">
@@ -83,5 +84,17 @@
         <a href="./aviator.html">Aviator</a>
         <a href="./forex.html" class="active">Forex</a>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded",(_)=>{
+            const xmAffLink = document.getElementById("xmAffLink");
+            const derivAffLink = document.getElementById("derivAffLink");
+
+            aviatorNav.addEventListener("click",(e)=>{
+                e.preventDefault()
+                const href = e.target.getAttribute("href");
+                window.Telegram.WebApp.openLink(href)
+            })
+        });
+    </script>
 </body>
 </html>
