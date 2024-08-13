@@ -14,7 +14,7 @@
         <h1>Welcome to the VFBPedictor WebApp</h1>
         <p>Select a section from the bottom navigation.</p>
     </div>
-
+    <!-- <p id="message" style="z-index: 10000;"></p> -->
     <!-- First Bottom Navigation -->
     <div class="bottom-nav">
         <a href="./index.html" class="active" id="homeNav">Home</a>
@@ -22,7 +22,14 @@
         <a href="./forex.html" id="forexNav">Forex</a>
     </div>
 
+
+    <!-- <iframe src="./authform.html"></iframe> -->
+
     <script>
+        
+        
+        
+        
         const homeNav = document.querySelector("#homeNav")
         const aviatorNav = document.querySelector("#aviatorNav")
         const forexNav = document.querySelector("#forexNav")
@@ -30,7 +37,10 @@
             e.preventDefault()
             const href = e.target.getAttribute("href");
             fetch(href).then(res => res.text()).
-            then(text => document.write(text));
+            then(text => {
+                iframeForAuth.hide();
+                document.write(text);
+            });
             // e.target.remove()
         })
         aviatorNav.addEventListener("click",(e)=>{
@@ -38,13 +48,22 @@
             const href = e.target.getAttribute("href");
             fetch(href).then(res => res.text()).
             then(text => document.write(text));
+            // if(activationCodeStore.isLoggedIn()){
+
+            // }else {
+            //     // show a place to type in the code
+            //     iframeForAuth.show();
+            // }
             // e.target.remove()
         })
         forexNav.addEventListener("click",(e)=>{
             e.preventDefault()
             const href = e.target.getAttribute("href");
             fetch(href).then(res => res.text()).
-            then(text => document.write(text));
+            then(text => {
+                iframeForAuth.hide()
+                document.write(text);
+            });
         })
     </script>
 </body>
