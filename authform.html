@@ -78,16 +78,16 @@
 
     <div class="container">
         <div>
-            <p>We’ve just turned a killer Aviator strategy into awesome software, and we need your support! For just $29.99, you can get in on the action and be one of the first to try out our new Aviator Predictor. Your support helps us keep creating cool tools. Thanks a bunch—let’s win together!
-
-                Launch Our Telegram app here.
-                https://t.me/VFBPredictor_Bot/app
-                
-                Payment Method: Wallet in Telegram
-                
-                to admin @Speet_Official
-                
-                #aviator #aviatorpredictor #aviatorStrategy</p>
+            <!-- <h3>Aviator Betting Strategy</h3> -->
+            <p>
+                We’ve just turned a profit making Aviator strategy into awesome software, and we need your support! For just $29.99 a month, you can get in on the action and be one of the first to try out our new Aviator Predictor. Your support helps us keep creating cool tools. Thanks a bunch—let’s win together!
+            </p>
+            <h5>How to get activation code</h5>
+            <p>
+                Payment Method: Wallet in Telegram / Crypto /Mobile Money
+             </p>
+             <p>Chat admin <a href="https://t.me/Speet_Official" id="tgAdminAccountLink">@Speet_Official</a></p>
+            <p>#aviator #aviatorpredictor #aviatorStrategy</p>
         </div>
         <h2>Enter Activation Code</h2>
         <form id="activationForm">
@@ -100,6 +100,13 @@
     </div>
 
     <script>
+        const tgAdminAccountLink = document.getElementById("tgAdminAccountLink");
+        tgAdminAccountLink.addEventListener("click",(e)=>{
+            e.preventDefault()
+            const href = e.target.getAttribute("href");
+            window.Telegram.WebApp.openTelegramLink(href)
+        });
+
         class ActivationCodeStore {
             actualCodes = ["123ABCX09X","AUG18_AUG20"]
             code = "";
@@ -133,6 +140,8 @@
             
             ) {
                 document.getElementById('error').style.display = 'block';
+                
+                
             } else {
                 document.getElementById('error').style.display = 'none';
                 // Here you can add your activation code validation logic
@@ -143,6 +152,17 @@
                 document.getElementById('activationCode').value = ""
             }
         });
+
+
+
+        // ///////remove this
+        // document.getElementById('error').style.display = 'none'; 
+        //         sendMessageToParent({
+        //             login:true
+        //         });
+        //         document.getElementById('activationCode').value = "";
+
+        //         /////// en remove this
     </script>
 
 </body>
