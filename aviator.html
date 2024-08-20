@@ -64,6 +64,34 @@
             margin: 0;
             padding: 0;
         }
+
+        .recording-actions-button-container {
+            display: flex;
+            flex-direction: row;
+            margin-top: 20px;
+            /* margin-bottom: 10px; */
+        }
+        .recording-actions-button-container > button {
+            margin: 10px;
+        }
+        button.gray {
+            background-color: gainsboro;
+            color: rgb(167, 164, 164);
+        }
+        .btn-start-recording-active {
+            background-color: red !important;
+            color: rgb(42, 42, 42) !important;
+        }
+        button.clear-data {
+            background-color: gainsboro;
+            color: rgb(167, 164, 164);
+            border: none;
+        }
+        button.clear-data.has-data {
+            background-color: rgb(238, 220, 220);
+            color: rgb(92, 80, 80);
+            border: 1px solid gray;
+        }
     
     </style>
 </head>
@@ -71,56 +99,149 @@
 
     <h1>Aviator Betting Strategy</h1>
     <p>Click the button that coresponds with the previous outcome in aviator</p>
+    <div class="recording-actions-button-container">
+        <!-- <button class="gray"  onclick="handleStartLearningClick(this)">Start Learning</button> -->
+        <button class="clear-data" onclick="handleClearLearningClick(this)" id="clearLearnData">Clear Learned Data</button>
+    </div>
     <div id="tip" class="tip">Hello</div>
     <div class="button-container">
-        <button class="blue" onclick="handleBlueClick()">Blue < 1.20x</button>
+        <button class="blue" onclick="handleBlueUnder1point20Click()">Blue < 1.20x</button>
         <button class="blue" onclick="handleBlueOver1point20Click()">Blue > 1.20x</button>
         <button class="purple" onclick="handlePurpleClick()">Purple</button>
         <button class="pink" onclick="handlePinkClick()">Pink</button>
     </div>
 
     <div id="tip" class="tip">Hello</div>
+    <script type="text/javascript" src="./algo/HistoryRecord.js"></script>
 
-    <script>
+    <script >
+        // import {FlewAway,HistoryRecord} from './algo/HistoryRecord.js';
+
+        // const historyRecord = new HistoryRecord();
+        // historyRecord.addFlewAway(new FlewAway({
+        //     color:"BLUE",
+        //     multiple: 1.0,
+        //     previousId:historyRecord.previousBlockId,
+        //     multiple_segment:"< 1.20"
+        // }));
+// console.log({"historyRecord.previousBlockId":historyRecord.previousBlockId})
+// console.log({"historyRecord.stats":historyRecord.previousBlock.stats})
+
+        // let isRecording = false;
+        historyRecord.onStartRecording(()=>{
+            const clearLearnData_elem = document.getElementById("clearLearnData")
+            clearLearnData_elem.classList.add("has-data")
+        });
+        historyRecord.startLearning();
+        function handleClearLearningClick(t){
+            historyRecord.clear();
+            t.classList.remove("has-data")
+        }
+        function handleStartLearningClick(t){
+            // isRecording = !isRecording;
+            // console.log({t})
+            if(historyRecord.isLearning===false){
+                // document.getElementById('tip')
+                t.textContent = "Stop Learning";
+                t.classList.add("btn-start-recording-active");
+                historyRecord.startLearning();
+
+            }else {
+                t.textContent = "Start Learning";
+                t.classList.remove("btn-start-recording-active");
+                historyRecord.stopLearning();
+            }
+        }
+
         function clearAnimateTip(){
             return new Promise((resolve)=>{
                 document.getElementById('tip').textContent = "Loading...";
-                const timeout = setTimeout(()=>{
+                const timeout = setTimeout(()=>{ 
                     clearTimeout(timeout);
                     resolve(true);
                 },1000)
             })
         }
-        function handleBlueClick() {
+        function handleBlueUnder1point20Click() {
             clearAnimateTip().then(()=>{
-                document.getElementById('tip').textContent = "Tip: Bet next as 1.20x";
+                historyRecord.addFlewAway(new FlewAway({
+                    color:"BLUE",
+                    multiple: 0,
+                    previousId:historyRecord.previousBlockId,
+                    multiple_segment:"< 1.20"
+                }));
+                // document.getElementById('tip').textContent = "Tip: Bet next as 1.20x";
+                document.getElementById('tip').textContent = "Tip: "+historyRecord.previousBlock.getBetSignal();
                 document.getElementById('tip').style.visibility = "visible";
+                //remoove
+                console.log({"historyRecord.previousBlockId":historyRecord.previousBlockId})
+                console.log({"historyRecord.stats":historyRecord.previousBlock.stats})
+                //end remove
+                
             }).catch(_ =>{});
         }
 
         function handlePurpleClick() {
             clearAnimateTip().then(()=>{
-                document.getElementById('tip').textContent = "Tip: Bet next rounds till u get 2.50x or 3.00x";
+                historyRecord.addFlewAway(new FlewAway({
+                    color:"PURPLE",
+                    multiple: 0,
+                    previousId:historyRecord.previousBlockId,
+                    multiple_segment:""
+                }));
+                // document.getElementById('tip').textContent = "Tip: Bet next rounds till u get 2.50x or 3.00x";
+                document.getElementById('tip').textContent = "Tip: "+historyRecord.previousBlock.getBetSignal();;
                 document.getElementById('tip').style.visibility = "visible";
+                //remoove
+                console.log({"historyRecord.previousBlockId":historyRecord.previousBlockId})
+                console.log({"historyRecord.stats":historyRecord.previousBlock.stats})
+                //end remove
 
             }).catch(_ =>{});
         }
 
         function handleBlueOver1point20Click() {
             clearAnimateTip().then(()=>{
-                document.getElementById('tip').textContent = "Tip: Don't bet";
+                historyRecord.addFlewAway(new FlewAway({
+                    color:"BLUE",
+                    multiple: 0,
+                    previousId:historyRecord.previousBlockId,
+                    multiple_segment:"> 1.20"
+                }));
+                // document.getElementById('tip').textContent = "Tip: Don't bet";
+                document.getElementById('tip').textContent = "Tip: "+historyRecord.previousBlock.getBetSignal();
                 document.getElementById('tip').style.visibility = "visible";
+                //remoove
+                console.log({"historyRecord.previousBlockId":historyRecord.previousBlockId})
+                console.log({"historyRecord.stats":historyRecord.previousBlock.stats})
+                //end remove
                 
             }).catch(_ =>{});
         }
 
         function handlePinkClick() {
             clearAnimateTip().then(()=>{
-                document.getElementById('tip').textContent = "Tip: Don't bet";
+                historyRecord.addFlewAway(new FlewAway({
+                    color:"PINK",
+                    multiple: 0,
+                    previousId:historyRecord.previousBlockId,
+                    multiple_segment:""
+                }));
+                // get bet signal
+
+                // document.getElementById('tip').textContent = "Tip: Don't bet";
+                document.getElementById('tip').textContent = "Tip: "+historyRecord.previousBlock.getBetSignal();;
                 document.getElementById('tip').style.visibility = "visible";
+
+                //remoove
+                console.log({"historyRecord.previousBlockId":historyRecord.previousBlockId})
+                console.log({"historyRecord.stats":historyRecord.previousBlock.stats})
+                //end remove
                 
             }).catch(_ =>{});
         }
+
+
     </script>
 
      <!-- First Bottom Navigation -->
