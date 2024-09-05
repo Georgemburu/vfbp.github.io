@@ -332,8 +332,8 @@
                 this.iframe.style.margin = "auto";  
                 document.body.appendChild(this.iframe)
 
-                this.iframe.contentWindow.postMessage({value:"valuezzz",type:"ACTIVATION_CODE_PLACEHOLDER"})
-                console.log("this.iframe.contentWindow.postMessage:",this.iframe.contentWindow.postMessage)
+                // this.iframe.contentWindow.postMessage({value:"valuezzz",type:"ACTIVATION_CODE_PLACEHOLDER"})
+                // console.log("this.iframe.contentWindow.postMessage:",this.iframe.contentWindow.postMessage)
                 if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage ){
                     window.Telegram.WebApp.CloudStorage.getItem("AVIATOR-ACTIVATION-CODE",(error,value)=>{
                         if(!error){
