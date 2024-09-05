@@ -306,13 +306,13 @@ class FlewAway {
         let signal = BASIC_SIGNAL;
         const stats = this.#stats;
         //1. If number of consecutive: BLUE < 1.20 >=2  Dont bet because it might be a losing streak of low x
-        if(stats["number_of_consecutive: BLUE < 1.20"]>=2) signal = "Don't Bet";
+        if(stats["number_of_consecutive: BLUE < 1.20"]>=2) signal += "Don't Bet";
         //2. If number of consecuive color purtle >=2  Dont bet because next might be very low x
-        if(stats.number_of_consecutive_color_purple>=2) signal = "Don't Bet";
+        if(stats.number_of_consecutive_color_purple>=2) signal += "Don't Bet";
         //3. If number of spaces since: BLUE < 1.20 >=5 and this.#color === PURPLE bet forr smaller x
         if(stats.number_of_spaces_since_color_pink>=10) signal += " but Pink is close Bet 2.0x/ 1.20";
-        if(stats["number_of_spaces_since: BLUE < 1.20"]>=5 && this.#color==="PURPLE") signal = "Bet next as 1.20x";
-        if(signal=="Don't Bet" && stats["number_of_spaces_since: BLUE > 1.20"]>=5) signal = "Bet next as 1.50x"
+        if(stats["number_of_spaces_since: BLUE < 1.20"]>=5 && this.#color==="PURPLE") signal += "Bet next as 1.20x";
+        if(signal=="Don't Bet" && stats["number_of_spaces_since: BLUE > 1.20"]>=5) signal += "Bet next as 1.50x"
         return signal;
     }
 
@@ -449,4 +449,3 @@ const historyRecord = new HistoryRecord();
 // }));
 // console.log({"historyRecord.previousBlockId":historyRecord.previousBlockId})
 // console.log({"historyRecord.stats":historyRecord.previousBlock.stats})
-
