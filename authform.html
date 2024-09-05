@@ -101,6 +101,7 @@
     </div>
 
     <script>
+        document.getElementById('activationCode').value = new URLSearchParams(window.location.search).get("code")||"";
         const tgAdminAccountLink = document.getElementById("tgAdminAccountLink");
         tgAdminAccountLink.addEventListener("click",(e)=>{
             e.preventDefault()
@@ -131,7 +132,7 @@
             //     message,
             //     action: "AUTH_CODE_VALUE"
             // };
-            parent.postMessage(JSON.stringify(messageObj,null,2), '*');
+            parent.postMessage(messageObj, '*');
         }
         document.getElementById('activationForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -148,12 +149,37 @@
                 // Here you can add your activation code validation logic
                 alert('Activation successful!');
                 sendMessageToParent({
-                    login:true
+                    login:true,
+                    value: document.getElementById('activationCode').value
                 });
                 document.getElementById('activationCode').value = ""
             }
         });
 
+
+
+        window.addEventListener('message', function(event) {
+            // Check the origin of the message (for security)
+            // if (event.origin !== window.location.origin) {
+            //     return;
+            // }
+
+            // work with the received message
+            try {
+                console.log({"event.data":event.data})
+                const obj = event.data;//JSON.parse(event.data||"{}");
+                if(obj.type =="ACTIVATION_CODE_PLACEHOLDER"){
+                    // save value to cloud
+                    const obj_value = obj.value.trim()
+                    
+                    // show as input value
+                    document.getElementById('activationCode').value = obj_value;
+                }
+                // document.getElementById('message').innerText = "Received: " + message;
+            }catch(e){
+                console.log(e);
+            }
+        });
 
 
         // ///////remove this
@@ -165,6 +191,7 @@
 
         //         /////// en remove this
     </script>
+   
 
 </body>
 </html>
