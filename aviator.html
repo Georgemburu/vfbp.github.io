@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aviator Betting Strategy</title>
     <link rel="stylesheet" href="./nav.css"/>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -320,7 +321,7 @@
                 const iframe4Auth = document.getElementById("iframe4Auth");
                 // if(iframe4Auth) iframe4Auth.remove();
                 this.iframe = document.createElement("iframe");
-                this.iframe.setAttribute("src","./authform.html");
+                this.iframe.setAttribute("src","./authform.html?code=testcode");
                 this.iframe.setAttribute("id","iframe4Auth");
                 this.iframe.setAttribute("width","100%");
                 this.iframe.setAttribute("height","100%");
@@ -330,12 +331,27 @@
                 this.iframe.style.position = "absolute";  
                 this.iframe.style.margin = "auto";  
                 document.body.appendChild(this.iframe)
+
+                this.iframe.contentWindow.postMessage({value:"valuezzz",type:"ACTIVATION_CODE_PLACEHOLDER"})
+                console.log("this.iframe.contentWindow.postMessage:",this.iframe.contentWindow.postMessage)
+                if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage ){
+                    window.Telegram.WebApp.CloudStorage.getItem("AVIATOR-ACTIVATION-CODE",(error,value)=>{
+                        if(!error){
+                            // send value to IFRAME
+                            // this.iframe.postMessage(JSON.stringify(({value:value,type:"ACTIVATION_CODE_PLACEHOLDER"})))
+                            this.iframe.setAttribute("src","./authform.html?code="+value);
+                        }       
+                    })
+
+                }
             };
             hide(){this.iframe.remove()};
             
             
         }
         const iframeForAuth = new CreateIframeForAuthForm();
+
+        
         // iframeForAuth.show();
         window.addEventListener('message', function(event) {
             // Check the origin of the message (for security)
@@ -345,11 +361,21 @@
 
             // work with the received message
             try {
-                const obj = JSON.parse(event.data);
+                
+                const obj = event.data; //JSON.parse(event.data||"{}");
                 
                 if(obj.login){
+                    // save value to cloud
+                    const obj_value = obj.value.trim()
+                    
                     // hide iframe
                     iframeForAuth.hide()
+                    if(window.Telegram){
+                        window.Telegram.CloudStorage.setItem("AVIATOR-ACTIVATION-CODE",obj_value,(error,stored)=>{
+    
+                        });
+
+                    }
                 }
                 // document.getElementById('message').innerText = "Received: " + message;
             }catch(e){
