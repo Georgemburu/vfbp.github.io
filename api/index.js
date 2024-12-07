@@ -113,10 +113,25 @@ async function fetchBetpawa1X20Predictor_PredictionsJSON(){
     // console.log({respJson})
     return respJson; 
 } 
+async function fetchBetpawa1X20Predictor_AccuraciesJSON_WithPostReq(){
+    const headers = new Headers();
+    headers.append("Access-Control-Allow-Origin","*");
+     
+    const API_VERSION_NAME = "1.1.1.3"
+    /**
+     * @type {import("../../../../API_SERVER/API_Betpawa_Server/routes/predictors/one_x_two_odds_predictor_routes/api_v1.1.1.3/index").API_Get_OneXTwoPredictorStrategyAccuracies_JSON_Response_Interface}
+    */
+    const respJson = await performJSONFetch(`${SERVER_DOMAIN}/PREDICTOR_1X20_accuracies`,{
+        method:"POST"
+    }); 
+    // console.log({respJson})
+    return respJson; 
+}
+
 async function fetchBetpawa1X20Predictor_AccuraciesJSON(){
     const headers = new Headers();
     headers.append("Access-Control-Allow-Origin","*");
-    
+     
     const API_VERSION_NAME = "1.1.1.3"
     /**
      * @type {import("../../../../API_SERVER/API_Betpawa_Server/routes/predictors/one_x_two_odds_predictor_routes/api_v1.1.1.3/index").API_Get_OneXTwoPredictorStrategyAccuracies_JSON_Response_Interface}
