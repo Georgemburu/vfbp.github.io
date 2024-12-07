@@ -25,6 +25,7 @@ body {
     width: 100%;
     bottom: 0;
     z-index: 1000;
+    margin: 0;
 }
 .bottom-nav a {
     color: white;
