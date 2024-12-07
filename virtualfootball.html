@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Betpawa-Virtual Football</title>
+    <script src="./api/index.js"></script>
+    <link rel="stylesheet" href="./nav.css"/>
+    <link rel="stylesheet" href="./theme.css"/>
+    <script type="text/javascript" src="./navigation.js"> </script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        main {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        div {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        p span {
+            font-weight: bold;
+            color: #333;
+        }
+
+        div > div {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        div > div > div {
+            width: 5px;
+            height: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0ff0a9e;
+            color: #000;
+            font-weight: bold;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 12px;
+        }
+
+        div > div > div.W {
+            background-color: #4caf50;
+            color: #fff;
+        }
+
+        div > div > div.L {
+            background-color: #f44336;
+            color: #fff;
+        }
+        .history-section {
+            /* width:80vw; */
+        }
+        #historySlotsContainer {
+            overflow: scroll;
+        }
+        .WAIT {
+            animation: blink 1s infinite; /* Adds infinite repetition */
+        }
+        .BET {
+            background-color: yellow;
+            border: 8px solid green;
+            animation: blink 1s infinite; /* Adds infinite repetition */
+        }
+        @keyframes blink {
+            0% {
+                opacity: 1; /* Fully visible at the start */
+            }
+            50% {
+                opacity: 0; /* Fully invisible in the middle */
+            }
+            100% {
+                opacity: 1; /* Fully visible at the end */
+            }
+        }
+        .prediction-section {
+            display: flex;
+            flex-direction: column;
+        }
+        .loader-section {
+
+        }
+        .details-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+        }
+    </style>
+    <style>
+        /* Loader container */
+        .loader-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        /* Loader animation */
+        .loader {
+            display: flex;
+            gap: 5px;
+        }
+
+        .rectangle {
+            width: 20px;
+            height: 50px;
+            background-color: #4caf50;
+            animation: load 1s infinite ease-in-out;
+        }
+
+        .rectangle:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .rectangle:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .rectangle:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        /* Animation keyframes */
+        @keyframes load {
+            0%, 100% {
+                transform: scaleY(1);
+            }
+            50% {
+                transform: scaleY(0.5);
+            }
+        }
+        .hide {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <main>
+    <div>
+        Betpawa: Virtual Football
+    </div>
+    <div class="details-section">
+        <div class="prediction-section">
+            <!-- Teams -->
+            <p id="teamsTag">__ - __</p>
+            <!-- Prediction -->
+            <p>BTTS: <span id="bttsPredictionTag">__</span></p>
+            <!-- <p>Odds: <span id="oddsTag">__</span></p> -->
+            <p>Season: <span id="seasonNumberTag">___</span></p>
+            <p>Game Round: <span id="gameRoundTag">__</span></p>
+
+        </div>
+        <div id="loader-section">
+            <div class="loader .hide" id="loadingIndicatorTag">
+                <div class="rectangle"></div>
+                <div class="rectangle"></div>
+                <div class="rectangle"></div>
+                <div class="rectangle"></div>
+            </div>
+        </div>
+    </div>
+    <div class="history-section">
+        <!-- History -->
+        <p>History</p>
+        <div id="historySlotsContainer">
+            <!-- <div class="W">W</div>
+            <div class="W">W</div>
+            <div class="L">L</div>
+            <div class="W">W</div> -->
+        </div>
+    </div>
+    </main>
+    <div class="bottom-nav">
+        <a href="./index.html" id="homeNav">Home</a>
+        <a href="./virtualfootball.html" class="active"  id="aviatorNav">Betpawa</a>
+        <a href="./aviator.html" id="aviatorNav">Aviator</a>
+        <a href="./forex.html" id="forexNav">Forex</a>
+    </div>
+    <script>
+        //get the data
+        class HistoryPlay {
+            #cursor_bet_at_row_index = 0;
+            #history_record = [];
+            #bool_place_bets = true;
+            #id_key_of_recorded_history = 0;
+            getHistory(){return [...this.#history_record,(this.#bool_place_bets?"BET":"WAIT")]}///
+            getWhichRowToBetOn(){
+                if(this.#bool_place_bets===false){
+                    return -1;
+                }else {
+                    return this.#cursor_bet_at_row_index;
+                }
+            }
+            update(first_row_history_array,second_row_history_array,idKey){
+                if(this.#id_key_of_recorded_history===idKey)return;
+                this.#id_key_of_recorded_history = idKey;
+                this.#history_record = [];
+                for(let i=0; i<first_row_history_array.length;i++){
+                    const first_history_value = first_row_history_array[i];
+                    const second_history_value = second_row_history_array[i];
+
+                    // We start bet with the first row
+                    /**
+                     * Incase of l, we move alternate rows.
+                     * Incase of two l's , we pauuse an wait for a win on first row to continue
+                     * */
+                    // Reset from NO-BET
+                    // console.log({i,"i-1":first_row_history_array[i-1],first_history_value})
+                    if(i>0&& first_row_history_array[i-1]==="w" && this.#bool_place_bets===false){
+                        this.#bool_place_bets=true;
+                        this.#cursor_bet_at_row_index = 0;
+                        console.log("Reset SKIP")
+                    }
+                    if(this.#bool_place_bets===false){
+                        this.#history_record.push(
+                            "SKIP"
+                        );
+                        continue;
+                    }
+                    // Normal
+                    this.#history_record.push(
+                        this.#cursor_bet_at_row_index===0?
+                        first_history_value:second_history_value
+                    );
+                    
+                    if(this.#cursor_bet_at_row_index===0 && first_history_value==="l"){
+                        this.#cursor_bet_at_row_index=1;
+                    }else if(this.#cursor_bet_at_row_index===1 && second_history_value==="l"){
+                        this.#cursor_bet_at_row_index=0;
+                    }else{};
+                    if(this.#history_record.at(-1)==="l" && this.#history_record.at(-2)==="l")this.#bool_place_bets = false;
+                }
+            }
+        };
+
+        const historyPlay = new HistoryPlay();
+        console.log(window)
+        const loadingIndicatorTag = document.getElementById("loadingIndicatorTag");
+        const mainFn = async ()=>{
+            return new Promise((resolve,reject)=>{
+                let betpawa1X20Predictor_PredictionsJSON = null;
+                let betpawa1X20Predictor_AccuraciesJSON = null;
+            
+                utils.fetchBetpawa1X20Predictor_PredictionsJSON().then(async (resp) =>{
+                    console.log(resp)
+                    if(resp.success==false){
+                        throw new Error(resp.message)
+                    }
+                    betpawa1X20Predictor_PredictionsJSON = resp; 
+                    
+                    betpawa1X20Predictor_AccuraciesJSON = await utils.fetchBetpawa1X20Predictor_AccuraciesJSON()
+                    
+                }).catch(error=>{
+                    console.log({error});
+                    reject(error)
+                    
+                }).finally(()=>{
+
+                    try{
+                        console.log({
+                            betpawa1X20Predictor_PredictionsJSON,
+                            betpawa1X20Predictor_AccuraciesJSON
+                        });
+
+                        const {
+                            game_round_name,
+                            leagues_and_match_predictions,
+                            season_number
+                        } = betpawa1X20Predictor_PredictionsJSON.data;
+                        const firstTeamDataObj = leagues_and_match_predictions["English League"][0];
+                        const secondTeamDataObj = leagues_and_match_predictions["English League"][1];
+
+
+                        const firstTeamPredictions = firstTeamDataObj.english_league_predictions[0];
+                        const secondTeamPredictions = secondTeamDataObj.english_league_predictions[0];
+
+                        // Accuracies
+                        const firstTeamAccuracyPatternsArray = betpawa1X20Predictor_AccuraciesJSON.data.BTTS_EnglishLeague_RowIndex0_winsRecord.pattern;
+                        const secondTeamAccuracyPatternsArray = betpawa1X20Predictor_AccuraciesJSON.data.BTTS_EnglishLeague_RowIndex1_winsRecord.pattern;
+
+                        const idKey = `${season_number}-${game_round_name}`;
+                        historyPlay.update(firstTeamAccuracyPatternsArray,secondTeamAccuracyPatternsArray,idKey);
+
+                        console.table({
+                            firstTeamAccuracyPatternsArray,
+                            secondTeamAccuracyPatternsArray,
+                            history: historyPlay.getHistory()
+                        })
+
+                        const historySlotsContainer = document.getElementById("historySlotsContainer");
+                        const history_array = historyPlay.getHistory();
+                        historySlotsContainer.innerHTML = "";
+                        history_array.reverse().forEach((hist)=>{
+                            const div = document.createElement("div");
+                            div.textContent = hist;
+                            div.classList.add(hist.toUpperCase())
+                            historySlotsContainer.appendChild(div);
+                        })
+
+
+                        const teamsTag = document.getElementById("teamsTag");
+                        const bttsPredictionTag = document.getElementById("bttsPredictionTag");
+                        const oddsTag = document.getElementById("oddsTag");
+                        const seasonNumberTag = document.getElementById("seasonNumberTag")
+                        const gameRoundTag = document.getElementById("gameRoundTag");
+                        gameRoundTag.textContent = game_round_name;
+                        seasonNumberTag.textContent = season_number;
+                        const theRowToBetOn = historyPlay.getWhichRowToBetOn();
+                        console.log({
+                            firstTeamPredictions,
+                            secondTeamPredictions,
+                            firstTeamDataObj,
+                            theRowToBetOn
+                        })
+                        if(theRowToBetOn==-1){
+                            //No bet
+                        }else if(theRowToBetOn===0){
+                            //row 0
+                            teamsTag.textContent = `${firstTeamDataObj.home_team_name} - ${firstTeamDataObj.away_team_name}`
+                            bttsPredictionTag.textContent =  firstTeamPredictions.BTTS.Yes>=firstTeamPredictions.BTTS.No?"YES":"NO";
+
+                        }else if(theRowToBetOn===1){
+                            //row 1
+                            teamsTag.textContent = `${secondTeamDataObj.home_team_name} - ${secondTeamDataObj.away_team_name}`
+                            bttsPredictionTag.textContent =  secondTeamPredictions.BTTS.Yes>=secondTeamPredictions.BTTS.No?"YES":"NO";
+                        }else{}
+                        resolve()
+                    }catch(e){
+                        reject(e)
+                    }
+                    
+
+                })
+    
+            })
+        }
+        setInterval(() => {
+            loadingIndicatorTag.classList.remove("hide");
+            mainFn().finally(()=>{
+                loadingIndicatorTag.classList.add("hide"); 
+
+            })
+        }, 10000);
+        
+       </script>
+</body>
+</html>
