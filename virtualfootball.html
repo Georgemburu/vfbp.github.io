@@ -283,8 +283,11 @@
                         throw new Error(resp.message)
                     }
                     betpawa1X20Predictor_PredictionsJSON = resp; 
-                    await sleepAsync(10000)
-                    betpawa1X20Predictor_AccuraciesJSON = await utils.fetchBetpawa1X20Predictor_AccuraciesJSON()
+                    return await sleepAsync(10000).then(()=>{
+                        betpawa1X20Predictor_AccuraciesJSON = await utils.fetchBetpawa1X20Predictor_AccuraciesJSON()
+                        return;
+                    })
+                    
                     
                 }).catch(error=>{
                     console.log({error});
