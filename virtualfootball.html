@@ -219,6 +219,7 @@
             #history_record = [];
             #bool_place_bets = true;
             #id_key_of_recorded_history = 0;
+            #skip_this_number_of_bets = 0 ;
             getHistory(){return [...this.#history_record,(this.#bool_place_bets?"BET":"WAIT")]}///
             getWhichRowToBetOn(){
                 if(this.#bool_place_bets===false){
@@ -242,15 +243,18 @@
                      * */
                     // Reset from NO-BET
                     // console.log({i,"i-1":first_row_history_array[i-1],first_history_value})
-                    if(i>0&& first_row_history_array[i-1]==="w" && this.#bool_place_bets===false){
+                    if(i>0&& first_row_history_array[i-1]==="w" && this.#bool_place_bets===false &&
+                        this.#skip_this_number_of_bets<=0
+                    ){
                         this.#bool_place_bets=true;
                         this.#cursor_bet_at_row_index = 0;
                         console.log("Reset SKIP")
-                    }
-                    if(this.#bool_place_bets===false){
+                    }else{}
+                    if(this.#bool_place_bets===false || this.#skip_this_number_of_bets>0){
                         this.#history_record.push(
                             "SKIP"
                         );
+                        this.#skip_this_number_of_bets -=1;
                         continue;
                     }
                     // Normal
@@ -264,7 +268,10 @@
                     }else if(this.#cursor_bet_at_row_index===1 && second_history_value==="l"){
                         this.#cursor_bet_at_row_index=0;
                     }else{};
-                    if(this.#history_record.at(-1)==="l" && this.#history_record.at(-2)==="l")this.#bool_place_bets = false;
+                    if(this.#history_record.at(-1)==="l" && this.#history_record.at(-2)==="l" ){
+                        this.#bool_place_bets = false;
+                        this.#skip_this_number_of_bets = 3;
+                    }
                 }
             }
         };
