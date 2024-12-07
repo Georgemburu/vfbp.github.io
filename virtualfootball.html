@@ -283,7 +283,7 @@
                         throw new Error(resp.message)
                     }
                     betpawa1X20Predictor_PredictionsJSON = resp; 
-                    return await sleepAsync(10000).then(async()=>{
+                    return await sleepAsync(1000).then(async()=>{
                         betpawa1X20Predictor_AccuraciesJSON = await utils.fetchBetpawa1X20Predictor_AccuraciesJSON_WithPostReq()
                         return;
                     })
@@ -382,7 +382,7 @@
                 loadingIndicatorTag.classList.add("hide"); 
                 isLoading = false;
             })
-        }, 10000);
+        }, 30000);
         
        </script>
 </body>
