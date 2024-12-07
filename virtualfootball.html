@@ -199,6 +199,110 @@
         <a href="./forex.html" id="forexNav">Forex</a>
     </div>
     <script>
+        // DetectRRoundEnd
+        class DetectRoundEnd {
+            #allHistory = [];
+            #prevHist = [];
+            #flewAwayListeners = [];
+            indexForPreviousFlewAway = 0;
+            prev_prevFlewAway = 0;
+            prevFlewAway = 0;
+
+            isNew = false;
+            
+
+            
+            get history_data(){
+                return this.#allHistory;
+            };
+            #checkIfNewItemIsAddedInArray(oldArray,newArray){
+                //remove the expected new Item from the new Array
+                const newItem = newArray.shift();
+                
+                if(!newItem)return false;//No new Item
+                    if(oldArray.length===0)return true
+                const lengthOfEqualValues  = newArray.length<oldArray.length?newArray.length:oldArray.length;//Usee the smaller length
+                let hasNewValue = true;
+                for(let i =0; i<lengthOfEqualValues; i++){
+                    const value_ofNewArrray = newArray[i];
+                    const value_ofOldArrray = oldArray[i];
+                    if(value_ofNewArrray!==value_ofOldArrray){
+                    hasNewValue = false;
+                    }
+                }
+                //   console.log({
+                // 	newItem,
+                // 	oldArray,
+                // 	newArray,
+                // 	hasNewValue
+                //   })
+                return hasNewValue;
+                
+            }
+
+
+            newHistory(hist){
+                //this.#getNextInColumnPrediction = getNextInColumnPrediction;
+                this.isNew = false;
+                //console.log({hist,prevHist:this.#prevHist})
+                if(this.#prevHist.length==0){
+                    
+                    this.#prevHist = hist;
+                    this.#allHistory = hist;
+                    this.#emitFlewAway(this.#prevHist[this.indexForPreviousFlewAway]);
+                }else {
+                    // Note for newHist the valuue of inddex 0 is the new value.
+                    //remove the new value and the left arrray should match the previous array
+                    //const newHistArrayWitthIndex0_removed = [...hist].slice(1,);
+                    //const previousFlewAway = this.#prevHist[this.indexForPreviousFlewAway];
+                    const currentFlewAway = hist[this.indexForPreviousFlewAway];
+                    const newArray = [...hist];
+                    const oldArray = [...this.#prevHist];
+                    const hasNewValue = this.#checkIfNewItemIsAddedInArray(oldArray,newArray);
+                    if(hasNewValue){
+                        //this.#prevHist = hist;
+                        this.#prevHist.unshift(currentFlewAway);
+                        this.#allHistory.unshift(current_FlewAwayAt)
+                        this.#emitFlewAway(currentFlewAway);
+                    }else{
+                        this.#prevHist = hist;// might comment
+                        console.log("Round running")
+                        console.log("Updated: prevHist with hist")
+                    }
+                    
+                }
+            };
+            #emitFlewAway(current_FlewAwayAt){
+                console.log("Flew Away:",current_FlewAwayAt)
+                // add to GEMINI
+                if(this.prevFlewAway){
+                    
+                }// end to GEMINI
+                
+                this.prev_prevFlewAway = this.prevFlewAway;
+                this.prevFlewAway = current_FlewAwayAt;
+                
+                
+                this.isNew = true;
+                
+                
+                
+                this.#flewAwayListeners.forEach(cb =>{cb(this.prevFlewAway,this.#prevHist)});
+                ///----
+                //this.#flewAwayListeners.forEach(cb =>{cb(multiple,this.tip,this.cashoutAt,this.#getNextInColumnPrediction,this.#singleCashoutAt_Prediction)});
+
+                
+            };
+            addFlewAwayListener(cb){
+                this.#flewAwayListeners.push(cb)
+            }
+
+
+        }
+
+
+    </script>
+    <script>
         //get the data
         /**
          * 
@@ -220,6 +324,8 @@
             #bool_place_bets = true;
             #id_key_of_recorded_history = 0;
             #skip_this_number_of_bets = 0 ;
+            #first_row_history_array = [];
+            #second_row_history_array = [];
             getHistory(){return [...this.#history_record,(this.#bool_place_bets?"BET":"WAIT")]}///
             getWhichRowToBetOn(){
                 if(this.#bool_place_bets===false){
@@ -228,8 +334,17 @@
                     return this.#cursor_bet_at_row_index;
                 }
             }
-            update(first_row_history_array,second_row_history_array,idKey){
+            update(first_row_history_array_,second_row_history_array_,idKey){
                 if(this.#id_key_of_recorded_history===idKey)return;
+                if(this.#first_row_history_array.length==0){
+                    this.#first_row_history_array = first_row_history_array_;
+                    this.#second_row_history_array = second_row_history_array_;
+                }else {
+                    this.#first_row_history_array.push(first_row_history_array_.at(-1));
+                    this.#second_row_history_array.push(second_row_history_array_.at(-1));
+                }
+                const first_row_history_array = this.#first_row_history_array;
+                const second_row_history_array = this.#second_row_history_array;
                 this.#id_key_of_recorded_history = idKey;
                 this.#history_record = [];
                 for(let i=0; i<first_row_history_array.length;i++){
