@@ -284,7 +284,7 @@
                     }
                     betpawa1X20Predictor_PredictionsJSON = resp; 
                     return await sleepAsync(10000).then(async()=>{
-                        betpawa1X20Predictor_AccuraciesJSON = await utils.fetchBetpawa1X20Predictor_AccuraciesJSON()
+                        betpawa1X20Predictor_AccuraciesJSON = await utils.fetchBetpawa1X20Predictor_AccuraciesJSON_WithPostReq()
                         return;
                     })
                     //betpawa1X20Predictor_AccuraciesJSON = await utils.fetchBetpawa1X20Predictor_AccuraciesJSON()
