@@ -1,5 +1,5 @@
 //@ts-check
-const SERVER_DOMAIN = "https://simple-distinctly-eft.ngrok-free.app";//"http://78.159.114.104:3008";
+const SERVER_DOMAIN = "https://simple-distinctly-eft.ngrok-free.app";
 const ACTIVATION_CODES = {
     BETPAWA: {
         ONE_X_TWO_ODDS_PREDICTOR: {
@@ -37,7 +37,7 @@ async function performJSONFetch(url,param1){
         const response = await fetch(url,{
             headers: headers,
             body:param1 && param1.body?param1.body:undefined,
-            method:param1 && param1.method?param1.method:undefined,
+            method:param1 && param1.method?param1.method:undefined
         });
         respClone = response.clone();
         return await response.json();
@@ -122,7 +122,8 @@ async function fetchBetpawa1X20Predictor_AccuraciesJSON_WithPostReq(){
      * @type {import("../../../../API_SERVER/API_Betpawa_Server/routes/predictors/one_x_two_odds_predictor_routes/api_v1.1.1.3/index").API_Get_OneXTwoPredictorStrategyAccuracies_JSON_Response_Interface}
     */
     const respJson = await performJSONFetch(`${SERVER_DOMAIN}/PREDICTOR_1X20_accuracies`,{
-        method:"POST"
+        method:"POST",
+        body: ""
     }); 
     // console.log({respJson})
     return respJson; 
