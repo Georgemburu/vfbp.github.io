@@ -200,6 +200,20 @@
     </div>
     <script>
         //get the data
+        /**
+         * 
+         * @param {number} ms
+         * @returns {Promise<true>}
+         */
+        async function sleepAsync(ms){
+            console.log(`WAITING FOR ${ms}ms ${ms/1000}s ${(ms/1000)/60}m`)
+            return new Promise((resolve,reject)=>{
+                const timeout = setTimeout(()=>{
+                    clearTimeout(timeout)
+                    resolve(true)
+                },ms)
+            })
+        }
         class HistoryPlay {
             #cursor_bet_at_row_index = 0;
             #history_record = [];
@@ -269,7 +283,7 @@
                         throw new Error(resp.message)
                     }
                     betpawa1X20Predictor_PredictionsJSON = resp; 
-                    
+                    await sleepAsync(2000)
                     betpawa1X20Predictor_AccuraciesJSON = await utils.fetchBetpawa1X20Predictor_AccuraciesJSON()
                     
                 }).catch(error=>{
