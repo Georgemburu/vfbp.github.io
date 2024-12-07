@@ -1,5 +1,5 @@
 //@ts-check
-const SERVER_DOMAIN = "http://78.159.114.104:3008";
+const SERVER_DOMAIN = "https://3a81-78-159-114-104.ngrok-free.app";//"http://78.159.114.104:3008";
 const ACTIVATION_CODES = {
     BETPAWA: {
         ONE_X_TWO_ODDS_PREDICTOR: {
