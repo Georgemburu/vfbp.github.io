@@ -33,6 +33,7 @@ async function performJSONFetch(url,param1){
         const headers = new Headers();
         // headers.append("Access-Control-Allow-Origin","*");
         headers.append("Content-Type","application/json");
+        headers.append("ngrok-skip-browser-warning","1");
         
         const response = await fetch(url,{
             headers: headers,
