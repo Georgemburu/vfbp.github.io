@@ -358,6 +358,8 @@
             #skip_this_number_of_bets = 0 ;
             #first_row_history_array = [];
             #second_row_history_array = [];
+            get first_row_history_array(){return this.#first_row_history_array};
+            get second_row_history_array(){return this.#second_row_history_array}
             getHistory(){return [...this.#history_record,(this.#bool_place_bets?"BET":"WAIT")]}///
             getWhichRowToBetOn(){
                 if(this.#bool_place_bets===false){
@@ -491,8 +493,8 @@
                         historyPlay.update(firstTeamAccuracyPatternsArray,secondTeamAccuracyPatternsArray,idKey);
 
                         console.table({
-                            firstTeamAccuracyPatternsArray,
-                            secondTeamAccuracyPatternsArray,
+                            firstTeamAccuracyPatternsArray:historyPlay.first_row_history_array,
+                            secondTeamAccuracyPatternsArray:historyPlay.second_row_history_array,
                             history: historyPlay.getHistory()
                         })
 
