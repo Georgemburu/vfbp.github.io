@@ -351,6 +351,7 @@
             #NUMBER_OF_LOSSES_TO_HANDLE_AT_ONE_ROW_INDEX = 2;
             #current_number_of_losses_at_current_row = 0;
             #cursor_bet_at_row_index = 0;
+            #cursor_previous_bet_row_index = 0;
             #history_record = [];
             #bool_place_bets = false;
             #id_key_of_recorded_history = 0;
@@ -406,10 +407,11 @@
                     }
                     // Normal
                     this.#history_record.push(
-                        this.#cursor_bet_at_row_index===0?
+                        this.#cursor_previous_bet_row_index===0?
                         first_history_value:second_history_value
-                    );
+                    );// record the outcomee of the prrevious bet
                     
+                    // Calculate the next cursor row_index value
                     if(this.#cursor_bet_at_row_index===0 && first_history_value==="l"){
                         this.#current_number_of_losses_at_current_row +=1;
                         if(this.#current_number_of_losses_at_current_row > 
@@ -431,6 +433,8 @@
                         this.#bool_place_bets = false;
                         this.#skip_this_number_of_bets = 0;
                     }
+                    // Ending..
+                    this.#cursor_previous_bet_row_index = this.#cursor_bet_at_row_index;
                 }
             }
         };
