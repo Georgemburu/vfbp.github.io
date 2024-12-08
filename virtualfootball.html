@@ -157,6 +157,35 @@
     </style>
 </head>
 <body>
+    <div id="errorBanner" class="hide">
+        <p id="errorText"></p>
+    </div>
+    <script>
+        const errorBanner = document.getElementById("errorBanner");
+        const errorText = document.getElementById("errorText");
+        const styles = {
+            backgroundColor: "red",
+
+        }
+        Object.keys(styles).forEach((k)=>{
+            errorBanner.style[k] = styles[k];
+        })
+        class ErrorBannerClass {
+            show(errorMessage){
+                errorBanner.classList.remove("hide");
+                errorText.textContent = errorMessage;
+
+                setTimeout(()=>{
+                    this.hide();
+                },3000)
+            }
+            hide(){
+                errorBanner.classList.add("hide")
+            }
+        }
+        const errorBannerClass = new ErrorBannerClass();
+        
+    </script>
     <main>
     <div>
         Betpawa: Virtual Football
@@ -503,6 +532,9 @@
             mainFn().finally(()=>{
                 loadingIndicatorTag.classList.add("hide"); 
                 isLoading = false;
+                //errorBannerClass.show("Loaded");
+            }).catch((e)=>{
+                errorBannerClass.show(e.message);
             })
         }, 30000);
         
