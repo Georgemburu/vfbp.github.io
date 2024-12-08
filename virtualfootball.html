@@ -348,6 +348,8 @@
             })
         }
         class HistoryPlay {
+            #NUMBER_OF_LOSSES_TO_HANDLE_AT_ONE_ROW_INDEX = 2;
+            #current_number_of_losses_at_current_row = 0;
             #cursor_bet_at_row_index = 0;
             #history_record = [];
             #bool_place_bets = false;
@@ -377,9 +379,10 @@
                 this.#id_key_of_recorded_history = idKey;
                 this.#history_record = [];
                 for(let i=0; i<first_row_history_array.length;i++){
+                    
                     const first_history_value = first_row_history_array[i];
                     const second_history_value = second_row_history_array[i];
-
+                    console.log({i,first_history_value,second_history_value})
                     // We start bet with the first row
                     /**
                      * Incase of l, we move alternate rows.
@@ -408,9 +411,21 @@
                     );
                     
                     if(this.#cursor_bet_at_row_index===0 && first_history_value==="l"){
-                        this.#cursor_bet_at_row_index=1;
+                        this.#current_number_of_losses_at_current_row +=1;
+                        if(this.#current_number_of_losses_at_current_row > 
+                            this.#NUMBER_OF_LOSSES_TO_HANDLE_AT_ONE_ROW_INDEX
+                        ){
+                            this.#cursor_bet_at_row_index=1;
+                            this.#current_number_of_losses_at_current_row = 0;
+                        }
                     }else if(this.#cursor_bet_at_row_index===1 && second_history_value==="l"){
-                        this.#cursor_bet_at_row_index=0;
+                        this.#current_number_of_losses_at_current_row +=1;
+                        if(this.#current_number_of_losses_at_current_row > 
+                            this.#NUMBER_OF_LOSSES_TO_HANDLE_AT_ONE_ROW_INDEX
+                        ){
+                            this.#cursor_bet_at_row_index=0;
+                            this.#current_number_of_losses_at_current_row = 0;
+                        }
                     }else{};
                     if(this.#history_record.at(-1)==="l" && this.#history_record.at(-2)==="l" ){
                         this.#bool_place_bets = false;
@@ -493,8 +508,7 @@
                         const oddsTag = document.getElementById("oddsTag");
                         const seasonNumberTag = document.getElementById("seasonNumberTag")
                         const gameRoundTag = document.getElementById("gameRoundTag");
-                        gameRoundTag.textContent = game_round_name;
-                        seasonNumberTag.textContent = season_number;
+                        
                         const theRowToBetOn = historyPlay.getWhichRowToBetOn();
                         console.log({
                             firstTeamPredictions,
@@ -504,13 +518,28 @@
                         })
                         if(theRowToBetOn==-1){
                             //No bet
+                            // <!-- Teams -->
+                            // <p id="teamsTag">__ - __</p>
+                            // <!-- Prediction -->
+                            // <p>BTTS: <span id="bttsPredictionTag">__</span></p>
+                            // <!-- <p>Odds: <span id="oddsTag">__</span></p> -->
+                            // <p>Season: <span id="seasonNumberTag">___</span></p>
+                            // <p>Game Round: <span id="gameRoundTag">__</span></p>
+                            gameRoundTag.textContent = "__";
+                            seasonNumberTag.textContent = "____";
+                            teamsTag.textContent = "__ - __";
+                            bttsPredictionTag.textContent = "__"
                         }else if(theRowToBetOn===0){
                             //row 0
+                            gameRoundTag.textContent = game_round_name;
+                            seasonNumberTag.textContent = season_number;
                             teamsTag.textContent = `${firstTeamDataObj.home_team_name} - ${firstTeamDataObj.away_team_name}`
                             bttsPredictionTag.textContent =  firstTeamPredictions.BTTS.Yes>=firstTeamPredictions.BTTS.No?"YES":"NO";
 
                         }else if(theRowToBetOn===1){
                             //row 1
+                            gameRoundTag.textContent = game_round_name;
+                            seasonNumberTag.textContent = season_number;
                             teamsTag.textContent = `${secondTeamDataObj.home_team_name} - ${secondTeamDataObj.away_team_name}`
                             bttsPredictionTag.textContent =  secondTeamPredictions.BTTS.Yes>=secondTeamPredictions.BTTS.No?"YES":"NO";
                         }else{}
