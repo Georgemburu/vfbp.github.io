@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Betpawa-Virtual Football</title>
+    <title>Betpawa: Virtual Football</title>
     <script src="./api/index.js"></script>
     <link rel="stylesheet" href="./nav.css"/>
     <link rel="stylesheet" href="./theme.css"/>
     <script type="text/javascript" src="./navigation.js"> </script>
-    
     <style>
         body {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+        .hide {
+            display: none;
         }
         main {
             font-family: Arial, sans-serif;
@@ -23,6 +25,7 @@
         }
 
         div {
+        /* .details-section  div, .history-section  div { */
             background-color: #ffffff;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -40,14 +43,19 @@
             font-weight: bold;
             color: #333;
         }
-
-        div > div {
+        .details-section >div, .history-section >div {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .details-section div > div {
             display: flex;
             gap: 10px;
             margin-top: 10px;
         }
 
-        div > div > div {
+        /* div > div > div  { */
+        .W, .L , .WAIT, .BET{
             width: 5px;
             height: 5px;
             display: flex;
@@ -66,7 +74,7 @@
             color: #fff;
         }
 
-        div > div > div.L {
+        div > div > div.L  {
             background-color: #f44336;
             color: #fff;
         }
@@ -99,64 +107,27 @@
             display: flex;
             flex-direction: column;
         }
-        .loader-section {
-
-        }
+        
         .details-section {
             display: grid;
             grid-template-columns: 2fr 1fr;
         }
+        .bet-detail-section {
+            flex-direction: column;
+        }
     </style>
     <style>
-        /* Loader container */
+        /* loadding */
         .loader-section {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f9;
-        }
-
-        /* Loader animation */
-        .loader {
-            display: flex;
-            gap: 5px;
-        }
-
-        .rectangle {
-            width: 20px;
-            height: 50px;
-            background-color: #4caf50;
-            animation: load 1s infinite ease-in-out;
-        }
-
-        .rectangle:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .rectangle:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        .rectangle:nth-child(4) {
-            animation-delay: 0.6s;
-        }
-
-        /* Animation keyframes */
-        @keyframes load {
-            0%, 100% {
-                transform: scaleY(1);
-            }
-            50% {
-                transform: scaleY(0.5);
-            }
-        }
-        .hide {
-            display: none;
+            background-color: rgb(168, 168, 245);
+            text-align: center;
+            color: white;
         }
     </style>
+    
 </head>
 <body>
+    <!-- ERROR BANNER START -->
     <div id="errorBanner" class="hide">
         <p id="errorText"></p>
     </div>
@@ -186,393 +157,385 @@
         const errorBannerClass = new ErrorBannerClass();
         
     </script>
+     <!-- ERROR BANNER END -->
+    <!-- MAIN START -->
     <main>
-    <div>
-        Betpawa: Virtual Football
-    </div>
-    <div class="details-section">
-        <div class="prediction-section">
-            <!-- Teams -->
-            <p id="teamsTag">__ - __</p>
-            <!-- Prediction -->
-            <p>BTTS: <span id="bttsPredictionTag">__</span></p>
-            <!-- <p>Odds: <span id="oddsTag">__</span></p> -->
-            <p>Season: <span id="seasonNumberTag">___</span></p>
-            <p>Game Round: <span id="gameRoundTag">__</span></p>
-
+        <div>
+            Betpawa: Virtual Football
         </div>
-        <div id="loader-section">
-            <div class="loader .hide" id="loadingIndicatorTag">
-                <div class="rectangle"></div>
-                <div class="rectangle"></div>
-                <div class="rectangle"></div>
-                <div class="rectangle"></div>
+        <section id="loader" class="loader-section"></section>
+        <script>
+            class LoadingIndicator {
+                loadingElem = document.getElementById("loader");
+                #interval = null;
+                show(){
+                    this.loadingElem.classList.remove("hide");
+                    this.loadingElem.textContent = "Loading...";
+                    const text = "Loading..."
+                    this.#interval = setInterval(()=>{
+                        this.loadingElem.textContent = this.loadingElem.textContent.slice(0,this.loadingElem.textContent.length-1)||text;
+                    },250)
+                }
+                hide(){
+                    if(this.#interval)clearInterval(this.#interval)
+                    this.loadingElem.classList.add("hide")
+                }
+            }
+            const loadingIndicator = new LoadingIndicator();
+        </script>
+        <div class="details-section">
+            <div class="prediction-section">
+                <!-- Teams -->
+                <p id="teamsTag">__ - __</p>
+                <!-- Prediction -->
+                <p>BTTS: <span id="bttsPredictionTag">__</span></p>
+                <p>Odds: <span id="oddsTag">__</span></p>
+                <p>Season: <span id="seasonNumberTag">___</span></p>
+                <p>Game Round: <span id="gameRoundTag">__</span></p>
+    
+            </div>
+            <div class="bet-detail-section">
+                <section>
+                   <p>Capital: <span><input type="number" value="1000" id="capitalInput"/></span></p>
+                </section>
+               <section id="tooltip" class="tooltip"></section>
+               
             </div>
         </div>
-    </div>
-    <div class="history-section">
-        <!-- History -->
-        <p>History</p>
-        <div id="historySlotsContainer">
-            <!-- <div class="W">W</div>
-            <div class="W">W</div>
-            <div class="L">L</div>
-            <div class="W">W</div> -->
+     
+        <div class="history-section">
+            <!-- History -->
+            <p>History</p>
+            <div id="historySlotsContainer">
+                <!-- <div class="W">W</div>
+                <div class="W">W</div>
+                <div class="L">L</div>
+                <div class="W">W</div> -->
+            </div>
         </div>
-    </div>
     </main>
-    <div class="bottom-nav">
-        <a href="./index.html" id="homeNav">Home</a>
-        <a href="./virtualfootball.html" class="active"  id="aviatorNav">Betpawa</a>
-        <a href="./aviator.html" id="aviatorNav">Aviator</a>
-        <a href="./forex.html" id="forexNav">Forex</a>
-    </div>
-    <script>
-        // DetectRRoundEnd
-        class DetectRoundEnd {
-            #allHistory = [];
-            #prevHist = [];
-            #flewAwayListeners = [];
-            indexForPreviousFlewAway = 0;
-            prev_prevFlewAway = 0;
-            prevFlewAway = 0;
-
-            isNew = false;
-            
-
-            
-            get history_data(){
-                return this.#allHistory;
-            };
-            #checkIfNewItemIsAddedInArray(oldArray,newArray){
-                //remove the expected new Item from the new Array
-                const newItem = newArray.shift();
-                
-                if(!newItem)return false;//No new Item
-                    if(oldArray.length===0)return true
-                const lengthOfEqualValues  = newArray.length<oldArray.length?newArray.length:oldArray.length;//Usee the smaller length
-                let hasNewValue = true;
-                for(let i =0; i<lengthOfEqualValues; i++){
-                    const value_ofNewArrray = newArray[i];
-                    const value_ofOldArrray = oldArray[i];
-                    if(value_ofNewArrray!==value_ofOldArrray){
-                    hasNewValue = false;
-                    }
-                }
-                //   console.log({
-                // 	newItem,
-                // 	oldArray,
-                // 	newArray,
-                // 	hasNewValue
-                //   })
-                return hasNewValue;
-                
-            }
-
-
-            newHistory(hist){
-                //this.#getNextInColumnPrediction = getNextInColumnPrediction;
-                this.isNew = false;
-                //console.log({hist,prevHist:this.#prevHist})
-                if(this.#prevHist.length==0){
-                    
-                    this.#prevHist = hist;
-                    this.#allHistory = hist;
-                    this.#emitFlewAway(this.#prevHist[this.indexForPreviousFlewAway]);
-                }else {
-                    // Note for newHist the valuue of inddex 0 is the new value.
-                    //remove the new value and the left arrray should match the previous array
-                    //const newHistArrayWitthIndex0_removed = [...hist].slice(1,);
-                    //const previousFlewAway = this.#prevHist[this.indexForPreviousFlewAway];
-                    const currentFlewAway = hist[this.indexForPreviousFlewAway];
-                    const newArray = [...hist];
-                    const oldArray = [...this.#prevHist];
-                    const hasNewValue = this.#checkIfNewItemIsAddedInArray(oldArray,newArray);
-                    if(hasNewValue){
-                        //this.#prevHist = hist;
-                        this.#prevHist.unshift(currentFlewAway);
-                        this.#allHistory.unshift(current_FlewAwayAt)
-                        this.#emitFlewAway(currentFlewAway);
+    <!-- MAIN END -->
+     <!-- BOTTOM NAV -->
+        <div class="bottom-nav">
+            <a href="./index.html" id="homeNav">Home</a>
+            <a href="./virtualfootball.html" class="active"  id="aviatorNav">Betpawa</a>
+            <a href="./aviator.html" id="aviatorNav">Aviator</a>
+            <a href="./forex.html" id="forexNav">Forex</a>
+        </div>
+        <script>
+            function objectToHtml(obj) {
+                // Start with an empty HTML string
+                let html = "<div>";
+    
+                // Iterate over each property in the object
+                for (const key in obj) {
+                    if(typeof obj[key]==="object"){
+                        html+= objectToHtml(obj[key])
                     }else{
-                        this.#prevHist = hist;// might comment
-                        console.log("Round running")
-                        console.log("Updated: prevHist with hist")
+    
+                        if (obj.hasOwnProperty(key)) {
+                            html += `
+                                <p>
+                                    <strong>${key}:</strong> ${obj[key]}
+                                </p>
+                            `;
+                        }
+                    }
+                }
+    
+                // Close the root div
+                html += "</div>";
+    
+                // Return the HTML string
+                return html;
+            }
+    
+            // // Example usage
+            // const exampleObject = {
+            //     "Min Stake": "KSH 1",
+            //     "Stake After Tax": "KSH 0.88",
+            //     "Odds": "1.71",
+            //     "Potential Winnings": "KSH 0.71",
+            //     "WHT 20%": "- KSH 0.14",
+            //     "Payout": "KSH 1.45"
+            // };
+    
+            // const generatedHtml = objectToHtml(exampleObject);
+            // console.log(generatedHtml);
+    
+        </script>
+    <script>
+        // BETMATHS
+       class BetStakeMaths {
+            #initial_capital = 1000;
+            #initial_stake = 1;
+            #current_balance = 0;
+            #total_loss = 0;
+            #bet_placed = false;
+            #previous_stake = 0;
+            #previousOutcome_w_or_l = "w";
+            #previous_placed_bet_payout = 0;
+            constructor(){
+                this.#current_balance = this.#initial_capital;
+            }
+            getNextStakeForLowCashouts(previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake) {
+                console.log("(fn:this.getNextStakeForLowCashouts)")
+                if(previousOutcome_w_or_l==="w" ) return initialStake;
+                    // Set multiplier based on the cashout target
+                    const multiplier = cashOutAt;//1.50;
+                    const profitMargin = multiplier - 1;
+
+                    // If last round was a win, reset to base stake
+                    if (previousOutcome_w_or_l === "w") {
+                        return targetProfit / profitMargin; // Reset to the initial stake required for target profit
+                    }
+                    
+                    // If last round was a loss, calculate the next stake
+                    totalLoss += lastStake; // Update total loss by adding the last stakefuunct
+                    const nextStake = (totalLoss + targetProfit) / profitMargin;
+
+                    return nextStake;
+            };
+            getNextFibStake(previousFibStake, previousOutcome_w_or_l,initialStake){
+                console.log("(fn:this.getNextFibStake)")
+                    if(previousOutcome_w_or_l==="w" ) return initialStake;
+                    function getSum(a_,b_){return a_+b_};
+                    let a = 0;
+                    let b = 1;
+                    let next = getSum(a,b);
+                    while(true){
+                        if(next<=previousFibStake){
+                            a = b;
+                            b = next;
+                            next = getSum(a,b)
+                            
+                        }else {
+                            break;
+                        }
+                    }
+                    return next;
+                    
+                    
+                };
+            getNextStake({previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake}){
+                console.log("[method:getNextStake]",{previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake})
+                if(cashOutAt<2.50){
+                    //
+                    return this.getNextStakeForLowCashouts(previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake);
+                }else {
+                    //use Fibonacci
+                    const previousFibStake=lastStake;
+                    return this.getNextFibStake(previousFibStake, previousOutcome_w_or_l,initialStake);
+                }
+                
+            };
+            calculateBetDetailsMath(stake, odds) {
+                console.log("[method:calculateBetDetailsMath]",{stake,odds})
+                const stakeTaxRate = 0.12; // 12% tax on the stake
+                const winningsTaxRate = 0.20; // 20% tax on the winnings
+
+                // Minimum stake
+                const minStake = 1;
+
+                // Ensure stake is not less than the minimum
+                if (stake < minStake) {
+                    return `Min Stake is ${minStake}`;
+                }
+
+                // Stake after tax (12% deducted from the stake)
+                const stakeAfterTax = stake * (1 - stakeTaxRate);
+
+                // Potential winnings (stake after tax multiplied by odds, minus the stake)
+                const potentialWinnings = stakeAfterTax * odds - stakeAfterTax;
+
+                // Withholding tax on winnings (20% deducted from the winnings)
+                const wht = potentialWinnings * winningsTaxRate;
+
+                // Final payout (stake after tax + winnings - tax)
+                const payout = stakeAfterTax + potentialWinnings - wht;
+
+                // Format data as output
+                 
+                const obj =  {
+                    min_stake: minStake,
+                    stake_after_tax: parseFloat(stakeAfterTax.toFixed(2)),
+                    odds: parseFloat(odds.toFixed(2)),
+                    potential_winnings: parseFloat(potentialWinnings.toFixed(2)),
+                    WHT: parseFloat(wht.toFixed(2)),
+                    payout: parseFloat(payout.toFixed(2))
+                };
+                return obj.payout;
+            }
+
+            ////// PBLIC METHODS
+
+            placeBet({
+                odds,
+            }){
+                console.log("[method:placeBet]",{odds});
+                const stake = this.getNextStake({
+                    previousOutcome_w_or_l:this.#previousOutcome_w_or_l,
+                    cashOutAt: odds,
+                    initialStake: this.#initial_stake,
+                    lastStake: this.#previous_stake ,
+                    targetProfit: 1,
+                    totalLoss: this.#total_loss
+                })
+                console.log({stake})
+                const payout = this.calculateBetDetailsMath(stake,odds);
+                this.#current_balance -= stake;
+                this.#total_loss += stake;
+                console.log({total_loss:this.#total_loss})
+                this.#bet_placed = true;
+
+                this.#previous_stake  = stake;
+                this.#previous_placed_bet_payout = payout;
+                // console.log({stake,odds,payout});
+                return {
+                    stake,odds,payout,
+                    current_balance: this.#current_balance,
+                    total_loss: this.#total_loss
+                }
+            }
+            update(w_l_outcome){
+                console.log("[method:update]",{w_l_outcome})
+                if(this.#bet_placed===false)return;
+                const payout = this.#previous_placed_bet_payout;
+                console.log({payout})
+                if(w_l_outcome==="w"){
+                    this.#current_balance += payout;
+                    this.#total_loss -= payout;
+                    if(this.#total_loss<0){
+                        this.#total_loss = 0;
                     }
                     
                 }
-            };
-            #emitFlewAway(current_FlewAwayAt){
-                console.log("Flew Away:",current_FlewAwayAt)
-                // add to GEMINI
-                if(this.prevFlewAway){
-                    
-                }// end to GEMINI
-                
-                this.prev_prevFlewAway = this.prevFlewAway;
-                this.prevFlewAway = current_FlewAwayAt;
-                
-                
-                this.isNew = true;
-                
-                
-                
-                this.#flewAwayListeners.forEach(cb =>{cb(this.prevFlewAway,this.#prevHist)});
-                ///----
-                //this.#flewAwayListeners.forEach(cb =>{cb(multiple,this.tip,this.cashoutAt,this.#getNextInColumnPrediction,this.#singleCashoutAt_Prediction)});
-
-                
-            };
-            addFlewAwayListener(cb){
-                this.#flewAwayListeners.push(cb)
+                this.#bet_placed = false;
+                this.#previousOutcome_w_or_l = w_l_outcome;
             }
-
-
         }
-
-
+        // const betStakeMaths = new BetStakeMaths();
     </script>
     <script>
-        //get the data
-        /**
-         * 
-         * @param {number} ms
-         * @returns {Promise<true>}
-         */
-        async function sleepAsync(ms){
-            console.log(`WAITING FOR ${ms}ms ${ms/1000}s ${(ms/1000)/60}m`)
-            return new Promise((resolve,reject)=>{
-                const timeout = setTimeout(()=>{
-                    clearTimeout(timeout)
-                    resolve(true)
-                },ms)
-            })
-        }
-        class HistoryPlay {
-            #NUMBER_OF_LOSSES_TO_HANDLE_AT_ONE_ROW_INDEX = 2;
-            #current_number_of_losses_at_current_row = 0;
-            #cursor_bet_at_row_index = 0;
-            #cursor_previous_bet_row_index = 0;
-            #history_record = [];
-            #bool_place_bets = false;
-            #id_key_of_recorded_history = 0;
-            #skip_this_number_of_bets = 0 ;
-            #first_row_history_array = [];
-            #second_row_history_array = [];
-            get first_row_history_array(){return this.#first_row_history_array};
-            get second_row_history_array(){return this.#second_row_history_array}
-            getHistory(){return [...this.#history_record,(this.#bool_place_bets?"BET":"WAIT")]}///
-            getWhichRowToBetOn(){
-                if(this.#bool_place_bets===false){
-                    return -1;
-                }else {
-                    return this.#cursor_bet_at_row_index;
+        async function mainApp(){
+            try{
+                console.log("Running")
+                const betStakeMaths = new BetStakeMaths();
+                const pickeBetsJSON_resp = await utils.fetchBetpawaPickedBetsJSON_WithPostReq();
+                console.log(pickeBetsJSON_resp)
+                if(pickeBetsJSON_resp.success==false){
+                    throw new Error(pickeBetsJSON_resp.message);
                 }
-            }
-            update(first_row_history_array_,second_row_history_array_,idKey){
-                if(this.#id_key_of_recorded_history===idKey)return;
-                if(this.#first_row_history_array.length==0){
-                    this.#first_row_history_array = first_row_history_array_;
-                    this.#second_row_history_array = second_row_history_array_;
-                }else {
-                    this.#first_row_history_array.push(first_row_history_array_.at(-1));
-                    this.#second_row_history_array.push(second_row_history_array_.at(-1));
-                }
-                const first_row_history_array = this.#first_row_history_array;
-                const second_row_history_array = this.#second_row_history_array;
-                this.#id_key_of_recorded_history = idKey;
-                this.#history_record = [];
-                for(let i=0; i<first_row_history_array.length;i++){
-                    
-                    const first_history_value = first_row_history_array[i];
-                    const second_history_value = second_row_history_array[i];
-                    console.log({i,first_history_value,second_history_value})
-                    // We start bet with the first row
-                    /**
-                     * Incase of l, we move alternate rows.
-                     * Incase of two l's , we pauuse an wait for a win on first row to continue
-                     * */
-                    // Reset from NO-BET
-                    // console.log({i,"i-1":first_row_history_array[i-1],first_history_value})
-                    if(i>0&& first_row_history_array[i-1]==="w" && this.#bool_place_bets===false &&
-                        this.#skip_this_number_of_bets<=0
-                    ){
-                        this.#bool_place_bets=true;
-                        this.#cursor_bet_at_row_index = 0;
-                        console.log("Reset SKIP")
-                    }else{}
-                    if(this.#bool_place_bets===false || this.#skip_this_number_of_bets>0){
-                        this.#history_record.push(
-                            "SKIP"
-                        );
-                        this.#skip_this_number_of_bets -=1;
-                        continue;
+                const history_array = pickeBetsJSON_resp.data;
+                const {
+                    w_l_outcome,
+                    bet_on,
+                    /// Round
+                    game_round_name,
+                    season_number,
+                    request_idKey,
+                    row_index,
+                    // Teams
+                    home_team_name,
+                    away_team_name,
+                    odds,
+                    btts_prediction
+                } = history_array.at(-1);
+
+                const teamsTag = document.getElementById("teamsTag");
+                const bttsPredictionTag = document.getElementById("bttsPredictionTag");
+                const oddsTag = document.getElementById("oddsTag");
+                const seasonNumberTag = document.getElementById("seasonNumberTag")
+                const gameRoundTag = document.getElementById("gameRoundTag");
+
+                gameRoundTag.textContent = game_round_name;
+                seasonNumberTag.textContent = season_number;
+                teamsTag.textContent = home_team_name+"-"+away_team_name;
+                bttsPredictionTag.textContent = btts_prediction
+                oddsTag.textContent = odds;
+
+               
+                //HISTORY SLOT
+                const historySlotsContainer = document.getElementById("historySlotsContainer");
+                // const history_array = historyPlay.getHistory();
+                historySlotsContainer.innerHTML = "";
+                history_array.forEach((hist,i)=>{
+                     //  BET STAKING
+                    //  if(!hist.w_l_outcome)return;
+                     
+                     if(hist.w_l_outcome)betStakeMaths.update(hist.w_l_outcome,);
+                    if(hist.odds && hist.bet_on){
+                        const {stake,payout,current_balance,total_loss} = betStakeMaths.placeBet({odds:hist.odds});
+                        console.log({stake,odds,payout});
+                        hist.stake = stake.toFixed(2);
+                        hist.payout = payout.toFixed(2);
+                        hist.current_balance = current_balance.toFixed(2);
+                        hist.total_loss = total_loss.toFixed(2);
+                        // if(i==0){
+                        // }
                     }
-                    // Normal
-                    this.#history_record.push(
-                        this.#cursor_previous_bet_row_index===0?
-                        first_history_value:second_history_value
-                    );// record the outcomee of the prrevious bet
-                    
-                    // Calculate the next cursor row_index value
-                    if(this.#cursor_bet_at_row_index===0 && first_history_value==="l"){
-                        this.#current_number_of_losses_at_current_row +=1;
-                        if(this.#current_number_of_losses_at_current_row > 
-                            this.#NUMBER_OF_LOSSES_TO_HANDLE_AT_ONE_ROW_INDEX
-                        ){
-                            this.#cursor_bet_at_row_index=1;
-                            this.#current_number_of_losses_at_current_row = 0;
-                        }
-                    }else if(this.#cursor_bet_at_row_index===1 && second_history_value==="l"){
-                        this.#current_number_of_losses_at_current_row +=1;
-                        if(this.#current_number_of_losses_at_current_row > 
-                            this.#NUMBER_OF_LOSSES_TO_HANDLE_AT_ONE_ROW_INDEX
-                        ){
-                            this.#cursor_bet_at_row_index=0;
-                            this.#current_number_of_losses_at_current_row = 0;
-                        }
-                    }else{};
-                    if(this.#history_record.at(-1)==="l" && this.#history_record.at(-2)==="l" ){
-                        this.#bool_place_bets = false;
-                        this.#skip_this_number_of_bets = 0;
+                    if(!hist.w_l_outcome){//the upcoming match
+                        delete hist.game_round_name;
+                        delete hist.season_number;
+                        delete hist.request_idKey;
+                        delete hist.row_index;
+                        delete hist.home_team_name;
+                        delete hist.away_team_name;
+                        delete hist.odds;
+                        delete hist.btts_prediction
                     }
-                    // Ending..
-                    this.#cursor_previous_bet_row_index = this.#cursor_bet_at_row_index;
-                }
-            }
-        };
+                });
+                [...history_array].reverse().forEach((hist,i)=>{
+                    // if(i==0){
+                    //     hist.stake = stake;
+                    //     hist.payout = payout;
+                    //     hist.current_balance = current_balance;
+                    //     hist.total_loss = total_loss;
+                    // }
+                    const div = document.createElement("div");
+                    const text = hist.bet_on?(hist.w_l_outcome||"BET"):"SKIP"
+                    div.textContent = text;
+                    div.classList.add(text.toUpperCase())
+                    historySlotsContainer.appendChild(div);
+                    const newHist = {...hist};
+                    
+                    div.title = JSON.stringify(hist,null,2)
 
-        const historyPlay = new HistoryPlay();
-        console.log(window)
-        const loadingIndicatorTag = document.getElementById("loadingIndicatorTag");
-        const mainFn = async ()=>{
-            return new Promise((resolve,reject)=>{
-                let betpawa1X20Predictor_PredictionsJSON = null;
-                let betpawa1X20Predictor_AccuraciesJSON = null;
-            
-                utils.fetchBetpawa1X20Predictor_PredictionsJSON().then(async (resp) =>{
-                    console.log(resp)
-                    if(resp.success==false){
-                        throw new Error(resp.message)
+                    
+                    const tooltipStyles = {
                     }
-                    betpawa1X20Predictor_PredictionsJSON = resp; 
-                    return await sleepAsync(1000).then(async()=>{
-                        betpawa1X20Predictor_AccuraciesJSON = await utils.fetchBetpawa1X20Predictor_AccuraciesJSON_WithPostReq()
-                        return;
-                    })
-                    //betpawa1X20Predictor_AccuraciesJSON = await utils.fetchBetpawa1X20Predictor_AccuraciesJSON()
-                    
-                }).catch(error=>{
-                    console.log({error});
-                    reject(error)
-                    
-                }).finally(()=>{
+                    const toolTipDiv = document.getElementById('tooltip')
+                    console.log({toolTipDiv})
+                    Object.keys(tooltipStyles).forEach((ky)=>{
+                        toolTipDiv.style[ky] = tooltipStyles[ky];
+                    } )
 
-                    try{
-                        console.log({
-                            betpawa1X20Predictor_PredictionsJSON,
-                            betpawa1X20Predictor_AccuraciesJSON
-                        });
+                    div.addEventListener('click', (event) => {
+                        // Get the title attribute
+                        const title = div.getAttribute('title');
 
-                        const {
-                            game_round_name,
-                            leagues_and_match_predictions,
-                            season_number
-                        } = betpawa1X20Predictor_PredictionsJSON.data;
-                        const firstTeamDataObj = leagues_and_match_predictions["English League"][0];
-                        const secondTeamDataObj = leagues_and_match_predictions["English League"][1];
-
-
-                        const firstTeamPredictions = firstTeamDataObj.english_league_predictions[0];
-                        const secondTeamPredictions = secondTeamDataObj.english_league_predictions[0];
-
-                        // Accuracies
-                        const firstTeamAccuracyPatternsArray = betpawa1X20Predictor_AccuraciesJSON.data.BTTS_EnglishLeague_RowIndex0_winsRecord.pattern;
-                        const secondTeamAccuracyPatternsArray = betpawa1X20Predictor_AccuraciesJSON.data.BTTS_EnglishLeague_RowIndex1_winsRecord.pattern;
-
-                        const idKey = `${season_number}-${game_round_name}`;
-                        historyPlay.update(firstTeamAccuracyPatternsArray,secondTeamAccuracyPatternsArray,idKey);
-
-                        console.table({
-                            firstTeamAccuracyPatternsArray:historyPlay.first_row_history_array,
-                            secondTeamAccuracyPatternsArray:historyPlay.second_row_history_array,
-                            history: historyPlay.getHistory()
-                        })
-
-                        const historySlotsContainer = document.getElementById("historySlotsContainer");
-                        const history_array = historyPlay.getHistory();
-                        historySlotsContainer.innerHTML = "";
-                        history_array.reverse().forEach((hist)=>{
-                            const div = document.createElement("div");
-                            div.textContent = hist;
-                            div.classList.add(hist.toUpperCase())
-                            historySlotsContainer.appendChild(div);
-                        })
-
-
-                        const teamsTag = document.getElementById("teamsTag");
-                        const bttsPredictionTag = document.getElementById("bttsPredictionTag");
-                        const oddsTag = document.getElementById("oddsTag");
-                        const seasonNumberTag = document.getElementById("seasonNumberTag")
-                        const gameRoundTag = document.getElementById("gameRoundTag");
-                        
-                        const theRowToBetOn = historyPlay.getWhichRowToBetOn();
-                        console.log({
-                            firstTeamPredictions,
-                            secondTeamPredictions,
-                            firstTeamDataObj,
-                            theRowToBetOn
-                        })
-                        if(theRowToBetOn==-1){
-                            //No bet
-                            // <!-- Teams -->
-                            // <p id="teamsTag">__ - __</p>
-                            // <!-- Prediction -->
-                            // <p>BTTS: <span id="bttsPredictionTag">__</span></p>
-                            // <!-- <p>Odds: <span id="oddsTag">__</span></p> -->
-                            // <p>Season: <span id="seasonNumberTag">___</span></p>
-                            // <p>Game Round: <span id="gameRoundTag">__</span></p>
-                            gameRoundTag.textContent = "__";
-                            seasonNumberTag.textContent = "____";
-                            teamsTag.textContent = "__ - __";
-                            bttsPredictionTag.textContent = "__"
-                        }else if(theRowToBetOn===0){
-                            //row 0
-                            gameRoundTag.textContent = game_round_name;
-                            seasonNumberTag.textContent = season_number;
-                            teamsTag.textContent = `${firstTeamDataObj.home_team_name} - ${firstTeamDataObj.away_team_name}`
-                            bttsPredictionTag.textContent =  firstTeamPredictions.BTTS.Yes>=firstTeamPredictions.BTTS.No?"YES":"NO";
-
-                        }else if(theRowToBetOn===1){
-                            //row 1
-                            gameRoundTag.textContent = game_round_name;
-                            seasonNumberTag.textContent = season_number;
-                            teamsTag.textContent = `${secondTeamDataObj.home_team_name} - ${secondTeamDataObj.away_team_name}`
-                            bttsPredictionTag.textContent =  secondTeamPredictions.BTTS.Yes>=secondTeamPredictions.BTTS.No?"YES":"NO";
-                        }else{}
-                        resolve()
-                    }catch(e){
-                        reject(e)
-                    }
-                    
+                        // Show the title in the custom tooltip
+                        // toolTipDiv.textContent = title;
+                        toolTipDiv.innerHTML = objectToHtml(JSON.parse(title));
+                    });
+                    if(i==0)div.click();
 
                 })
-    
-            })
-        }
-        let isLoading = false;
-        setInterval(() => {
-            if(isLoading)return;
-            loadingIndicatorTag.classList.remove("hide");
-            isLoading = true;
-            mainFn().finally(()=>{
-                loadingIndicatorTag.classList.add("hide"); 
-                isLoading = false;
-                //errorBannerClass.show("Loaded");
-            }).catch((e)=>{
-                errorBannerClass.show(e.message);
-            })
-        }, 30000);
-        
-       </script>
+            }catch(e){
+                
+                throw e;
+            }
+        };
+        loadingIndicator.show()
+        setInterval(async()=>{
+            try{
+                loadingIndicator.show()
+                await mainApp();
+                loadingIndicator.hide()
+            }catch(error){
+                errorBannerClass.show(error.message)
+            }
+        },20000)
+    </script>
 </body>
 </html>
