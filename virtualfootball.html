@@ -197,6 +197,9 @@
             <div class="bet-detail-section">
                 <section>
                    <p>Capital: <span><input type="number" value="1000" id="capitalInput"/></span></p>
+                   <p>Minimum Stake: <span><input type="number" value="10" id="minimumStakeInput"/></span></p>
+                   <p>Profit per Bet: <span><input type="number" value="10" id="targetProfitPerBetInput"/></span></p>
+                   <button id="calculateBtn">Calculate</button>
                 </section>
                <section id="tooltip" class="tooltip"></section>
                
@@ -265,16 +268,40 @@
     
         </script>
     <script>
+        function getInitialCapital(){
+            return parseFloat(document.getElementById("capitalInput").value);
+        }
+        function getInitialStake(){
+            return parseFloat(document.getElementById("minimumStakeInput").value);
+        }
+        function getTargetProfitPerBet(){
+            return parseFloat(document.getElementById("targetProfitPerBetInput").value);
+        }
         // BETMATHS
        class BetStakeMaths {
-            #initial_capital = 1000;
-            #initial_stake = 1;
+            #initial_capital = getInitialCapital();
+            #initial_stake = getInitialStake();
+            #target_profit_per_bet = getTargetProfitPerBet();
             #current_balance = 0;
             #total_loss = 0;
             #bet_placed = false;
             #previous_stake = 0;
             #previousOutcome_w_or_l = "w";
             #previous_placed_bet_payout = 0;
+            //
+            #higest_total_loss_encountered = 0;
+            set_initialCapital(amount){
+                this.#initial_capital = amount;
+            }
+            set_initialStake(amount){
+                this.#initial_stake = amount;
+            }
+            set_targetProfitPerBet(amount){
+                this.#target_profit_per_bet = amount;
+            }
+            get initial_capital(){return this.#initial_capital}
+            get initial_stake(){return this.#initial_stake}
+            get target_profit_per_bet(){return this.#target_profit_per_bet}
             constructor(){
                 this.#current_balance = this.#initial_capital;
             }
@@ -335,7 +362,7 @@
                 const winningsTaxRate = 0.20; // 20% tax on the winnings
 
                 // Minimum stake
-                const minStake = 1;
+                const minStake = 0.1//1;
 
                 // Ensure stake is not less than the minimum
                 if (stake < minStake) {
@@ -378,7 +405,7 @@
                     cashOutAt: odds,
                     initialStake: this.#initial_stake,
                     lastStake: this.#previous_stake ,
-                    targetProfit: 1,
+                    targetProfit: this.#target_profit_per_bet,
                     totalLoss: this.#total_loss
                 })
                 console.log({stake})
@@ -394,7 +421,9 @@
                 return {
                     stake,odds,payout,
                     current_balance: this.#current_balance,
-                    total_loss: this.#total_loss
+                    total_loss: this.#total_loss,
+                    highest_total_loss: this.#higest_total_loss_encountered,
+                    minimum_stake: this.#initial_stake
                 }
             }
             update(w_l_outcome){
@@ -412,20 +441,35 @@
                 }
                 this.#bet_placed = false;
                 this.#previousOutcome_w_or_l = w_l_outcome;
+
+                //
+                if(this.#total_loss>this.#higest_total_loss_encountered){
+                    this.#higest_total_loss_encountered = this.#total_loss;
+                }
             }
         }
         // const betStakeMaths = new BetStakeMaths();
+        //capitalInput minimumStakeInput calculateBtn
+        
+        // const capitalInput = document.getElementById("#capitalInput");
+        // const minimumStakeInput = document.getElementById("#minimumStakeInput");
+        
     </script>
     <script>
-        async function mainApp(){
+        // MAIN
+        async function render(){
             try{
                 console.log("Running")
-                const betStakeMaths = new BetStakeMaths();
                 const pickeBetsJSON_resp = await utils.fetchBetpawaPickedBetsJSON_WithPostReq();
                 console.log(pickeBetsJSON_resp)
                 if(pickeBetsJSON_resp.success==false){
                     throw new Error(pickeBetsJSON_resp.message);
                 }
+                const betStakeMaths = new BetStakeMaths();
+                betStakeMaths.set_initialCapital(getInitialCapital())
+                betStakeMaths.set_initialStake(getInitialStake())
+                betStakeMaths.set_targetProfitPerBet(getTargetProfitPerBet())
+
                 const history_array = pickeBetsJSON_resp.data;
                 const {
                     w_l_outcome,
@@ -465,12 +509,16 @@
                      
                      if(hist.w_l_outcome)betStakeMaths.update(hist.w_l_outcome,);
                     if(hist.odds && hist.bet_on){
-                        const {stake,payout,current_balance,total_loss} = betStakeMaths.placeBet({odds:hist.odds});
+                        const {stake,payout,current_balance,total_loss,highest_total_loss,
+                            minimum_stake
+                        } = betStakeMaths.placeBet({odds:hist.odds});
                         console.log({stake,odds,payout});
                         hist.stake = stake.toFixed(2);
                         hist.payout = payout.toFixed(2);
                         hist.current_balance = current_balance.toFixed(2);
                         hist.total_loss = total_loss.toFixed(2);
+                        hist.highest_total_loss = highest_total_loss.toFixed(2);
+                        hist.minimum_stake = minimum_stake.toFixed(2)
                         // if(i==0){
                         // }
                     }
@@ -522,20 +570,48 @@
 
                 })
             }catch(e){
-                
                 throw e;
             }
-        };
+        }
+    </script>
+    <script>
+        // async function mainApp(){
+        //     try{
+        //         console.log("Running")
+                
+        //         // if(set){
+        //         // }
+                
+        //         render(pickeBetsJSON_resp.data)
+
+                
+                
+        //     }catch(e){
+                
+        //         throw e;
+        //     }
+        // };
+        const calculateBtn = document.getElementById("calculateBtn");
+        
+        calculateBtn.addEventListener("click",async (e)=>{
+            
+            await render();
+        });
         loadingIndicator.show()
-        setInterval(async()=>{
-            try{
-                loadingIndicator.show()
-                await mainApp();
-                loadingIndicator.hide()
-            }catch(error){
-                errorBannerClass.show(error.message)
-            }
-        },20000)
+        render().then(async ()=>{
+            loadingIndicator.hide()
+            setInterval(async()=>{
+                try{
+                    loadingIndicator.show()
+                    await render();
+                    loadingIndicator.hide()
+                }catch(error){
+                    errorBannerClass.show(error.message)
+                }
+            },20000)
+        }).catch(error=>{
+            errorBannerClass.show(error.message)
+        })
     </script>
 </body>
 </html>
