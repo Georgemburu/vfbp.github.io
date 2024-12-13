@@ -395,7 +395,7 @@
             }
 
             ////// PBLIC METHODS
-
+ 
             placeBet({
                 odds,
             }){
@@ -428,6 +428,10 @@
             }
             update(w_l_outcome){
                 console.log("[method:update]",{w_l_outcome})
+                // Highest Loss
+                if(this.#total_loss>this.#higest_total_loss_encountered){
+                    this.#higest_total_loss_encountered = this.#total_loss;
+                }
                 if(this.#bet_placed===false)return;
                 const payout = this.#previous_placed_bet_payout;
                 console.log({payout})
@@ -442,10 +446,7 @@
                 this.#bet_placed = false;
                 this.#previousOutcome_w_or_l = w_l_outcome;
 
-                //
-                if(this.#total_loss>this.#higest_total_loss_encountered){
-                    this.#higest_total_loss_encountered = this.#total_loss;
-                }
+                
             }
         }
         // const betStakeMaths = new BetStakeMaths();
@@ -507,20 +508,22 @@
                      //  BET STAKING
                     //  if(!hist.w_l_outcome)return;
                      
-                     if(hist.w_l_outcome)betStakeMaths.update(hist.w_l_outcome,);
-                    if(hist.odds && hist.bet_on){
+                    if(hist.odds && hist.bet_on===true){
+                        // if(hist.w_l_outcome)betStakeMaths.update(hist.w_l_outcome,);
                         const {stake,payout,current_balance,total_loss,highest_total_loss,
                             minimum_stake
                         } = betStakeMaths.placeBet({odds:hist.odds});
                         console.log({stake,odds,payout});
                         hist.stake = stake.toFixed(2);
                         hist.payout = payout.toFixed(2);
-                        hist.current_balance = current_balance.toFixed(2);
+                        hist.current_balance = current_balance.toFixed(2);//This is currrent balance after stake is substracted and previous payout is not added yet
                         hist.total_loss = total_loss.toFixed(2);
                         hist.highest_total_loss = highest_total_loss.toFixed(2);
                         hist.minimum_stake = minimum_stake.toFixed(2)
                         // if(i==0){
                         // }
+                        // This is because the bet alreaddy took place so just update it here.
+                        if(hist.w_l_outcome)betStakeMaths.update(hist.w_l_outcome,);
                     }
                     if(!hist.w_l_outcome){//the upcoming match
                         delete hist.game_round_name;
