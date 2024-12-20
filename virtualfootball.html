@@ -417,7 +417,7 @@
                 let {diff_stakeAfterTax_and_stakeBeforeTax:diff_stakeAfterTax_and_stakeBeforeTax1} = this.calculateBetDetailsMath(stake,odds)
                 let {diff_stakeAfterTax_and_stakeBeforeTax:diff_stakeAfterTax_and_stakeBeforeTax2} = this.calculateBetDetailsMath(stake+diff_stakeAfterTax_and_stakeBeforeTax1,odds)
                 stake = stake+diff_stakeAfterTax_and_stakeBeforeTax1+diff_stakeAfterTax_and_stakeBeforeTax2;
-                const {payout} = calculateBetDetailsMath(stake,odds);
+                const {payout} = this.calculateBetDetailsMath(stake,odds);
                 // END
                 // payout = this.calculateBetDetailsMath(stake,odds);
                 this.#current_balance -= stake;
