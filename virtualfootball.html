@@ -380,18 +380,20 @@
 
                 // Final payout (stake after tax + winnings - tax)
                 const payout = stakeAfterTax + potentialWinnings - wht;
-
+                const stake_after_tax = parseFloat(stakeAfterTax.toFixed(2));
                 // Format data as output
-                 
+                const diff_stakeAfterTax_and_stakeBeforeTax = stake - stake_after_tax;
+
                 const obj =  {
                     min_stake: minStake,
-                    stake_after_tax: parseFloat(stakeAfterTax.toFixed(2)),
+                    stake_after_tax,
                     odds: parseFloat(odds.toFixed(2)),
                     potential_winnings: parseFloat(potentialWinnings.toFixed(2)),
                     WHT: parseFloat(wht.toFixed(2)),
-                    payout: parseFloat(payout.toFixed(2))
+                    payout: parseFloat(payout.toFixed(2)),
+                    diff_stakeAfterTax_and_stakeBeforeTax
                 };
-                return obj.payout;
+                return obj;
             }
 
             ////// PBLIC METHODS
@@ -400,16 +402,24 @@
                 odds,
             }){
                 console.log("[method:placeBet]",{odds});
-                const stake = this.getNextStake({
+                let stake = this.getNextStake({
                     previousOutcome_w_or_l:this.#previousOutcome_w_or_l,
                     cashOutAt: odds,
                     initialStake: this.#initial_stake,
                     lastStake: this.#previous_stake ,
                     targetProfit: this.#target_profit_per_bet,
                     totalLoss: this.#total_loss
-                })
+                });
                 console.log({stake})
-                const payout = this.calculateBetDetailsMath(stake,odds);
+                // let {payout,diff_stakeAfterrTax_and_stakeBeforeTax} = this.calculateBetDetailsMath(stake,odds);
+                //ADDED FOR ADDING A PADDING FOR DEALING WWITH TAX ON STAKES AND PAYOUTS
+                // let stake = 10, odds = 1.5;
+                let {diff_stakeAfterTax_and_stakeBeforeTax:diff_stakeAfterTax_and_stakeBeforeTax1} = this.calculateBetDetailsMath(stake,odds)
+                let {diff_stakeAfterTax_and_stakeBeforeTax:diff_stakeAfterTax_and_stakeBeforeTax2} = this.calculateBetDetailsMath(stake+diff_stakeAfterTax_and_stakeBeforeTax1,odds)
+                stake = stake+diff_stakeAfterTax_and_stakeBeforeTax1+diff_stakeAfterTax_and_stakeBeforeTax2;
+                const {payout} = calculateBetDetailsMath(stake,odds);
+                // END
+                // payout = this.calculateBetDetailsMath(stake,odds);
                 this.#current_balance -= stake;
                 this.#total_loss += stake;
                 console.log({total_loss:this.#total_loss})
