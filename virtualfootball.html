@@ -462,7 +462,7 @@
 
 
 
-                const pickeBetsJSON_resp = (await utils.fetchBetpawaPickedBetsJSON_WithPostReq())[league];//spanish
+                const pickeBetsJSON_resp = (await utils.fetchBetpawaPickedBetsJSON_WithPostReq());
                 console.log(pickeBetsJSON_resp)
                 if(pickeBetsJSON_resp.success==false){
                     throw new Error(pickeBetsJSON_resp.message);
@@ -473,7 +473,7 @@
                 // betStakeMaths.set_initialStake(getInitialStake())
                 // betStakeMaths.set_targetProfitPerBet(getTargetProfitPerBet())
                 
-                const history_array = pickeBetsJSON_resp.data;
+                const history_array = pickeBetsJSON_resp.data[league];//spanish;
                 const {
                     w_l_outcome,
                     bet_on,
