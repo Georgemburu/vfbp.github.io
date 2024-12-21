@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Betpawa: Virtual Football</title>
     <script src="./api/index.js"></script>
-    <link rel="stylesheet" href="./nav.css"/>
+    
     <link rel="stylesheet" href="./theme.css"/>
-    <script type="text/javascript" src="./navigation.js"> </script>
+    
     <style>
         body {
             margin: 0;
@@ -160,7 +160,7 @@
      <!-- ERROR BANNER END -->
     <!-- MAIN START -->
     <main>
-        <div>
+        <div id="titleBar">
             Betpawa: Virtual Football
         </div>
         <section id="loader" class="loader-section"></section>
@@ -220,55 +220,7 @@
         </div>
     </main>
     <!-- MAIN END -->
-     <!-- BOTTOM NAV -->
-        <div class="bottom-nav">
-            <a href="./index.html" id="homeNav">Home</a>
-            <a href="./virtualfootball.html" class="active"  id="aviatorNav">Betpawa</a>
-            <a href="./aviator.html" id="aviatorNav">Aviator</a>
-            <a href="./forex.html" id="forexNav">Forex</a>
-        </div>
-        <script>
-            function objectToHtml(obj) {
-                // Start with an empty HTML string
-                let html = "<div>";
     
-                // Iterate over each property in the object
-                for (const key in obj) {
-                    if(typeof obj[key]==="object"){
-                        html+= objectToHtml(obj[key])
-                    }else{
-    
-                        if (obj.hasOwnProperty(key)) {
-                            html += `
-                                <p>
-                                    <strong>${key}:</strong> ${obj[key]}
-                                </p>
-                            `;
-                        }
-                    }
-                }
-    
-                // Close the root div
-                html += "</div>";
-    
-                // Return the HTML string
-                return html;
-            }
-    
-            // // Example usage
-            // const exampleObject = {
-            //     "Min Stake": "KSH 1",
-            //     "Stake After Tax": "KSH 0.88",
-            //     "Odds": "1.71",
-            //     "Potential Winnings": "KSH 0.71",
-            //     "WHT 20%": "- KSH 0.14",
-            //     "Payout": "KSH 1.45"
-            // };
-    
-            // const generatedHtml = objectToHtml(exampleObject);
-            // console.log(generatedHtml);
-    
-        </script>
     <script>
         function getInitialCapital(){
             return parseFloat(document.getElementById("capitalInput").value);
@@ -496,9 +448,21 @@
     <script>
         // MAIN
         async function render(){
-            try{
+            try{ 
                 console.log("Running")
-                const pickeBetsJSON_resp = await utils.fetchBetpawaPickedBetsJSON_WithPostReq();
+                //Get League Name
+                // Get the URL query parameters
+                const params = new URLSearchParams(window.location.search);
+
+                // Extract the value of the "value" parameter
+                const league = params.get('league');
+
+                ///Set titlee
+                document.getElementById("titleBar").textContent = `${league} League`;
+
+
+
+                const pickeBetsJSON_resp = (await utils.fetchBetpawaPickedBetsJSON_WithPostReq())[league];//spanish
                 console.log(pickeBetsJSON_resp)
                 if(pickeBetsJSON_resp.success==false){
                     throw new Error(pickeBetsJSON_resp.message);
@@ -785,7 +749,7 @@
                 console.log(e);
             }
         });
-        iframeForAuth.show();
+        // iframeForAuth.show();
         // if(activationCodeStore.isLoggedIn()){
         //     iframeForAuth.hide();
         //     console.log("activationCodeStore.isLoggedIn():",activationCodeStore.isLoggedIn())
