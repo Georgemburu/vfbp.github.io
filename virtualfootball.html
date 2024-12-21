@@ -199,6 +199,8 @@
                    <p>Capital: <span><input type="number" value="1000" id="capitalInput"/></span></p>
                    <p>Minimum Stake: <span><input type="number" value="10" id="minimumStakeInput"/></span></p>
                    <p>Profit per Bet: <span><input type="number" value="10" id="targetProfitPerBetInput"/></span></p>
+                   <p>stakeTaxRate: <span><input type="decimal" value="0.12" id="stakeTaxRateINPUT"/></span></p>
+                   <p>WHT: <span><input type="decimal" value="0.20" id="withholdingTaxRateINPUT"/></span></p>
                    <button id="calculateBtn">Calculate</button>
                 </section>
                <section id="tooltip" class="tooltip"></section>
@@ -271,17 +273,27 @@
         function getInitialCapital(){
             return parseFloat(document.getElementById("capitalInput").value);
         }
+        // function getInitialMinStake(){
+        //     return parseFloat(document.getElementById("minStakeINPUT").value);
+        // }
         function getInitialStake(){
             return parseFloat(document.getElementById("minimumStakeInput").value);
         }
         function getTargetProfitPerBet(){
             return parseFloat(document.getElementById("targetProfitPerBetInput").value);
         }
+        function getInitialStakeTaxRate(){
+            return parseFloat(document.getElementById("stakeTaxRateINPUT").value);
+        }
+        function getInitialWithholdingTaxRate(){
+            return parseFloat(document.getElementById("withholdingTaxRateINPUT").value);
+        }
         // BETMATHS
        class BetStakeMaths {
-            #initial_capital = getInitialCapital();
-            #initial_stake = getInitialStake();
-            #target_profit_per_bet = getTargetProfitPerBet();
+            // #min_stake = getInitialMinStake();
+            #initial_capital = 0;
+            #initial_stake = 0;
+            #target_profit_per_bet = 0;
             #current_balance = 0;
             #total_loss = 0;
             #bet_placed = false;
@@ -290,6 +302,10 @@
             #previous_placed_bet_payout = 0;
             //
             #higest_total_loss_encountered = 0;
+            //
+            #stakeTaxRate = 0.12;
+            #WHT = 0.20;
+            
             set_initialCapital(amount){
                 this.#initial_capital = amount;
             }
@@ -299,10 +315,21 @@
             set_targetProfitPerBet(amount){
                 this.#target_profit_per_bet = amount;
             }
+            setTaxRates(){
+                this.#stakeTaxRate = getInitialStakeTaxRate();
+                this.#WHT = getInitialWithholdingTaxRate()
+            }
+            resetAndInitilizeState(){
+                this.set_initialCapital(getInitialCapital());
+                this.set_initialStake(getInitialStake());
+                this.set_targetProfitPerBet(getTargetProfitPerBet());
+                this.setTaxRates();
+            }
             get initial_capital(){return this.#initial_capital}
             get initial_stake(){return this.#initial_stake}
             get target_profit_per_bet(){return this.#target_profit_per_bet}
             constructor(){
+                this.resetAndInitilizeState();
                 this.#current_balance = this.#initial_capital;
             }
             getNextStakeForLowCashouts(previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake) {
@@ -358,11 +385,11 @@
             };
             calculateBetDetailsMath(stake, odds) {
                 console.log("[method:calculateBetDetailsMath]",{stake,odds})
-                const stakeTaxRate = 0.12; // 12% tax on the stake
-                const winningsTaxRate = 0.20; // 20% tax on the winnings
+                const stakeTaxRate = this.#stakeTaxRate;//0.12; // 12% tax on the stake
+                const winningsTaxRate = this.#WHT;//0.20; // 20% tax on the winnings
 
                 // Minimum stake
-                const minStake = 0.1//1;
+                const minStake = this.#initial_stake;//this.#min_stake;//0.1//1;
 
                 // Ensure stake is not less than the minimum
                 if (stake < minStake) {
@@ -477,10 +504,11 @@
                     throw new Error(pickeBetsJSON_resp.message);
                 }
                 const betStakeMaths = new BetStakeMaths();
-                betStakeMaths.set_initialCapital(getInitialCapital())
-                betStakeMaths.set_initialStake(getInitialStake())
-                betStakeMaths.set_targetProfitPerBet(getTargetProfitPerBet())
-
+                betStakeMaths.resetAndInitilizeState();
+                // betStakeMaths.set_initialCapital(getInitialCapital())
+                // betStakeMaths.set_initialStake(getInitialStake())
+                // betStakeMaths.set_targetProfitPerBet(getTargetProfitPerBet())
+                
                 const history_array = pickeBetsJSON_resp.data;
                 const {
                     w_l_outcome,
