@@ -1,6 +1,6 @@
 //@ts-check
-// const SERVER_DOMAIN = "https://simple-distinctly-eft.ngrok-free.app";//"http://78.159.114.104:3008";
-const SERVER_DOMAIN = "https://reliably-whole-jennet.ngrok-free.app";//"http://78.159.114.104:3008";
+// const SERVER_DOMAIN = "http://78.159.114.104:3008";
+const SERVER_DOMAIN = "https://mint-golden-toad.ngrok-free.app/";//"http://78.159.114.104:3008";
 const ACTIVATION_CODES = {
     BETPAWA: {
         ONE_X_TWO_ODDS_PREDICTOR: {
@@ -22,7 +22,7 @@ const ACTIVATION_CODES = {
     }
 }
 
-/**
+/** 
  * 
  * @param {string} url 
  * @param {{method:"GET"|"POST",body:string}?} param1
