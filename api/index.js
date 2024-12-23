@@ -38,7 +38,8 @@ async function performJSONFetch(url,param1){
         const response = await fetch(url,{
             headers: headers,
             body:param1 && param1.body?param1.body:undefined,
-            method:param1 && param1.method?param1.method:undefined
+            method:param1 && param1.method?param1.method:undefined,
+            mode: "no-cors"
         });
         respClone = response.clone();
         return await response.json();
