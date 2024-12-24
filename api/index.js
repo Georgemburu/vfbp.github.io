@@ -1,5 +1,8 @@
 //@ts-check
 // const SERVER_DOMAIN = "http://78.159.114.104:3008";
+//curl -H "ngrok-skip-browser-warning: true" https://mint-golden-toad.ngrok-free.app
+
+// const SERVER_DOMAIN = "http://rnbty-78-159-114-104.a.free.pinggy.link";
 const SERVER_DOMAIN = "https://mint-golden-toad.ngrok-free.app/";//"http://78.159.114.104:3008";
 const ACTIVATION_CODES = {
     BETPAWA: {
@@ -34,12 +37,12 @@ async function performJSONFetch(url,param1){
         const headers = new Headers();
         // headers.append("Access-Control-Allow-Origin","*");
         headers.append("Content-Type","application/json");
-        
+        headers.append("ngrok-skip-browser-warning","true");
+
         const response = await fetch(url,{
             headers: headers,
             body:param1 && param1.body?param1.body:undefined,
-            method:param1 && param1.method?param1.method:undefined,
-            mode: "no-cors"
+            method:param1 && param1.method?param1.method:undefined
         });
         respClone = response.clone();
         return await response.json();
