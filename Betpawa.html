@@ -28,6 +28,7 @@
 </head>
 <body>
     <div class="iframe-container">
+        <iframe src="./virtualfootball-mulltibets.html?league=English_and_Spanish" title="Iframe 1"></iframe>
         <iframe src="./virtualfootball.html?league=english" title="Iframe 1"></iframe>
         <iframe src="./virtualfootball.html?league=spanish" title="Iframe 2"></iframe>
     </div>
@@ -45,48 +46,7 @@
         <a href="./aviator.html" id="aviatorNav">Aviator</a>
         <a href="./forex.html" id="forexNav">Forex</a>
     </div>
-    <script>
-        function objectToHtml(obj) {
-            // Start with an empty HTML string
-            let html = "<div>";
-
-            // Iterate over each property in the object
-            for (const key in obj) {
-                if(typeof obj[key]==="object"){
-                    html+= objectToHtml(obj[key])
-                }else{
-
-                    if (obj.hasOwnProperty(key)) {
-                        html += `
-                            <p>
-                                <strong>${key}:</strong> ${obj[key]}
-                            </p>
-                        `;
-                    }
-                }
-            }
-
-            // Close the root div
-            html += "</div>";
-
-            // Return the HTML string
-            return html;
-        }
-
-        // // Example usage
-        // const exampleObject = {
-        //     "Min Stake": "KSH 1",
-        //     "Stake After Tax": "KSH 0.88",
-        //     "Odds": "1.71",
-        //     "Potential Winnings": "KSH 0.71",
-        //     "WHT 20%": "- KSH 0.14",
-        //     "Payout": "KSH 1.45"
-        // };
-
-        // const generatedHtml = objectToHtml(exampleObject);
-        // console.log(generatedHtml);
-
-    </script>
+    
 
     <!-- Auth -->
     <script>
@@ -220,7 +180,7 @@
             console.log(e);
         }
     });
-    iframeForAuth.show();
+    // iframeForAuth.show();
     // if(activationCodeStore.isLoggedIn()){
     //     iframeForAuth.hide();
     //     console.log("activationCodeStore.isLoggedIn():",activationCodeStore.isLoggedIn())
