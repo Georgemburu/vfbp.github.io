@@ -55,7 +55,7 @@
         }
 
         /* div > div > div  { */
-        .W, .L , .WAIT, .BET{
+        .W, .L , .WAIT, .BET, .SKIP{
             width: 5px;
             height: 5px;
             display: flex;
@@ -91,6 +91,9 @@
             background-color: yellow;
             border: 8px solid green;
             animation: blink 1s infinite; /* Adds infinite repetition */
+        }
+        .SKIP {
+            background-color: gainsboro;
         }
         @keyframes blink {
             0% {
@@ -253,7 +256,7 @@
      
         <div class="history-section">
             <!-- History -->
-            <p>History</p>
+            <p id="historyTitle">History</p>
             <div id="historySlotsContainer">
                 <!-- <div class="W">W</div>
                 <div class="W">W</div>
@@ -607,7 +610,8 @@
                 ///Set titlee
                 document.getElementById("titleBar").textContent = `${league} League`;
 
-
+                //set history name
+                document.getElementById("historyTitle").textContent = `${league} History`;
 
                 const pickeBetsJSON_resp = (await utils.fetchBetpawaPickedBetsJSON_WithPostReq());
                 console.log(pickeBetsJSON_resp)
