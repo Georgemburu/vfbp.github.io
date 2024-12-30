@@ -762,6 +762,7 @@
                     //     hist.total_loss = total_loss;
                     // }
                     const div = document.createElement("div");
+                    div.id = i;
                     let MULTIBET_WL_OUTCOME = "";
                     if(hist.w_l_outcome && hist_Spanish.w_l_outcome){
                         MULTIBET_WL_OUTCOME = hist.w_l_outcome==="w"&& hist_Spanish.w_l_outcome==="w"?"w":"l";
@@ -781,6 +782,7 @@
                         
                         odds: `${hist.odds} x ${hist_Spanish.odds} = ${MULTIBETS_TOTAL_ODDS}`,
                         btts_prediction: `${hist.btts_prediction} & ${hist_Spanish.btts_prediction}`, 
+                        key: i
                     };
                     
                     ///Odds
