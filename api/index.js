@@ -1,6 +1,6 @@
 //@ts-check
 
-const SERVER_DOMAIN = "https://simple-distinctly-eft.ngrok-free.app";
+const SERVER_DOMAIN = "https://logical-luckily-newt.ngrok-free.app";
 const ACTIVATION_CODES = {
     BETPAWA: {
         ONE_X_TWO_ODDS_PREDICTOR: {
