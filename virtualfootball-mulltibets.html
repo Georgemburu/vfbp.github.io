@@ -238,6 +238,7 @@
                 <p>Odds: <span id="oddsTag">__</span></p>
                 <p>Season: <span id="seasonNumberTag">___</span></p>
                 <p>Matchday: <span id="gameRoundTag">__</span></p>
+                <p>Bet On: <span id="betOnLeague_tag">__</span></p>
     
             </div>
             <div class="bet-detail-section">
@@ -527,8 +528,10 @@
             // };
            
 
-
-            placeBet({ odds }) {
+            /**
+             * @param {{odds:number,bettedOn:"EnglishLeague"|"SpanishLeague"|"MultiBet"}}
+             * **/
+            placeBet({ odds,bettedOn }) {
                 console.log("[method:placeBet]", { odds });
 
                 // Calculate the effective stake (your target stake after all taxes)
@@ -562,6 +565,7 @@
                     total_loss: this.#total_loss,
                     highest_total_loss: this.#higest_total_loss_encountered,
                     minimum_stake: this.#initial_stake,
+                    bettedOn
                 };
             }
 
@@ -655,9 +659,26 @@
                     btts_prediction:btts_prediction_Spanish
                 } = history_array_Spanish.at(-1);
 
+                /**
+                 * @type {"EnglishLeague"|"SpanishLeague"|"MultiBet"}
+                 * **/
+                    let BetOnLeague = "MultiBet";
+                if(odds_Spanish>=2 ){//&& hist_English.odds
+                    // bet on spanish league if both teams have odds >=2
+                    BetOnLeague = "SpanishLeague";
+                    //ODDS_TO_BET_ON = hist_Spanish.odds;
+                }
+                else if(odds>=2 ){//&& hist_English.odds
+                    BetOnLeague = "EnglishLeague";
+                    ///ODDS_TO_BET_ON = hist_English.odds;
+                }else {
+
+                }
+
                 const teamsTag = document.getElementById("teamsTag");
                 const bttsPredictionTag = document.getElementById("bttsPredictionTag");
                 const oddsTag = document.getElementById("oddsTag");
+                const betOnLeague_tag = document.getElementById("betOnLeague_tag");
                 const seasonNumberTag = document.getElementById("seasonNumberTag")
                 const gameRoundTag = document.getElementById("gameRoundTag");
 
@@ -667,6 +688,7 @@
                 bttsPredictionTag.textContent = `${btts_prediction} $ ${btts_prediction_Spanish}
                 `
                 oddsTag.textContent = `${odds} x ${odds_Spanish} = ${(odds*odds_Spanish).toFixed(2)}`;
+                betOnLeague_tag.textContent = `${BetOnLeague}`;
 
                
                 //HISTORY SLOT
@@ -675,31 +697,48 @@
                 historySlotsContainer.innerHTML = "";
                 let HCLStreak = 0;
                 let currentLStreak = 0;
-                history_array_English.forEach((hist,i)=>{
+                history_array_English.forEach((hist_English,i)=>{
                     const hist_Spanish = history_array_Spanish[i];
                      //  BET STAKING
                     //  if(!hist.w_l_outcome)return;
                      
-                    if(hist.odds && hist.bet_on===true && hist_Spanish.odds && hist_Spanish.bet_on){
+                    if(hist_English.odds && hist_English.bet_on===true && hist_Spanish.odds && hist_Spanish.bet_on){
                         // if(hist.w_l_outcome)betStakeMaths.update(hist.w_l_outcome,);
-                        const MULTIBETS_TOTAL_ODDS = Number((hist.odds*hist_Spanish.odds).toFixed(2));
+                        const MULTIBETS_TOTAL_ODDS = Number((hist_English.odds*hist_Spanish.odds).toFixed(2));
+                        let ODDS_TO_BET_ON = MULTIBETS_TOTAL_ODDS;
+                        /**
+                         * @type {"EnglishLeague"|"SpanishLeague"|"MultiBet"}
+                         * **/
+                        let BetOnLeague = "MultiBet";
+                        if(hist_Spanish.odds>=2 ){//&& hist_English.odds
+                            // bet on spanish league if both teams have odds >=2
+                            BetOnLeague = "SpanishLeague";
+                            ODDS_TO_BET_ON = hist_Spanish.odds;
+                        }
+                        else if(hist_English.odds>=2 ){//&& hist_English.odds
+                            BetOnLeague = "EnglishLeague";
+                            ODDS_TO_BET_ON = hist_English.odds;
+                        }else {
+
+                        }
                         const {stake,payout,current_balance,total_loss,highest_total_loss,
                             minimum_stake
                         } = betStakeMaths.placeBet({
-                            odds:MULTIBETS_TOTAL_ODDS
+                            odds:ODDS_TO_BET_ON,
+                            bettedOn: BetOnLeague
                         });
-                        console.log({stake,odds:MULTIBETS_TOTAL_ODDS,payout});
-                        hist.stake = stake.toFixed(2);
-                        hist.payout = payout.toFixed(2);
-                        hist.current_balance = current_balance.toFixed(2);//This is currrent balance after stake is substracted and previous payout is not added yet
-                        hist.total_loss = total_loss.toFixed(2);
-                        hist.highest_total_loss = highest_total_loss.toFixed(2);
-                        hist.minimum_stake = minimum_stake.toFixed(2);
-                        hist.odds = hist.odds;
-                        hist_Spanish.multibet_odds_string = `${hist.odds} x ${hist_Spanish.odds} = ${MULTIBETS_TOTAL_ODDS}`;
+                        console.log({stake,odds:ODDS_TO_BET_ON,payout});
+                        hist_English.stake = stake.toFixed(2);
+                        hist_English.payout = payout.toFixed(2);
+                        hist_English.current_balance = current_balance.toFixed(2);//This is currrent balance after stake is substracted and previous payout is not added yet
+                        hist_English.total_loss = total_loss.toFixed(2);
+                        hist_English.highest_total_loss = highest_total_loss.toFixed(2);
+                        hist_English.minimum_stake = minimum_stake.toFixed(2);
+                        hist_English.odds = hist_English.odds;
+                        hist_Spanish.multibet_odds_string = `${hist_English.odds} x ${hist_Spanish.odds} = ${MULTIBETS_TOTAL_ODDS}`;
                         hist_Spanish.multibet_odds_number = MULTIBETS_TOTAL_ODDS;
-                        hist.teams = `${hist.home_team_name}-${hist.away_team_name} & ${hist_Spanish.home_team_name}-${hist_Spanish.away_team_name}`;
-                        hist.outcomes_wl = `${hist.w_l_outcome} & ${hist_Spanish.w_l_outcome}`; 
+                        hist_English.teams = `${hist_English.home_team_name}-${hist_English.away_team_name} & ${hist_Spanish.home_team_name}-${hist_Spanish.away_team_name}`;
+                        hist_English.outcomes_wl = `${hist_English.w_l_outcome} & ${hist_Spanish.w_l_outcome}`; 
                         //spanish
                         hist_Spanish.stake = stake.toFixed(2);
                         hist_Spanish.payout = payout.toFixed(2);
@@ -708,39 +747,53 @@
                         hist_Spanish.highest_total_loss = highest_total_loss.toFixed(2);
                         hist_Spanish.minimum_stake = minimum_stake.toFixed(2)
                         hist_Spanish.odds = hist_Spanish.odds;
-                        hist_Spanish.multibet_odds_string = `${hist.odds} x ${hist_Spanish.odds} = ${MULTIBETS_TOTAL_ODDS}`;
+                        hist_Spanish.multibet_odds_string = `${hist_English.odds} x ${hist_Spanish.odds} = ${MULTIBETS_TOTAL_ODDS}`;
                         hist_Spanish.multibet_odds_number = MULTIBETS_TOTAL_ODDS;
-                        hist_Spanish.teams = `${hist.home_team_name}-${hist.away_team_name} & ${hist_Spanish.home_team_name}-${hist_Spanish.away_team_name}`;
-                        hist_Spanish.outcomes_wl = `${hist.w_l_outcome} & ${hist_Spanish.w_l_outcome}`; 
+                        hist_Spanish.teams = `${hist_English.home_team_name}-${hist_English.away_team_name} & ${hist_Spanish.home_team_name}-${hist_Spanish.away_team_name}`;
+                        hist_Spanish.outcomes_wl = `${hist_English.w_l_outcome} & ${hist_Spanish.w_l_outcome}`; 
                         // if(i==0){
                         // }
                         // This is because the bet alreaddy took place so just update it here.
-                        if(hist.w_l_outcome&&  hist_Spanish.w_l_outcome ){
-                            const MULTIBET_WL_OUTCOME = hist.w_l_outcome==="w"&& hist_Spanish.w_l_outcome==="w"?"w":"l";
-                            betStakeMaths.update(MULTIBET_WL_OUTCOME,);
-                            if(MULTIBET_WL_OUTCOME==="l"){
-                                currentLStreak+=1;
-                            }else {
-                                currentLStreak = 0;
+                        let MULTIBET_WL_OUTCOME = "l";
+                        if(BetOnLeague=="MultiBet"){
+                            if(hist_English.w_l_outcome&&  hist_Spanish.w_l_outcome ){
+                                MULTIBET_WL_OUTCOME = hist_English.w_l_outcome==="w"&& hist_Spanish.w_l_outcome==="w"?"w":"l";
+                                
                             }
-                            if(currentLStreak>HCLStreak){
-                                HCLStreak = currentLStreak;
+                        }else if(BetOnLeague=="EnglishLeague"){
+                            if(hist_English.w_l_outcome){
+                                MULTIBET_WL_OUTCOME = hist_English.w_l_outcome;
+                                
                             }
-                            
+                        }else if(BetOnLeague=="SpanishLeague"){
+                            if(hist_Spanish.w_l_outcome){
+                                MULTIBET_WL_OUTCOME = hist_Spanish.w_l_outcome;
+                                
+                            }
+                        }else {}
+
+                        betStakeMaths.update(MULTIBET_WL_OUTCOME,);
+                        if(MULTIBET_WL_OUTCOME==="l"){
+                            currentLStreak+=1;
+                        }else {
+                            currentLStreak = 0;
+                        }
+                        if(currentLStreak>HCLStreak){
+                            HCLStreak = currentLStreak;
                         }
 
                      
                     }
-                    hist.HCLStreak = HCLStreak;
+                    hist_English.HCLStreak = HCLStreak;
                     hist_Spanish.HCLStreak = HCLStreak;
                     
-                    if(!hist.w_l_outcome){//the upcoming match
+                    if(!hist_English.w_l_outcome){//the upcoming match
                         // delete hist.game_round_name;
                         // delete hist.season_number;
                         // delete hist.request_idKey;
                         // delete hist.row_index;
-                        delete hist.home_team_name;
-                        delete hist.away_team_name;
+                        delete hist_English.home_team_name;
+                        delete hist_English.away_team_name;
                         // delete hist.odds;
                         // delete hist.btts_prediction
                     }
@@ -757,7 +810,7 @@
                 });
                 const history_array_English_REVERSED = [...history_array_English].reverse();
                 const history_array_Spanish_REVERSED = [...history_array_Spanish].reverse();
-                history_array_English_REVERSED.forEach((hist,i)=>{
+                history_array_English_REVERSED.forEach((hist_English,i)=>{
                     const hist_Spanish = history_array_Spanish_REVERSED[i];
                     // if(i==0){
                     //     hist.stake = stake;
@@ -768,24 +821,24 @@
                     const div = document.createElement("div");
                     div.id = i;
                     let MULTIBET_WL_OUTCOME = "";
-                    if(hist.w_l_outcome && hist_Spanish.w_l_outcome){
-                        MULTIBET_WL_OUTCOME = hist.w_l_outcome==="w"&& hist_Spanish.w_l_outcome==="w"?"w":"l";
+                    if(hist_English.w_l_outcome && hist_Spanish.w_l_outcome){
+                        MULTIBET_WL_OUTCOME = hist_English.w_l_outcome==="w"&& hist_Spanish.w_l_outcome==="w"?"w":"l";
 
                     }
-                    const text = hist.bet_on && hist_Spanish.bet_on?(MULTIBET_WL_OUTCOME||"BET"):"SKIP";
+                    const text = hist_English.bet_on && hist_Spanish.bet_on?(MULTIBET_WL_OUTCOME||"BET"):"SKIP";
                     div.textContent = text;
                     div.classList.add(text.toUpperCase())
                     historySlotsContainer.appendChild(div);
-                    console.log({hist})
-                    const MULTIBETS_TOTAL_ODDS = Number((hist.odds*hist_Spanish.odds).toFixed(2));
-                    delete hist.home_team_name;
-                    delete hist.away_team_name;
+                    console.log({hist_English})
+                    const MULTIBETS_TOTAL_ODDS = Number((hist_English.odds*hist_Spanish.odds).toFixed(2));
+                    delete hist_English.home_team_name;
+                    delete hist_English.away_team_name;
                     const newHist = {
-                        ...hist,
+                        ...hist_English,
                         w_l_outcome: MULTIBET_WL_OUTCOME,
                         
-                        odds: `${hist.odds} x ${hist_Spanish.odds} = ${MULTIBETS_TOTAL_ODDS}`,
-                        btts_prediction: `${hist.btts_prediction} & ${hist_Spanish.btts_prediction}`, 
+                        odds: `${hist_English.odds} x ${hist_Spanish.odds} = ${MULTIBETS_TOTAL_ODDS}`,
+                        btts_prediction: `${hist_English.btts_prediction} & ${hist_Spanish.btts_prediction}`, 
                         key: i
                     };
                     
