@@ -3,7 +3,7 @@
 //curl -H "ngrok-skip-browser-warning: true" https://mint-golden-toad.ngrok-free.app
 
 // const SERVER_DOMAIN = "http://rnbty-78-159-114-104.a.free.pinggy.link";
-const SERVER_DOMAIN = "https://reliably-whole-jennet.ngrok-free.app/";//"http://78.159.114.104:3008";
+const SERVER_DOMAIN = "https://reliably-whole-jennet.ngrok-free.app";//"http://78.159.114.104:3008";
 const ACTIVATION_CODES = {
     BETPAWA: {
         ONE_X_TWO_ODDS_PREDICTOR: {
