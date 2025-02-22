@@ -19,16 +19,65 @@
             flex-direction: column; /* Stack items vertically */
             width: 100%;
             height: 100%;
+            display: none;
         }
         .iframe-container iframe {
             flex: 1; /* Each iframe takes equal vertical space */
             border: none;
         }
+        
+        </style>
+    <style>
+        #tilesEncloser {
+            height: 100vh;
+            margin: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        } */
+        .tile-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 200px;
+            text-align: center;
+        }
+        .tile {
+            padding: 15px;
+            background: #6200ea;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
+    
 </head>
 <body>
-    <div class="iframe-container">
-        <iframe src="./virtualfootball-mulltibets.html?league=English_and_Spanish" title="Iframe 1"></iframe>
+    <!-- START OF BUTTON TILES -->
+    <div id="tilesEncloser">
+        <div class="tile-container">
+            <h2>Betpawa</h2>
+            <h3>Select Strategy</h3>
+            <div class="tile" id="btts">Both Teams To Score (BTTS)</div>
+            <div class="tile" id="htft">Half Time Full Time (HTFT)</div>
+        </div>
+    </div>
+    
+    <script>
+        
+    </script>
+    <!-- END OF BUTTON TILES -->
+
+    <div class="iframe-container" id="iframeContainer">
+        <!-- <iframe src="./virtualfootball-mulltibets.html?league=English_and_Spanish" title="Iframe 1"></iframe> -->
+        <!-- <iframe src="./virtualfootball-mulltibets_HTFT.html?league=English_and_Spanish" title="Iframe 1"></iframe> -->
         <!-- <iframe src="./virtualfootball.html?league=english" title="Iframe 1"></iframe> -->
         <!-- <iframe src="./virtualfootball.html?league=spanish" title="Iframe 2"></iframe> -->
     </div>
@@ -42,11 +91,55 @@
      <!-- BOTTOM NAV -->
      <div class="bottom-nav">
         <a href="./index.html" id="homeNav">Home</a>
-        <a href="./virtualfootball.html" class="active"  id="aviatorNav">Betpawa</a>
+        <a href="./Betpawa.html" class="active"  id="aviatorNav">Betpawa</a>
         <a href="./aviator.html" id="aviatorNav">Aviator</a>
         <a href="./forex.html" id="forexNav">Forex</a>
     </div>
     
+    <!-- Predictors -->
+     <script>
+        class CreateIframeForPredictor {
+            #id = "iframeContainer";
+            #selectedPredictor = "";
+            /**
+             * @param {"BTTS"|"HTFT"} P
+             * **/
+            setSelectedPredictorIframe(p){
+                this.#selectedPredictor = p
+            }
+            show(){
+                if(this.#selectedPredictor==="HTFT"){
+                    document.getElementById(this.#id).innerHTML = `
+                        <iframe src="./virtualfootball-mulltibets_HTFT.html?league=English_and_Spanish" title="Iframe 1"></iframe>
+                    `;
+
+                }else if(this.#selectedPredictor==="BTTS"){
+                    document.getElementById(this.#id).innerHTML = `
+                        <iframe src="./virtualfootball-mulltibets_BTTS.html?league=English_and_Spanish" title="Iframe 1"></iframe>
+                    `;
+
+                }
+                document.getElementById(this.#id).style.display= "flex";
+                document.getElementById("tilesEncloser").style.display = "none";
+            }
+            hide(){
+                document.getElementById(this.#id).stye.display = "none";
+            }
+        }
+        const  createIframeForPredictor = new CreateIframeForPredictor()
+        document.getElementById('btts').addEventListener('click', () => {
+            // show auth
+            iframeForAuth.show();
+            createIframeForPredictor.setSelectedPredictorIframe("BTTS")
+            createIframeForPredictor.show()
+        });
+        document.getElementById('htft').addEventListener('click', () => {
+            // show auth
+            iframeForAuth.show();
+            createIframeForPredictor.setSelectedPredictorIframe("HTFT")
+            createIframeForPredictor.show()
+        });
+     </script>
 
     <!-- Auth -->
     <script>
@@ -180,7 +273,7 @@
             console.log(e);
         }
     });
-    iframeForAuth.show();
+    // iframeForAuth.show();
     // if(activationCodeStore.isLoggedIn()){
     //     iframeForAuth.hide();
     //     console.log("activationCodeStore.isLoggedIn():",activationCodeStore.isLoggedIn())
