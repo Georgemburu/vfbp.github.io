@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Betpawa: Virtual Football -HTFT</title>
+    <script src="./api/index.js"></script>
+    
+    <link rel="stylesheet" href="./theme.css"/>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .hide {
+            display: none;
+        }
+        main {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        div {
+        /* .details-section  div, .history-section  div { */
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        p span {
+            font-weight: bold;
+            color: #333;
+        }
+        .details-section >div, .history-section >div {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .details-section div > div {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* div > div > div  { */
+        .W, .L , .WAIT, .BET, .SKIP{
+            width: 5px;
+            height: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0ff0a9e;
+            color: #000;
+            font-weight: bold;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 12px;
+        }
+
+        div > div > div.W {
+            background-color: #4caf50;
+            color: #fff;
+        }
+
+        div > div > div.L  {
+            background-color: #f44336;
+            color: #fff;
+        }
+        .history-section {
+            /* width:80vw; */
+        }
+        #historySlotsContainer {
+            overflow: scroll;
+        }
+        .WAIT {
+            animation: blink 1s infinite; /* Adds infinite repetition */
+        }
+        .BET {
+            background-color: yellow;
+            border: 8px solid green;
+            animation: blink 1s infinite; /* Adds infinite repetition */
+        }
+        .SKIP {
+            background-color: gainsboro;
+        }
+        @keyframes blink {
+            0% {
+                opacity: 1; /* Fully visible at the start */
+            }
+            50% {
+                opacity: 0; /* Fully invisible in the middle */
+            }
+            100% {
+                opacity: 1; /* Fully visible at the end */
+            }
+        }
+        .prediction-section {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .details-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+        }
+        .bet-detail-section {
+            flex-direction: column;
+        }
+    </style>
+    <style>
+        /* loadding */
+        .loader-section {
+            background-color: rgb(168, 168, 245);
+            text-align: center;
+            color: white;
+        }
+    </style>
+
+<script>
+    function objectToHtml(obj) {
+        // Start with an empty HTML string
+        let html = "<div>";
+
+        // Iterate over each property in the object
+        for (const key in obj) {
+            if(typeof obj[key]==="object"){
+                html+= objectToHtml(obj[key])
+            }else{
+
+                if (obj.hasOwnProperty(key)) {
+                    html += `
+                        <p>
+                            <strong>${key}:</strong> ${obj[key]}
+                        </p>
+                    `;
+                }
+            }
+        }
+
+        // Close the root div
+        html += "</div>";
+
+        // Return the HTML string
+        return html;
+    }
+
+    // // Example usage
+    // const exampleObject = {
+    //     "Min Stake": "KSH 1",
+    //     "Stake After Tax": "KSH 0.88",
+    //     "Odds": "1.71",
+    //     "Potential Winnings": "KSH 0.71",
+    //     "WHT 20%": "- KSH 0.14",
+    //     "Payout": "KSH 1.45"
+    // };
+
+    // const generatedHtml = objectToHtml(exampleObject);
+    // console.log(generatedHtml);
+
+</script>
+    
+</head>
+<body>
+    <!-- ERROR BANNER START -->
+    <div id="errorBanner" class="hide">
+        <p id="errorText"></p>
+    </div>
+    <script>
+        const errorBanner = document.getElementById("errorBanner");
+        const errorText = document.getElementById("errorText");
+        const styles = {
+            backgroundColor: "red",
+
+        }
+        Object.keys(styles).forEach((k)=>{
+            errorBanner.style[k] = styles[k];
+        })
+        class ErrorBannerClass {
+            show(errorMessage){
+                errorBanner.classList.remove("hide");
+                errorText.textContent = errorMessage;
+
+                setTimeout(()=>{
+                    this.hide();
+                },3000)
+            }
+            hide(){
+                errorBanner.classList.add("hide")
+            }
+        }
+        const errorBannerClass = new ErrorBannerClass();
+        
+    </script>
+     <!-- ERROR BANNER END -->
+    <!-- MAIN START -->
+    <main>
+        <div id="titleBar">
+            Betpawa: Virtual Football
+        </div>
+        <section id="loader" class="loader-section"></section>
+        <script>
+            class LoadingIndicator {
+                loadingElem = document.getElementById("loader");
+                #interval = null;
+                show(){
+                    this.loadingElem.classList.remove("hide");
+                    this.loadingElem.textContent = "Loading...";
+                    const text = "Loading..."
+                    this.#interval = setInterval(()=>{
+                        this.loadingElem.textContent = this.loadingElem.textContent.slice(0,this.loadingElem.textContent.length-1)||text;
+                    },250)
+                }
+                hide(){
+                    if(this.#interval)clearInterval(this.#interval)
+                    this.loadingElem.classList.add("hide")
+                }
+            }
+            const loadingIndicator = new LoadingIndicator();
+        </script>
+        <div class="details-section">
+            <div class="prediction-section">
+                <!-- Teams -->
+                <p id="teamsTag">__ - __</p>
+                <!-- Prediction -->
+                <p>BTTS: <span id="subMarketPredictionTag">__</span></p>
+                <p>Odds: <span id="oddsTag">__</span></p>
+                <p>Season: <span id="seasonNumberTag">___</span></p>
+                <p>Matchday: <span id="gameRoundTag">__</span></p>
+                <p>Bet On: <span id="betOnLeague_tag">__</span></p>
+    
+            </div>
+            <div class="bet-detail-section">
+                <section>
+                   <p>Capital: <span><input type="number" value="100000" id="capitalInput"/></span></p>
+                   <p>Minimum Stake: <span><input type="number" value="10" id="minimumStakeInput"/></span></p>
+                   <p>Profit per Bet: <span><input type="number" value="50" id="targetProfitPerBetInput"/></span></p>
+                   <p>stakeTaxRate: <span><input type="decimal" value="0" id="stakeTaxRateINPUT"/></span></p> <!--0.12-->
+                   <p>WHT: <span><input type="decimal" value="0" id="withholdingTaxRateINPUT"/></span></p> <!--0.20-->
+                   <button id="calculateBtn">Calculate</button>
+                </section>
+               <section id="tooltip" class="tooltip"></section>
+               
+            </div>
+        </div>
+     
+        <div class="history-section">
+            <!-- History -->
+            <p id="historyTitle">History</p>
+            <div id="historySlotsContainer">
+                <!-- <div class="W">W</div>
+                <div class="W">W</div>
+                <div class="L">L</div>
+                <div class="W">W</div> -->
+            </div>
+        </div>
+    </main>
+    <!-- MAIN END -->
+    
+    <script>
+        function getInitialCapital(){
+            return parseFloat(document.getElementById("capitalInput").value);
+        }
+        // function getInitialMinStake(){
+        //     return parseFloat(document.getElementById("minStakeINPUT").value);
+        // }
+        function getInitialStake(){
+            return parseFloat(document.getElementById("minimumStakeInput").value);
+        }
+        function getTargetProfitPerBet(){
+            return parseFloat(document.getElementById("targetProfitPerBetInput").value);
+        }
+        function getInitialStakeTaxRate(){
+            return parseFloat(document.getElementById("stakeTaxRateINPUT").value);
+        }
+        function getInitialWithholdingTaxRate(){
+            return parseFloat(document.getElementById("withholdingTaxRateINPUT").value);
+        }
+        // BETMATHS
+       class BetStakeMaths {
+            // #min_stake = getInitialMinStake();
+            #initial_capital = 0;
+            #initial_stake = 0;
+            #target_profit_per_bet = 0;
+            #current_balance = 0;
+            #total_loss = 0;
+            #bet_placed = false;
+            #previous_stake = 0;
+            #previousOutcome_w_or_l = "w";
+            #previous_placed_bet_payout = 0;
+            //
+            #higest_total_loss_encountered = 0;
+            //
+            #stakeTaxRate = 0.12;
+            #WHT = 0.20;
+            
+            set_initialCapital(amount){
+                this.#initial_capital = amount;
+            }
+            set_initialStake(amount){
+                this.#initial_stake = amount;
+            }
+            set_targetProfitPerBet(amount){
+                this.#target_profit_per_bet = amount;
+            }
+            setTaxRates(){
+                this.#stakeTaxRate = getInitialStakeTaxRate();
+                this.#WHT = getInitialWithholdingTaxRate()
+            }
+            resetAndInitilizeState(){
+                this.set_initialCapital(getInitialCapital());
+                this.set_initialStake(getInitialStake());
+                this.set_targetProfitPerBet(getTargetProfitPerBet());
+                this.setTaxRates();
+            }
+            get initial_capital(){return this.#initial_capital}
+            get initial_stake(){return this.#initial_stake}
+            get target_profit_per_bet(){return this.#target_profit_per_bet}
+            constructor(){
+                this.resetAndInitilizeState();
+                this.#current_balance = this.#initial_capital;
+            }
+            getNextStakeForLowCashouts(previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake) {
+                console.log("(fn:this.getNextStakeForLowCashouts)")
+                if(previousOutcome_w_or_l==="w" ) return initialStake;
+                    // Set multiplier based on the cashout target
+                    const multiplier = cashOutAt;//1.50;
+                    const profitMargin = multiplier - 1;
+
+                    // If last round was a win, reset to base stake
+                    if (previousOutcome_w_or_l === "w") {
+                        return targetProfit / profitMargin; // Reset to the initial stake required for target profit
+                    }
+                    
+                    // If last round was a loss, calculate the next stake
+                    totalLoss += lastStake; // Update total loss by adding the last stakefuunct
+                    const nextStake = (totalLoss + targetProfit) / profitMargin;
+
+                    return nextStake;
+            };
+            getNextFibStake(previousFibStake, previousOutcome_w_or_l,initialStake){
+                console.log("(fn:this.getNextFibStake)")
+                    if(previousOutcome_w_or_l==="w" ) return initialStake;
+                    function getSum(a_,b_){return a_+b_};
+                    let a = 0;
+                    let b = 1;
+                    let next = getSum(a,b);
+                    while(true){
+                        if(next<=previousFibStake){
+                            a = b;
+                            b = next;
+                            next = getSum(a,b)
+                            
+                        }else {
+                            break;
+                        }
+                    }
+                    return next;
+                    
+                    
+                };
+            getNextStake({previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake}){
+                console.log("[method:getNextStake]",{previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake})
+                // return this.getNextStakeForLowCashouts(previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake);
+                if(cashOutAt<2.50){
+                    //
+                    return this.getNextStakeForLowCashouts(previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake);
+                }else {
+                    //use Fibonacci
+                    const previousFibStake=lastStake;
+                    return this.getNextFibStake(previousFibStake, previousOutcome_w_or_l,initialStake);
+                }
+                
+            };
+            calculateBetDetailsMath(stake, odds) {
+                console.log("[method:calculateBetDetailsMath]",{stake,odds})
+                const stakeTaxRate = this.#stakeTaxRate;//0.12; // 12% tax on the stake
+                const winningsTaxRate = this.#WHT;//0.20; // 20% tax on the winnings
+
+                // Minimum stake
+                const minStake = this.#initial_stake;//this.#min_stake;//0.1//1;
+
+                // Ensure stake is not less than the minimum
+                if (stake < minStake) {
+                    return `Min Stake is ${minStake}`;
+                }
+
+                // Stake after tax (12% deducted from the stake)
+                const stakeAfterTax = stake * (1 - stakeTaxRate);
+
+                // Potential winnings (stake after tax multiplied by odds, minus the stake)
+                const potentialWinnings = stakeAfterTax * odds - stakeAfterTax;
+
+                // Withholding tax on winnings (20% deducted from the winnings)
+                const wht = potentialWinnings * winningsTaxRate;
+
+                // Final payout (stake after tax + winnings - tax)
+                const payout = stakeAfterTax + potentialWinnings - wht;
+                const stake_after_tax = parseFloat(stakeAfterTax.toFixed(2));
+                // Format data as output
+                const diff_stakeAfterTax_and_stakeBeforeTax = stake - stake_after_tax;
+
+                const obj =  {
+                    min_stake: minStake,
+                    stake_after_tax,
+                    odds: parseFloat(odds.toFixed(2)),
+                    potential_winnings: parseFloat(potentialWinnings.toFixed(2)),
+                    WHT: parseFloat(wht.toFixed(2)),
+                    payout: parseFloat(payout.toFixed(2)),
+                    diff_stakeAfterTax_and_stakeBeforeTax
+                };
+                return obj;
+            }
+
+            ////// PBLIC METHODS
+ 
+            // placeBet({
+            //     odds,
+            // }){
+            //     console.log("[method:placeBet]",{odds});
+            //     let stake = this.getNextStake({
+            //         previousOutcome_w_or_l:this.#previousOutcome_w_or_l,
+            //         cashOutAt: odds,
+            //         initialStake: this.#initial_stake,
+            //         lastStake: this.#previous_stake ,
+            //         targetProfit: this.#target_profit_per_bet,
+            //         totalLoss: this.#total_loss
+            //     });
+            //     // stake = this.getNextStake({
+            //     //     previousOutcome_w_or_l:this.#previousOutcome_w_or_l,
+            //     //     cashOutAt: odds,
+            //     //     initialStake: this.#initial_stake,
+            //     //     lastStake: this.#previous_stake ,
+            //     //     targetProfit: this.#target_profit_per_bet,
+            //     //     totalLoss: this.#total_loss+stake
+            //     // });
+            //     console.log({stake})
+            //     // let {payout,diff_stakeAfterrTax_and_stakeBeforeTax} = this.calculateBetDetailsMath(stake,odds);
+            //     //ADDED FOR ADDING A PADDING FOR DEALING WWITH TAX ON STAKES AND PAYOUTS
+            //     // let stake = 10, odds = 1.5;
+            //     let {diff_stakeAfterTax_and_stakeBeforeTax:diff_stakeAfterTax_and_stakeBeforeTax1} = this.calculateBetDetailsMath(stake,odds)
+            //     let {diff_stakeAfterTax_and_stakeBeforeTax:diff_stakeAfterTax_and_stakeBeforeTax2} = this.calculateBetDetailsMath(stake+diff_stakeAfterTax_and_stakeBeforeTax1,odds)
+            //     stake = stake+diff_stakeAfterTax_and_stakeBeforeTax1+diff_stakeAfterTax_and_stakeBeforeTax2;
+            //     const {payout} = this.calculateBetDetailsMath(stake,odds);
+            //     // END
+            //     // payout = this.calculateBetDetailsMath(stake,odds);
+            //     this.#current_balance -= stake;
+            //     this.#total_loss += stake;
+            //     console.log({total_loss:this.#total_loss})
+            //     this.#bet_placed = true;
+
+            //     this.#previous_stake  = stake;
+            //     this.#previous_placed_bet_payout = payout;
+            //     // console.log({stake,odds,payout});
+            //     return {
+            //         stake,odds,payout,
+            //         current_balance: this.#current_balance,
+            //         total_loss: this.#total_loss,
+            //         highest_total_loss: this.#higest_total_loss_encountered,
+            //         minimum_stake: this.#initial_stake
+            //     }
+            // }
+            // placeBet({ odds }) {
+            //     console.log("[method:placeBet]", { odds });
+                
+            //     // Get the initial stake using the `getNextStake` method
+            //     let stake = this.getNextStake({
+            //         previousOutcome_w_or_l: this.#previousOutcome_w_or_l,
+            //         cashOutAt: odds,
+            //         initialStake: this.#initial_stake,
+            //         lastStake: this.#previous_stake,
+            //         targetProfit: this.#target_profit_per_bet,
+            //         totalLoss: this.#total_loss
+            //     });
+
+            //     console.log({ stake });
+
+            //     // Calculate payout and ensure the stake meets the constraint: payout > total_loss + profit
+            //     const adjustStakeToMeetConstraint = (stake, odds, totalLoss, targetProfit) => {
+            //         while (true) {
+            //             const { payout } = this.calculateBetDetailsMath(stake, odds);
+            //             if (payout > totalLoss + targetProfit) {
+            //                 break; // Constraint satisfied
+            //             }
+            //             stake += 0.01; // Increment stake slightly to ensure payout exceeds required amount
+            //         }
+            //         return stake;
+            //     };
+
+            //     // Adjust the stake to meet the constraint
+            //     stake = adjustStakeToMeetConstraint(stake, odds, this.#total_loss, this.#target_profit_per_bet);
+
+            //     // Deduct stake from balance
+            //     this.#current_balance -= stake;
+            //     if(this.#current_balance<0)throw new Error("Insufficient Balance")
+            //     this.#total_loss += stake;
+
+            //     // Calculate final payout
+            //     const { payout } = this.calculateBetDetailsMath(stake, odds);
+
+            //     // Update previous bet details
+            //     this.#bet_placed = true;
+            //     this.#previous_stake = stake;
+            //     this.#previous_placed_bet_payout = payout;
+
+            //     console.log({ stake, odds, payout });
+
+            //     return {
+            //         stake,
+            //         odds,
+            //         payout,
+            //         current_balance: this.#current_balance,
+            //         total_loss: this.#total_loss,
+            //         highest_total_loss: this.#higest_total_loss_encountered,
+            //         minimum_stake: this.#initial_stake
+            //     };
+            // };
+           
+
+            /**
+             * @param {{odds:number,bettedOn:"EnglishLeague"|"SpanishLeague"|"MultiBet"}}
+             * **/
+            placeBet({ odds,bettedOn }) {
+                console.log("[method:placeBet]", { odds });
+
+                // Calculate the effective stake (your target stake after all taxes)
+                let stake = this.getNextStake({
+                    previousOutcome_w_or_l: this.#previousOutcome_w_or_l,
+                    cashOutAt: odds,
+                    initialStake: this.#initial_stake,
+                    lastStake: this.#previous_stake,
+                    targetProfit: this.#target_profit_per_bet,
+                    totalLoss: this.#total_loss,
+                });
+
+                // Calculate the tax-adjusted stake
+                // const stake = this.calculateCorrectStake(effectiveStake, odds);
+
+                const { payout } = this.calculateBetDetailsMath(stake, odds);
+
+                this.#current_balance -= stake;
+                this.#total_loss += stake;
+                console.log({ total_loss: this.#total_loss });
+
+                this.#bet_placed = true;
+                this.#previous_stake = stake;
+                this.#previous_placed_bet_payout = payout;
+
+                return {
+                    stake,
+                    odds,
+                    payout,
+                    current_balance: this.#current_balance,
+                    total_loss: this.#total_loss,
+                    highest_total_loss: this.#higest_total_loss_encountered,
+                    minimum_stake: this.#initial_stake,
+                    bettedOn
+                };
+            }
+
+            update(w_l_outcome){
+                console.log("[method:update]",{w_l_outcome})
+                // Highest Loss
+                if(this.#total_loss>this.#higest_total_loss_encountered){
+                    this.#higest_total_loss_encountered = this.#total_loss;
+                }
+                if(this.#bet_placed===false)return;
+                const payout = this.#previous_placed_bet_payout;
+                console.log({payout})
+                if(w_l_outcome==="w"){
+                    this.#current_balance += payout;
+                    this.#total_loss -= payout;
+                    if(this.#total_loss<0){
+                        this.#total_loss = 0;
+                    }
+                    
+                }
+                this.#bet_placed = false;
+                this.#previousOutcome_w_or_l = w_l_outcome;
+
+                
+            }
+        }
+        // const betStakeMaths = new BetStakeMaths();
+        //capitalInput minimumStakeInput calculateBtn
+        
+        // const capitalInput = document.getElementById("#capitalInput");
+        // const minimumStakeInput = document.getElementById("#minimumStakeInput");
+        
+    </script>
+    <script>
+        // MAIN
+        async function render(){
+            try{ 
+                console.log("Running")
+                //Get League Name
+                // Get the URL query parameters
+                const params = new URLSearchParams(window.location.search);
+
+                // Extract the value of the "value" parameter
+                const league = params.get('league');
+
+                ///Set titlee
+                document.getElementById("titleBar").textContent = `${league} League`;
+
+                //set history name
+                document.getElementById("historyTitle").textContent = `${league} History`;
+
+                // const pickeBetsJSON_resp = (await utils.fetchBetpawaPickedBetsJSON_WithPostReq());
+                const pickeBetsJSON_resp = (await utils.fetchBetpawa_HTFT_PickedBetsJSON_WithPostReq());
+                console.log({pickeBetsJSON_resp})
+                if(pickeBetsJSON_resp.success==false){
+                    throw new Error(pickeBetsJSON_resp.message);
+                }
+                // return;
+                const betStakeMaths = new BetStakeMaths();
+                betStakeMaths.resetAndInitilizeState();
+                // betStakeMaths.set_initialCapital(getInitialCapital())
+                // betStakeMaths.set_initialStake(getInitialStake())
+                // betStakeMaths.set_targetProfitPerBet(getTargetProfitPerBet())
+                
+                const history_array_English = pickeBetsJSON_resp.data["english"];//spanish;
+                const history_array_Spanish = pickeBetsJSON_resp.data["spanish"];
+                const {
+                    w_l_outcome,
+                    bet_on,
+                    /// Round
+                    game_round_name,
+                    season_number,
+                    request_idKey,
+                    row_index,
+                    // Teams
+                    home_team_name,
+                    away_team_name,
+                    odds,
+                    submarket_prediction
+                } = history_array_English.at(-1);
+                const {
+                    w_l_outcome:w_l_outcome_Spanish,
+                    bet_on:bet_on_Spanish,
+                    /// Round
+                    game_round_name:game_round_name_Spanish,
+                    season_number:season_number_Spanish,
+                    request_idKey:request_idKey_Spanish,
+                    row_index:row_index_Spanish,
+                    // Teams
+                    home_team_name:home_team_name_Spanish,
+                    away_team_name:away_team_name_Spanish,
+                    odds:odds_Spanish,
+                    submarket_prediction:submarket_prediction_Spanish
+                } = history_array_Spanish.at(-1);
+
+                /**
+                 * @type {"EnglishLeague"|"SpanishLeague"|"MultiBet"}
+                 * **/
+                    let BetOnLeague = "MultiBet";
+                if(odds_Spanish>=2 ){//&& hist_English.odds
+                    // bet on spanish league if both teams have odds >=2
+                    BetOnLeague = "SpanishLeague";
+                    //ODDS_TO_BET_ON = hist_Spanish.odds;
+                }
+                else if(odds>=2 ){//&& hist_English.odds
+                    BetOnLeague = "EnglishLeague";
+                    ///ODDS_TO_BET_ON = hist_English.odds;
+                }else {
+
+                }
+
+                const teamsTag = document.getElementById("teamsTag");
+                const submarket_predictionTag = document.getElementById("subMarketPredictionTag");//submarket_prediction
+                const oddsTag = document.getElementById("oddsTag");
+                const betOnLeague_tag = document.getElementById("betOnLeague_tag");
+                const seasonNumberTag = document.getElementById("seasonNumberTag")
+                const gameRoundTag = document.getElementById("gameRoundTag");
+
+                gameRoundTag.textContent = game_round_name;
+                seasonNumberTag.textContent = season_number;
+                teamsTag.textContent = `${home_team_name}-${away_team_name} & ${home_team_name_Spanish}-${away_team_name_Spanish}`;
+                submarket_predictionTag.textContent = `${submarket_prediction} $ ${submarket_prediction_Spanish}
+                `
+                oddsTag.textContent = `${odds} x ${odds_Spanish} = ${(odds*odds_Spanish).toFixed(2)}`;
+                betOnLeague_tag.textContent = `${BetOnLeague}`;
+
+               
+                //HISTORY SLOT
+                const historySlotsContainer = document.getElementById("historySlotsContainer");
+                // const history_array = historyPlay.getHistory();
+                historySlotsContainer.innerHTML = "";
+                let HCLStreak = 0;
+                let currentLStreak = 0;
+                history_array_English.forEach((hist_English,i)=>{
+                    const hist_Spanish = history_array_Spanish[i];
+                     //  BET STAKING
+                    //  if(!hist.w_l_outcome)return;
+                     
+                    if(hist_English.odds && hist_English.bet_on===true && hist_Spanish.odds && hist_Spanish.bet_on){
+                        // if(hist.w_l_outcome)betStakeMaths.update(hist.w_l_outcome,);
+                        const MULTIBETS_TOTAL_ODDS = Number((hist_English.odds*hist_Spanish.odds).toFixed(2));
+                        let ODDS_TO_BET_ON = MULTIBETS_TOTAL_ODDS;
+                        /**
+                         * @type {"EnglishLeague"|"SpanishLeague"|"MultiBet"}
+                         * **/
+                        let BetOnLeague = "MultiBet";
+                        if(hist_Spanish.odds>=2 ){//&& hist_English.odds
+                            // bet on spanish league if both teams have odds >=2
+                            BetOnLeague = "SpanishLeague";
+                            ODDS_TO_BET_ON = hist_Spanish.odds;
+                        }
+                        else if(hist_English.odds>=2 ){//&& hist_English.odds
+                            BetOnLeague = "EnglishLeague";
+                            ODDS_TO_BET_ON = hist_English.odds;
+                        }else {
+
+                        }
+                        const {stake,payout,current_balance,total_loss,highest_total_loss,
+                            minimum_stake
+                        } = betStakeMaths.placeBet({
+                            odds:ODDS_TO_BET_ON,
+                            bettedOn: BetOnLeague
+                        });
+                        console.log({stake,odds:ODDS_TO_BET_ON,payout});
+                        hist_English.stake = stake.toFixed(2);
+                        hist_English.payout = payout.toFixed(2);
+                        hist_English.current_balance = current_balance.toFixed(2);//This is currrent balance after stake is substracted and previous payout is not added yet
+                        hist_English.total_loss = total_loss.toFixed(2);
+                        hist_English.highest_total_loss = highest_total_loss.toFixed(2);
+                        hist_English.minimum_stake = minimum_stake.toFixed(2);
+                        hist_English.odds = hist_English.odds;
+                        hist_Spanish.multibet_odds_string = `${hist_English.odds} x ${hist_Spanish.odds} = ${MULTIBETS_TOTAL_ODDS}`;
+                        hist_Spanish.multibet_odds_number = MULTIBETS_TOTAL_ODDS;
+                        hist_English.teams = `${hist_English.home_team_name}-${hist_English.away_team_name} & ${hist_Spanish.home_team_name}-${hist_Spanish.away_team_name}`;
+                        hist_English.outcomes_wl = `${hist_English.w_l_outcome} & ${hist_Spanish.w_l_outcome}`; 
+                        //spanish
+                        hist_Spanish.stake = stake.toFixed(2);
+                        hist_Spanish.payout = payout.toFixed(2);
+                        hist_Spanish.current_balance = current_balance.toFixed(2);//This is currrent balance after stake is substracted and previous payout is not added yet
+                        hist_Spanish.total_loss = total_loss.toFixed(2);
+                        hist_Spanish.highest_total_loss = highest_total_loss.toFixed(2);
+                        hist_Spanish.minimum_stake = minimum_stake.toFixed(2)
+                        hist_Spanish.odds = hist_Spanish.odds;
+                        hist_Spanish.multibet_odds_string = `${hist_English.odds} x ${hist_Spanish.odds} = ${MULTIBETS_TOTAL_ODDS}`;
+                        hist_Spanish.multibet_odds_number = MULTIBETS_TOTAL_ODDS;
+                        hist_Spanish.teams = `${hist_English.home_team_name}-${hist_English.away_team_name} & ${hist_Spanish.home_team_name}-${hist_Spanish.away_team_name}`;
+                        hist_Spanish.outcomes_wl = `${hist_English.w_l_outcome} & ${hist_Spanish.w_l_outcome}`; 
+                        // if(i==0){
+                        // }
+                        // This is because the bet alreaddy took place so just update it here.
+                        let MULTIBET_WL_OUTCOME = "l";
+                        if(BetOnLeague=="MultiBet"){
+                            if(hist_English.w_l_outcome&&  hist_Spanish.w_l_outcome ){
+                                MULTIBET_WL_OUTCOME = hist_English.w_l_outcome==="w"&& hist_Spanish.w_l_outcome==="w"?"w":"l";
+                                
+                            }
+                        }else if(BetOnLeague=="EnglishLeague"){
+                            if(hist_English.w_l_outcome){
+                                MULTIBET_WL_OUTCOME = hist_English.w_l_outcome;
+                                
+                            }
+                        }else if(BetOnLeague=="SpanishLeague"){
+                            if(hist_Spanish.w_l_outcome){
+                                MULTIBET_WL_OUTCOME = hist_Spanish.w_l_outcome;
+                                
+                            }
+                        }else {}
+
+                        betStakeMaths.update(MULTIBET_WL_OUTCOME,);
+                        if(MULTIBET_WL_OUTCOME==="l"){
+                            currentLStreak+=1;
+                        }else {
+                            currentLStreak = 0;
+                        }
+                        if(currentLStreak>HCLStreak){
+                            HCLStreak = currentLStreak;
+                        }
+
+                     
+                    }
+                    hist_English.HCLStreak = HCLStreak;
+                    hist_Spanish.HCLStreak = HCLStreak;
+                    
+                    if(!hist_English.w_l_outcome){//the upcoming match
+                        // delete hist.game_round_name;
+                        // delete hist.season_number;
+                        // delete hist.request_idKey;
+                        // delete hist.row_index;
+                        delete hist_English.home_team_name;
+                        delete hist_English.away_team_name;
+                        // delete hist.odds;
+                        // delete hist.btts_prediction
+                    }
+                    if(!hist_Spanish.w_l_outcome){//the upcoming match
+                        // delete hist_Spanish.game_round_name;
+                        // delete hist_Spanish.season_number;
+                        // delete hist_Spanish.request_idKey;
+                        // delete hist_Spanish.row_index;
+                        delete hist_Spanish.home_team_name;
+                        delete hist_Spanish.away_team_name;
+                        // delete hist_Spanish.odds;
+                        // delete hist_Spanish.btts_prediction
+                    }
+                });
+                const history_array_English_REVERSED = [...history_array_English].reverse();
+                const history_array_Spanish_REVERSED = [...history_array_Spanish].reverse();
+                history_array_English_REVERSED.forEach((hist_English,i)=>{
+                    const hist_Spanish = history_array_Spanish_REVERSED[i];
+                    // if(i==0){
+                    //     hist.stake = stake;
+                    //     hist.payout = payout;
+                    //     hist.current_balance = current_balance;
+                    //     hist.total_loss = total_loss;
+                    // }
+                    const div = document.createElement("div");
+                    div.id = i;
+                    let MULTIBET_WL_OUTCOME = "";
+                    if(hist_English.w_l_outcome && hist_Spanish.w_l_outcome){
+                        MULTIBET_WL_OUTCOME = hist_English.w_l_outcome==="w"&& hist_Spanish.w_l_outcome==="w"?"w":"l";
+
+                    }
+                    const text = hist_English.bet_on && hist_Spanish.bet_on?(MULTIBET_WL_OUTCOME||"BET"):"SKIP";
+                    div.textContent = text;
+                    div.classList.add(text.toUpperCase())
+                    historySlotsContainer.appendChild(div);
+                    console.log({hist_English})
+                    const MULTIBETS_TOTAL_ODDS = Number((hist_English.odds*hist_Spanish.odds).toFixed(2));
+                    delete hist_English.home_team_name;
+                    delete hist_English.away_team_name;
+                    const newHist = {
+                        ...hist_English,
+                        w_l_outcome: MULTIBET_WL_OUTCOME,
+                        
+                        odds: `${hist_English.odds} x ${hist_Spanish.odds} = ${MULTIBETS_TOTAL_ODDS}`,
+                        submarket_prediction: `${hist_English.submarket_prediction} & ${hist_Spanish.submarket_prediction}`, 
+                        key: i
+                    };
+                    
+                    ///Odds
+
+                    div.title = JSON.stringify(newHist,null,2)
+
+                    
+                    const tooltipStyles = {
+                    }
+                    const toolTipDiv = document.getElementById('tooltip')
+                    console.log({toolTipDiv})
+                    Object.keys(tooltipStyles).forEach((ky)=>{
+                        toolTipDiv.style[ky] = tooltipStyles[ky];
+                    } )
+
+                    div.addEventListener('click', (event) => {
+                        // Get the title attribute
+                        const title = div.getAttribute('title');
+
+                        // Show the title in the custom tooltip
+                        // toolTipDiv.textContent = title;
+                        toolTipDiv.innerHTML = objectToHtml(JSON.parse(title));
+                    });
+                    if(i==0)div.click();
+
+                })
+            }catch(e){
+                throw e;
+            }
+        }
+    </script>
+    <script>
+        // async function mainApp(){
+        //     try{
+        //         console.log("Running")
+                
+        //         // if(set){
+        //         // }
+                
+        //         render(pickeBetsJSON_resp.data)
+
+                
+                
+        //     }catch(e){
+                
+        //         throw e;
+        //     }
+        // };
+        const calculateBtn = document.getElementById("calculateBtn");
+        
+        calculateBtn.addEventListener("click",async (e)=>{
+            
+            await render();
+        });
+        loadingIndicator.show()
+        render().then(async ()=>{
+            loadingIndicator.hide()
+            setInterval(async()=>{
+                try{
+                    loadingIndicator.show()
+                    await render();
+                    loadingIndicator.hide()
+                }catch(error){
+                    errorBannerClass.show(error.message)
+                }
+            },60000)
+        }).catch(error=>{
+            errorBannerClass.show(error.message)
+        })
+    </script>
+
+</body>
+</html>
