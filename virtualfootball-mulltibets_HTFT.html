@@ -331,6 +331,8 @@
                 this.resetAndInitilizeState();
                 this.#current_balance = this.#initial_capital;
             }
+            
+
             getNextStakeForLowCashouts(previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake) {
                 console.log("(fn:this.getNextStakeForLowCashouts)")
                 if(previousOutcome_w_or_l==="w" ) return initialStake;
@@ -373,7 +375,7 @@
             getNextStake({previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake}){
                 console.log("[method:getNextStake]",{previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake})
                 // return this.getNextStakeForLowCashouts(previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake);
-                if(cashOutAt<2.50){
+                if(cashOutAt<2.50 || lastStake<1){
                     //
                     return this.getNextStakeForLowCashouts(previousOutcome_w_or_l, lastStake, totalLoss, targetProfit, cashOutAt,initialStake);
                 }else {
