@@ -290,163 +290,224 @@
         const DOMAIN_URL = "https://inn-formal-executed-require.trycloudflare.com";
 
         async function get_eventsSourceData(){
-            const eventSource = new EventSource(DOMAIN_URL+'/events');
-    
-            eventSource.onmessage = function (e) {
-                console.log("fn:onMessage")
-                try{
-                    
-                    // {
-                        // "time": "2025-06-04T17:34:03.016Z",
-                        // "data": {
-                        //     "account_id": 120332368,
-                        //     "barrier_count": 1,
-                        //     "bid_price": 1.21,
-                        //     "buy_price": 1,
-                        //     "commission": 0.05,
-                        //     "contract_id": 283754763728,
-                        //     "contract_type": "MULTUP",
-                        //     "currency": "USD",
-                        //     "current_spot": 3378.11,
-                        //     "current_spot_display_value": "3378.11",
-                        //     "current_spot_time": 1749058442,
-                        //     "date_expiry": 4902670500,
-                        //     "date_settlement": 4902854400,
-                        //     "date_start": 1749047403,
-                        //     "display_name": "Gold/USD",
-                        //     "entry_spot": 3369.33,
-                        //     "entry_spot_display_value": "3369.33",
-                        //     "entry_tick": 3369.33,
-                        //     "entry_tick_display_value": "3369.33",
-                        //     "entry_tick_time": 1749047404,
-                        //     "expiry_time": 4902670500,
-                        //     "id": "05d5d3a6-f603-bafa-67c1-8e580be9b229",
-                        //     "is_expired": 0,
-                        //     "is_forward_starting": 0,
-                        //     "is_intraday": 0,
-                        //     "is_path_dependent": 1,
-                        //     "is_settleable": 0,
-                        //     "is_sold": 0,
-                        //     "is_valid_to_cancel": 0,
-                        //     "is_valid_to_sell": 1,
-                        //     "is_valid_to_update": {
-                        //     "stop_loss": 1,
-                        //     "stop_out": 0,
-                        //     "take_profit": 1
-                        //     },
-                        //     "limit_order": {
-                        //     "stop_loss": {
-                        //         "display_name": "Stop loss",
-                        //         "display_order_amount": "-1.00",
-                        //         "order_amount": -1,
-                        //         "order_date": 1749047403,
-                        //         "value": "3337.44"
-                        //     },
-                        //     "stop_out": {
-                        //         "display_name": "Stop out",
-                        //         "display_order_amount": "-1.00",
-                        //         "order_amount": -1,
-                        //         "order_date": 1749047403,
-                        //         "value": "3337.44"
-                        //     }
-                        //     },
-                        //     "longcode": "If you select 'Up', your total profit/loss will be the percentage increase in Gold/USD, multiplied by 100, minus commissions.",
-                        //     "multiplier": 100,
-                        //     "profit": 0.21,
-                        //     "profit_percentage": 21,
-                        //     "purchase_time": 1749047403,
-                        //     "shortcode": "MULTUP_FRXXAUUSD_1.00_100_1749047403_4902670500_0_0.00_N1_0",
-                        //     "status": "open",
-                        //     "transaction_ids": {
-                        //     "buy": 565575304788
-                        //     },
-                        //     "underlying": "frxXAUUSD",
-                        //     "validation_params": {
-                        //     "stake": {
-                        //         "max": "1000.00",
-                        //         "min": "1.00"
-                        //     },
-                        //     "stop_loss": {
-                        //         "max": "1.00",
-                        //         "min": "0.10"
-                        //     },
-                        //     "take_profit": {
-                        //         "max": "50.00",
-                        //         "min": "0.22"
-                        //     }
-                        //     }
-                        // }
-                        // }
-        
-                    const respData = JSON.parse(e.data);
-                    const openTradeData = respData.data;
-                    console.log('New message:',respData);
-                    /**
-                     * Calculates the percentage price change.
-                     * @param {number} oldPrice - The previous price.
-                     * @param {number} newPrice - The current price.
-                     * @param {"MULTUP"|"MULTDOWN"} contract_type - The current price.
-                     * @returns {number} Percentage change (positive or negative).
-                     */
-                    function getPriceChangePercentage(oldPrice, newPrice, contract_type) {
-                        if (oldPrice === 0) return 0; // Avoid division by zero
-                        const change_ = ((newPrice - oldPrice) / oldPrice) * 100;
-                        const change = parseFloat(change_.toFixed(2)); // round to 2 decimal places
-                        
-                        if(contract_type=="MULTDOWN"){
-                            if(newPrice>oldPrice){//lossing
-                                if(change>0){
-                                    return -change;
-                                }else {
-                                    return change;
-                                }
-                            }
+            
+            const histResp = await fetch(DOMAIN_URL+"/history-multipliers",{
+                                headers: {
+                                    "ngrok-skip-browser-warning": "any-value",
+                                    
+                                    origin:window.location
+                                },
+                                mode:"no-cors"
+                            }).then(res => res.json())
+            const respData = JSON.parse(e.data);
+            const openTradeData = respData.data;
+            console.log('New message:',respData);
+            /**
+             * Calculates the percentage price change.
+             * @param {number} oldPrice - The previous price.
+             * @param {number} newPrice - The current price.
+             * @param {"MULTUP"|"MULTDOWN"} contract_type - The current price.
+             * @returns {number} Percentage change (positive or negative).
+             */
+            function getPriceChangePercentage(oldPrice, newPrice, contract_type) {
+                if (oldPrice === 0) return 0; // Avoid division by zero
+                const change_ = ((newPrice - oldPrice) / oldPrice) * 100;
+                const change = parseFloat(change_.toFixed(2)); // round to 2 decimal places
+                
+                if(contract_type=="MULTDOWN"){
+                    if(newPrice>oldPrice){//lossing
+                        if(change>0){
+                            return -change;
                         }else {
-                            // MULTUP
-                            if(newPrice<oldPrice){//lossing
-                                if(change>0){
-                                    return -change;
-                                }else {
-                                    return change;
-                                }
-                            }
-        
+                            return change;
                         }
-                        return change;
                     }
+                }else {
+                    // MULTUP
+                    if(newPrice<oldPrice){//lossing
+                        if(change>0){
+                            return -change;
+                        }else {
+                            return change;
+                        }
+                    }
+
+                }
+                return change;
+            }
+
+            
+            currentTradeData  = {
+                asset: openTradeData.display_name,//"Volatility 75 Index",
+                direction: openTradeData.contract_type==="MULTUP"?"Buy":"Sell",//"Buy",
+                profit: (openTradeData.profit>0?"+$":"-$")+openTradeData.profit,//"+$8.45",
+                time: "Running since "+new Date(openTradeData.purchase_time*1000).toUTCString(),
+                entryPrice: openTradeData.entry_spot_display_value,//"123.45",
+                currentPrice: openTradeData.current_spot_display_value,//"123.50",
+                multiplier: "x"+openTradeData.multiplier,//"x200",
+                stake: "$"+openTradeData.buy_price,//"$4.00",
+                percentageChange: getPriceChangePercentage(openTradeData.entry_spot,openTradeData.current_spot,openTradeData.contract_type)+"%"//"+211.25%" // (8.45 / 4.00) * 100
+            };
+            console.log({currentTradeData})
+            updateCurrentTrade();
+            
+            // const eventSource = new EventSource(DOMAIN_URL+'/events');
+    
+            // eventSource.onmessage = function (e) {
+            //     console.log("fn:onMessage")
+            //     try{
+                    
+            //         // {
+            //             // "time": "2025-06-04T17:34:03.016Z",
+            //             // "data": {
+            //             //     "account_id": 120332368,
+            //             //     "barrier_count": 1,
+            //             //     "bid_price": 1.21,
+            //             //     "buy_price": 1,
+            //             //     "commission": 0.05,
+            //             //     "contract_id": 283754763728,
+            //             //     "contract_type": "MULTUP",
+            //             //     "currency": "USD",
+            //             //     "current_spot": 3378.11,
+            //             //     "current_spot_display_value": "3378.11",
+            //             //     "current_spot_time": 1749058442,
+            //             //     "date_expiry": 4902670500,
+            //             //     "date_settlement": 4902854400,
+            //             //     "date_start": 1749047403,
+            //             //     "display_name": "Gold/USD",
+            //             //     "entry_spot": 3369.33,
+            //             //     "entry_spot_display_value": "3369.33",
+            //             //     "entry_tick": 3369.33,
+            //             //     "entry_tick_display_value": "3369.33",
+            //             //     "entry_tick_time": 1749047404,
+            //             //     "expiry_time": 4902670500,
+            //             //     "id": "05d5d3a6-f603-bafa-67c1-8e580be9b229",
+            //             //     "is_expired": 0,
+            //             //     "is_forward_starting": 0,
+            //             //     "is_intraday": 0,
+            //             //     "is_path_dependent": 1,
+            //             //     "is_settleable": 0,
+            //             //     "is_sold": 0,
+            //             //     "is_valid_to_cancel": 0,
+            //             //     "is_valid_to_sell": 1,
+            //             //     "is_valid_to_update": {
+            //             //     "stop_loss": 1,
+            //             //     "stop_out": 0,
+            //             //     "take_profit": 1
+            //             //     },
+            //             //     "limit_order": {
+            //             //     "stop_loss": {
+            //             //         "display_name": "Stop loss",
+            //             //         "display_order_amount": "-1.00",
+            //             //         "order_amount": -1,
+            //             //         "order_date": 1749047403,
+            //             //         "value": "3337.44"
+            //             //     },
+            //             //     "stop_out": {
+            //             //         "display_name": "Stop out",
+            //             //         "display_order_amount": "-1.00",
+            //             //         "order_amount": -1,
+            //             //         "order_date": 1749047403,
+            //             //         "value": "3337.44"
+            //             //     }
+            //             //     },
+            //             //     "longcode": "If you select 'Up', your total profit/loss will be the percentage increase in Gold/USD, multiplied by 100, minus commissions.",
+            //             //     "multiplier": 100,
+            //             //     "profit": 0.21,
+            //             //     "profit_percentage": 21,
+            //             //     "purchase_time": 1749047403,
+            //             //     "shortcode": "MULTUP_FRXXAUUSD_1.00_100_1749047403_4902670500_0_0.00_N1_0",
+            //             //     "status": "open",
+            //             //     "transaction_ids": {
+            //             //     "buy": 565575304788
+            //             //     },
+            //             //     "underlying": "frxXAUUSD",
+            //             //     "validation_params": {
+            //             //     "stake": {
+            //             //         "max": "1000.00",
+            //             //         "min": "1.00"
+            //             //     },
+            //             //     "stop_loss": {
+            //             //         "max": "1.00",
+            //             //         "min": "0.10"
+            //             //     },
+            //             //     "take_profit": {
+            //             //         "max": "50.00",
+            //             //         "min": "0.22"
+            //             //     }
+            //             //     }
+            //             // }
+            //             // }
+        
+            //         const respData = JSON.parse(e.data);
+            //         const openTradeData = respData.data;
+            //         console.log('New message:',respData);
+            //         /**
+            //          * Calculates the percentage price change.
+            //          * @param {number} oldPrice - The previous price.
+            //          * @param {number} newPrice - The current price.
+            //          * @param {"MULTUP"|"MULTDOWN"} contract_type - The current price.
+            //          * @returns {number} Percentage change (positive or negative).
+            //          */
+            //         function getPriceChangePercentage(oldPrice, newPrice, contract_type) {
+            //             if (oldPrice === 0) return 0; // Avoid division by zero
+            //             const change_ = ((newPrice - oldPrice) / oldPrice) * 100;
+            //             const change = parseFloat(change_.toFixed(2)); // round to 2 decimal places
+                        
+            //             if(contract_type=="MULTDOWN"){
+            //                 if(newPrice>oldPrice){//lossing
+            //                     if(change>0){
+            //                         return -change;
+            //                     }else {
+            //                         return change;
+            //                     }
+            //                 }
+            //             }else {
+            //                 // MULTUP
+            //                 if(newPrice<oldPrice){//lossing
+            //                     if(change>0){
+            //                         return -change;
+            //                     }else {
+            //                         return change;
+            //                     }
+            //                 }
+        
+            //             }
+            //             return change;
+            //         }
         
                     
-                    currentTradeData  = {
-                        asset: openTradeData.display_name,//"Volatility 75 Index",
-                        direction: openTradeData.contract_type==="MULTUP"?"Buy":"Sell",//"Buy",
-                        profit: (openTradeData.profit>0?"+$":"-$")+openTradeData.profit,//"+$8.45",
-                        time: "Running since "+new Date(openTradeData.purchase_time*1000).toUTCString(),
-                        entryPrice: openTradeData.entry_spot_display_value,//"123.45",
-                        currentPrice: openTradeData.current_spot_display_value,//"123.50",
-                        multiplier: "x"+openTradeData.multiplier,//"x200",
-                        stake: "$"+openTradeData.buy_price,//"$4.00",
-                        percentageChange: getPriceChangePercentage(openTradeData.entry_spot,openTradeData.current_spot,openTradeData.contract_type)+"%"//"+211.25%" // (8.45 / 4.00) * 100
-                    };
-                    console.log({currentTradeData})
-                    updateCurrentTrade();
+            //         currentTradeData  = {
+            //             asset: openTradeData.display_name,//"Volatility 75 Index",
+            //             direction: openTradeData.contract_type==="MULTUP"?"Buy":"Sell",//"Buy",
+            //             profit: (openTradeData.profit>0?"+$":"-$")+openTradeData.profit,//"+$8.45",
+            //             time: "Running since "+new Date(openTradeData.purchase_time*1000).toUTCString(),
+            //             entryPrice: openTradeData.entry_spot_display_value,//"123.45",
+            //             currentPrice: openTradeData.current_spot_display_value,//"123.50",
+            //             multiplier: "x"+openTradeData.multiplier,//"x200",
+            //             stake: "$"+openTradeData.buy_price,//"$4.00",
+            //             percentageChange: getPriceChangePercentage(openTradeData.entry_spot,openTradeData.current_spot,openTradeData.contract_type)+"%"//"+211.25%" // (8.45 / 4.00) * 100
+            //         };
+            //         console.log({currentTradeData})
+            //         updateCurrentTrade();
     
-                }catch(error){
-                    console.log({error})
-                }
+            //     }catch(error){
+            //         console.log({error})
+            //     }
     
-            };
+            // };
     
-            eventSource.addEventListener('heartbeat', function (e) {
-                console.log('Heartbeat:', JSON.parse(e.data));
-            });
+            // eventSource.addEventListener('heartbeat', function (e) {
+            //     console.log('Heartbeat:', JSON.parse(e.data));
+            // });
     
-            eventSource.addEventListener('welcome', function (e) {
-                console.log('Welcome:', JSON.parse(e.data));
-            });
+            // eventSource.addEventListener('welcome', function (e) {
+            //     console.log('Welcome:', JSON.parse(e.data));
+            // });
     
-            eventSource.onerror = function (e) {
-                console.error('EventSource error:', e);
-            };
+            // eventSource.onerror = function (e) {
+            //     console.error('EventSource error:', e);
+            // };
             
 
         }
@@ -865,7 +926,9 @@
             }
 
             //
-            await get_eventsSourceData();
+            setInterval(async ()=>{
+                await get_eventsSourceData();
+            },1000)
             tradeHistoryData = await get_tradeHistoryDataAsync();
             console.log({tradeHistoryData})
             // Initial updates
