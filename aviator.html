@@ -1,258 +1,603 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aviator Betting Strategy</title>
-    <link rel="stylesheet" href="./nav.css"/>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Tailwind CSS CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Custom font for a clean look */
         body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px;
-            margin: 0;
-            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
         }
-        .button-container {
-            display: flex;
-            flex-direction: column;
+
+        /* Bottom Navigation Styling */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
             width: 100%;
-            gap: 10px;
-            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #ffffff; /* White background */
+            padding: 10px 0;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1); /* Shadow at the top */
+            border-top-left-radius: 15px; /* Rounded top corners */
+            border-top-right-radius: 15px; /* Rounded top corners */
+            z-index: 1000; /* Ensure it stays on top */
         }
+
+        /* Dark mode styles for bottom navigation */
+        html[data-theme='dark'] .bottom-nav {
+            background-color: #333333;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .bottom-nav a {
+            flex: 1; /* Distribute space evenly */
+            text-align: center;
+            padding: 8px 0;
+            color: #6b7280; /* Gray text */
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 8px; /* Slightly rounded links */
+            margin: 0 5px; /* Space between links */
+        }
+
+        /* Dark mode styles for bottom navigation links */
+        html[data-theme='dark'] .bottom-nav a {
+            color: #cccccc;
+        }
+
+        .bottom-nav a:hover {
+            background-color: #e0e7ff; /* Light indigo on hover */
+            color: #4f46e5; /* Deeper indigo text on hover */
+        }
+
+        /* Dark mode styles for bottom navigation link hover */
+        html[data-theme='dark'] .bottom-nav a:hover {
+            background-color: #444444;
+            color: #a78bfa; /* Lighter purple on hover */
+        }
+
+        .bottom-nav a.active {
+            background-color: #6366f1; /* Indigo background for active link */
+            color: white; /* White text for active link */
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4); /* Shadow for active link */
+        }
+
+        /* Dark mode styles for active bottom navigation link */
+        html[data-theme='dark'] .bottom-nav a.active {
+            background-color: #4f46e5; /* Slightly darker indigo for active */
+            color: white;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
+        }
+
+        /* General Dark Mode Styles */
+        html[data-theme='dark'] body {
+            background: linear-gradient(135deg, #1f2937, #111827); /* Darker background */
+            color: #e5e7eb; /* Lighter text */
+        }
+
+        html[data-theme='dark'] h1, html[data-theme='dark'] p {
+            color: #e5e7eb;
+        }
+
+        /* Adjusting existing button styles for dark mode and general aesthetics */
         button {
             padding: 15px;
             font-size: 16px;
             cursor: pointer;
-            border-radius: 5px;
-            border: 1px solid #333;
-            background-color: #f0f0f0;
-            transition: background-color 0.3s;
-            width: 100%;
-            max-width: 300px;
-            margin: 0 auto;
+            border-radius: 12px; /* More rounded corners */
+            border: none; /* No default border */
+            transition: all 0.3s ease;
+            width: 100%; /* Buttons take full width of their grid cell */
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Subtle text shadow for buttons */
+            position: relative; /* For pseudo-elements or overlays */
+            overflow: hidden; /* Hide overflow for hover effects */
         }
+
+        button:active {
+            transform: translateY(0); /* Prevent extra lift on click */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Smaller shadow on click */
+        }
+
+        /* Gradient & Hover for Blue Button */
         button.blue {
-            background-color: #007bff;
+            background: linear-gradient(to right, #3b82f6, #2563eb); /* Tailwind blue-500 to blue-600 */
             color: white;
+            border: 1px solid #1e40af; /* Darker blue border */
         }
+        html[data-theme='dark'] button.blue {
+            background: linear-gradient(to right, #2563eb, #1d4ed8); /* Darker gradient blue */
+            border: 1px solid #1a365d; /* Even darker blue border */
+        }
+        button.blue:hover {
+            background: linear-gradient(to right, #2563eb, #1d4ed8); /* Darker blue on hover */
+            transform: translateY(-3px); /* Increased lift on hover */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+        }
+        html[data-theme='dark'] button.blue:hover {
+            background: linear-gradient(to right, #1d4ed8, #1e40af);
+        }
+
+        /* Gradient & Hover for Purple Button */
         button.purple {
-            background-color: #800080;
+            background: linear-gradient(to right, #8b5cf6, #7c3aed); /* Tailwind purple-500 to purple-600 */
             color: white;
+            border: 1px solid #6d28d9; /* Darker purple border */
         }
+        html[data-theme='dark'] button.purple {
+            background: linear-gradient(to right, #7c3aed, #6d28d9); /* Darker gradient purple */
+            border: 1px solid #5b21b6; /* Even darker purple border */
+        }
+        button.purple:hover {
+            background: linear-gradient(to right, #7c3aed, #6d28d9); /* Darker purple on hover */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        html[data-theme='dark'] button.purple:hover {
+            background: linear-gradient(to right, #6d28d9, #5b21b6);
+        }
+
+        /* Gradient & Hover for Pink Button */
         button.pink {
-            background-color: pink;
+            background: linear-gradient(to right, #ec4899, #db2777); /* Tailwind pink-500 to pink-600 */
             color: white;
+            border: 1px solid #be185d; /* Darker pink border */
         }
-        button:hover {
-            background-color: #ddd;
+        html[data-theme='dark'] button.pink {
+            background: linear-gradient(to right, #db2777, #be185d); /* Darker gradient pink */
+            border: 1px solid #9d174d; /* Even darker pink border */
         }
+        button.pink:hover {
+            background: linear-gradient(to right, #db2777, #be185d); /* Darker pink on hover */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        html[data-theme='dark'] button.pink:hover {
+            background: linear-gradient(to right, #be185d, #9d174d);
+        }
+
+        button.gray {
+            background-color: #e5e7eb; /* Tailwind gray-200 */
+            color: #4b5563; /* Tailwind gray-700 */
+            box-shadow: none; /* No shadow for subtle buttons */
+        }
+        html[data-theme='dark'] button.gray {
+            background-color: #4b5563; /* Darker gray for dark mode */
+            color: #d1d5db; /* Lighter text for dark mode */
+        }
+        button.gray:hover {
+            background-color: #d1d5db; /* Lighter gray on hover */
+        }
+        html[data-theme='dark'] button.gray:hover {
+            background-color: #6b7280;
+        }
+
+        button.clear-data {
+            background-color: #f3f4f6; /* Tailwind gray-100 */
+            color: #6b7280; /* Tailwind gray-500 */
+            border: 1px solid #e5e7eb; /* Light border */
+            box-shadow: none; /* Remove default shadow */
+        }
+        html[data-theme='dark'] button.clear-data {
+            background-color: #374151; /* Darker gray */
+            color: #d1d5db; /* Lighter text */
+            border-color: #4b5563; /* Darker border */
+        }
+        button.clear-data.has-data {
+            background-color: #fee2e2; /* Tailwind red-100 */
+            color: #dc2626; /* Tailwind red-600 */
+            border-color: #fca5a5; /* Tailwind red-300 */
+            box-shadow: 0 2px 8px rgba(252, 165, 165, 0.3); /* Subtle red shadow */
+        }
+        html[data-theme='dark'] button.clear-data.has-data {
+            background-color: #450a0a; /* Darker red */
+            color: #f87171; /* Lighter red */
+            border-color: #b91c1c; /* Darker red border */
+            box-shadow: 0 2px 8px rgba(185, 28, 28, 0.3);
+        }
+
+        .btn-start-recording-active {
+            background-color: #ef4444 !important; /* Tailwind red-500 */
+            color: white !important;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3) !important;
+        }
+        html[data-theme='dark'] .btn-start-recording-active {
+            background-color: #dc2626 !important; /* Darker red */
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3) !important;
+        }
+
         .tip {
             margin-top: 20px;
             font-size: 18px;
-            color: #333;
-            /* visibility: hidden; */
             text-align: center;
-            background-color: yellow;
+            background-color: #fcd34d; /* Tailwind amber-300 */
+            color: #78350f; /* Tailwind amber-900 */
+            padding: 15px 20px; /* Increased padding */
+            border-radius: 15px; /* More rounded */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+            font-weight: 700; /* Bolder text */
+            width: 100%;
+            max-width: 350px; /* Slightly wider */
+            border: 2px solid #f59e0b; /* Amber border */
+            opacity: 0; /* Start hidden for fade-in */
+            transition: opacity 0.3s ease-in-out; /* Smooth transition */
         }
-        h1,p {
-            font-size: 24px;
-            text-align: center;
-            /* margin-bottom: 20px; */
+        html[data-theme='dark'] .tip {
+            background-color: #b45309; /* Darker amber for dark mode */
+            color: #fef3c7; /* Lighter text */
+            border-color: #d97706; /* Darker amber border */
+        }
+
+        /* General layout adjustments */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px; /* Increased padding */
+            padding-bottom: 90px; /* Space for fixed bottom nav */
             margin: 0;
-            padding: 0;
+            min-height: 100vh; /* Ensure full height */
+        }
+        .main-content {
+            width: 100%;
+            max-width: 520px; /* Consistent container width */
+            background: white;
+            border-radius: 20px; /* Consistent with Forex dashboard */
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 32px 24px; /* Consistent with Forex dashboard */
+            margin-bottom: 20px; /* Space before bottom nav */
+            flex-grow: 1; /* Allow content to grow */
+            border: 1px solid #e0e7ff; /* Subtle border for light mode */
+        }
+        html[data-theme='dark'] .main-content {
+            background: #1f2937;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid #374151; /* Darker border for dark mode */
+        }
+
+        h1 {
+            font-size: 2.5rem; /* Consistent with Forex dashboard */
+            color: #6a5acd; /* Consistent color */
+            margin-bottom: 12px; /* Adjusted margin */
+            text-align: center;
+            font-weight: 900; /* Extra bold */
+            letter-spacing: -0.025em; /* Slight letter spacing adjustment */
+        }
+        html[data-theme='dark'] h1 {
+            color: #a78bfa;
+        }
+
+        p {
+            font-size: 1.1rem; /* Consistent with Forex dashboard */
+            text-align: center;
+            margin-bottom: 25px; /* Adjusted margin */
+            color: #4b5563;
+        }
+        html[data-theme='dark'] p {
+            color: #d1d5db;
+        }
+
+        /* Button container now uses grid for responsive layout */
+        .button-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Responsive grid columns */
+            gap: 18px; /* Gap between grid items */
+            margin-top: 30px;
+            justify-items: center; /* Center grid items horizontally within their cells */
+            align-items: center; /* Center grid items vertically within their cells */
+        }
+        /* No margin: auto needed on individual buttons within this grid */
+        .button-container button {
+            max-width: none; /* Remove max-width from individual buttons */
+            margin: 0; /* Remove individual margins as grid handles spacing */
         }
 
         .recording-actions-button-container {
             display: flex;
             flex-direction: row;
-            margin-top: 20px;
-            /* margin-bottom: 10px; */
+            justify-content: center; /* Center buttons */
+            margin-top: 25px; /* Adjusted top margin */
+            gap: 12px; /* Increased space between action buttons */
         }
+        /* No margin: auto needed here as parent is centering */
         .recording-actions-button-container > button {
-            margin: 10px;
+            margin: 0;
         }
-        button.gray {
-            background-color: gainsboro;
-            color: rgb(167, 164, 164);
+
+        /* Theme Toggle specific styles (aligned with Forex dashboard) */
+        #themeToggle {
+            background-color: #e5e7eb; /* Tailwind gray-200 */
+            border-radius: 9999px; /* Full rounded (p-2 rounded-full) */
+            padding: 8px; /* p-2 */
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow */
+            /* Ensure it's a perfect circle */
+            width: 40px; /* Explicit width */
+            height: 40px; /* Explicit height */
+            display: flex; /* Use flex to center SVG */
+            align-items: center; /* Center SVG vertically */
+            justify-content: center; /* Center SVG horizontally */
         }
-        .btn-start-recording-active {
-            background-color: red !important;
-            color: rgb(42, 42, 42) !important;
+
+        #themeToggle:hover {
+            background-color: #d1d5db; /* Tailwind gray-300 */
+            transform: scale(1.1);
         }
-        button.clear-data {
-            background-color: gainsboro;
-            color: rgb(167, 164, 164);
-            border: none;
+        html[data-theme='dark'] #themeToggle {
+            background-color: #374151; /* Tailwind gray-700 */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
-        button.clear-data.has-data {
-            background-color: rgb(238, 220, 220);
-            color: rgb(92, 80, 80);
-            border: 1px solid gray;
+        html[data-theme='dark'] #themeToggle:hover {
+            background-color: #4b5563; /* Tailwind gray-600 */
         }
-    
+
+        #themeToggle svg {
+            color: #4b5563; /* Tailwind gray-700 */
+            transition: color 0.2s ease-in-out;
+        }
+        html[data-theme='dark'] #themeToggle svg {
+            color: #d1d5db; /* Tailwind gray-300 */
+        }
     </style>
 </head>
-<body>
+<body class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
 
-    <h1>Aviator Betting Strategy</h1>
-    <p>Click the button that coresponds with the previous outcome in aviator</p>
-    <div class="recording-actions-button-container">
-        <!-- <button class="gray"  onclick="handleStartLearningClick(this)">Start Learning</button> -->
-        <button class="clear-data" onclick="handleClearLearningClick(this)" id="clearLearnData">Clear Learned Data</button>
-    </div>
-    <div id="tip" class="tip">Hello</div>
-    <div class="button-container">
-        <button class="blue" onclick="handleBlueUnder1point20Click()">Blue < 1.20x</button>
-        <button class="blue" onclick="handleBlueOver1point20Click()">Blue > 1.20x</button>
-        <button class="purple" onclick="handlePurpleClick()">Purple</button>
-        <button class="pink" onclick="handlePinkClick()">Pink</button>
+    <div class="main-content">
+        <header class="text-center mb-6 relative">
+            <h1 class="text-4xl font-extrabold text-indigo-700 mb-1 dark:text-indigo-300">Aviator Betting Strategy</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400">Click the button that corresponds with the previous outcome in Aviator</p>
+
+            <!-- Theme Toggle Button (Aligned with Forex Dashboard) -->
+            <button id="themeToggle" class="absolute top-0 right-0">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <!-- Sun Icon (Default for Light Mode) -->
+                    <path id="themeIconPath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h1M4 12H3m15.325 5.924l-.707.707M6.382 6.382l-.707-.707M18.325 6.382l.707-.707M6.382 18.325l.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            </button>
+        </header>
+
+        <div class="recording-actions-button-container">
+            <button class="clear-data py-3 px-6 rounded-xl text-sm font-semibold
+                           hover:bg-gray-200 dark:hover:bg-gray-600
+                           transition-all duration-200 transform hover:scale-105
+                           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+                    onclick="handleClearLearningClick(this)" id="clearLearnData">
+                Clear Learned Data
+            </button>
+        </div>
+
+        <div id="tip" class="tip">Hello</div>
+
+        <div class="button-container">
+            <button class="blue py-4 px-8 rounded-xl
+                           hover:from-blue-600 hover:to-blue-700
+                           transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300
+                           dark:hover:from-blue-700 dark:hover:to-blue-800 dark:focus:ring-blue-600"
+                    onclick="handleBlueUnder1point20Click()">
+                Blue &lt; 1.20x
+            </button>
+            <button class="blue py-4 px-8 rounded-xl
+                           hover:from-blue-600 hover:to-blue-700
+                           transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300
+                           dark:hover:from-blue-700 dark:hover:to-blue-800 dark:focus:ring-blue-600"
+                    onclick="handleBlueOver1point20Click()">
+                Blue &gt; 1.20x
+            </button>
+            <button class="purple py-4 px-8 rounded-xl
+                           hover:from-purple-600 hover:to-purple-700
+                           transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-300
+                           dark:hover:from-purple-700 dark:hover:to-purple-800 dark:focus:ring-purple-600"
+                    onclick="handlePurpleClick()">
+                Purple
+            </button>
+            <button class="pink py-4 px-8 rounded-xl
+                           hover:from-pink-600 hover:to-pink-700
+                           transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-pink-300
+                           dark:hover:from-pink-700 dark:hover:to-pink-800 dark:focus:ring-pink-600"
+                    onclick="handlePinkClick()">
+                Pink
+            </button>
+        </div>
     </div>
 
-    <div id="tip" class="tip">Hello</div>
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="./index.html" id="homeNav">Home</a>
+        <!-- <a href="./Betpawa.html" id="betpawaNav">Betpawa</a> -->
+        <a href="./aviator.html" class="active" id="aviatorNav">Aviator</a>
+        <a href="./forex.html" id="forexNav">Forex</a>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script type="text/javascript" src="./algo/HistoryRecord.js"></script>
 
-    <script >
-        // import {FlewAway,HistoryRecord} from './algo/HistoryRecord.js';
+    <script>
+        // Placeholder for FlewAway and HistoryRecord classes if not globally available
+        // class FlewAway {
+        //     constructor({ color, multiple, previousId, multiple_segment }) {
+        //         this.color = color;
+        //         this.multiple = multiple;
+        //         this.previousId = previousId;
+        //         this.multiple_segment = multiple_segment;
+        //     }
+        // }
 
+        // class HistoryRecord {
+        //     constructor() {
+        //         this.isLearning = true;
+        //         this.previousBlockId = "initial";
+        //         this.previousBlock = {
+        //             getBetSignal: () => "Bet next round!"
+        //         };
+        //     }
+        //     onStartRecording(callback) { /* console.log('onStartRecording registered'); */ }
+        //     startLearning() { /* console.log('startLearning'); */ }
+        //     clear() { /* console.log('clear'); */ }
+        //     addFlewAway(flewAway) {
+        //         this.previousBlock.getBetSignal = () => {
+        //             if (flewAway.color === "BLUE" && flewAway.multiple_segment === "< 1.20") {
+        //                 return "Bet next as 1.20x";
+        //             } else if (flewAway.color === "PURPLE") {
+        //                 return "Bet next rounds till you get 2.50x or 3.00x";
+        //             } else if (flewAway.color === "PINK") {
+        //                 return "Don't bet";
+        //             } else if (flewAway.color === "BLUE" && flewAway.multiple_segment === "> 1.20") {
+        //                 return "Consider skipping or small bet";
+        //             }
+        //             return "Analyze further";
+        //         };
+        //     }
+        // }
         // const historyRecord = new HistoryRecord();
-        // historyRecord.addFlewAway(new FlewAway({
-        //     color:"BLUE",
-        //     multiple: 1.0,
-        //     previousId:historyRecord.previousBlockId,
-        //     multiple_segment:"< 1.20"
-        // }));
-// console.log({"historyRecord.previousBlockId":historyRecord.previousBlockId})
-// console.log({"historyRecord.stats":historyRecord.previousBlock.stats})
 
-        // let isRecording = false;
         historyRecord.onStartRecording(()=>{
             const clearLearnData_elem = document.getElementById("clearLearnData")
             clearLearnData_elem.classList.add("has-data")
         });
         historyRecord.startLearning();
+
         function handleClearLearningClick(t){
             historyRecord.clear();
             t.classList.remove("has-data")
-        }
-        function handleStartLearningClick(t){
-            // isRecording = !isRecording;
-            // console.log({t})
-            if(historyRecord.isLearning===false){
-                // document.getElementById('tip')
-                t.textContent = "Stop Learning";
-                t.classList.add("btn-start-recording-active");
-                historyRecord.startLearning();
-
-            }else {
-                t.textContent = "Start Learning";
-                t.classList.remove("btn-start-recording-active");
-                historyRecord.stopLearning();
-            }
+            document.getElementById('tip').textContent = "Hello";
+            document.getElementById('tip').style.opacity = '0'; // Hide after clearing
         }
 
         function clearAnimateTip(){
             return new Promise((resolve)=>{
-                document.getElementById('tip').textContent = "Loading...";
-                const timeout = setTimeout(()=>{ 
-                    clearTimeout(timeout);
-                    resolve(true);
-                },1000)
-            })
+                const tipElement = document.getElementById('tip');
+                if (tipElement) {
+                    tipElement.style.opacity = '0'; // Fade out current tip
+                    const timeout = setTimeout(()=>{
+                        tipElement.textContent = "Loading...";
+                        tipElement.style.opacity = '1'; // Fade in loading text
+                        const loadingTimeout = setTimeout(() => { // Short delay for loading text
+                            clearTimeout(loadingTimeout);
+                            resolve(true);
+                        }, 500); // Reduced loading time for better UX
+                    }, 300); // Wait for fade-out
+                } else {
+                    resolve(false);
+                }
+            });
         }
+
+        function updateTip(signal) {
+            const tipElement = document.getElementById('tip');
+            if (tipElement) {
+                tipElement.textContent = `Tip: ${signal}`;
+                tipElement.style.opacity = '1'; // Ensure it's visible after update
+            }
+        }
+
         function handleBlueUnder1point20Click() {
-            clearAnimateTip().then(()=>{
+            clearAnimateTip().then(() => {
                 historyRecord.addFlewAway(new FlewAway({
                     color:"BLUE",
                     multiple: 0,
                     previousId:historyRecord.previousBlockId,
                     multiple_segment:"< 1.20"
                 }));
-                // document.getElementById('tip').textContent = "Tip: Bet next as 1.20x";
-                document.getElementById('tip').textContent = "Tip: "+historyRecord.previousBlock.getBetSignal();
-                document.getElementById('tip').style.visibility = "visible";
-                //remoove
-                console.log({"historyRecord.previousBlockId":historyRecord.previousBlockId})
-                console.log({"historyRecord.stats":historyRecord.previousBlock.stats})
-                //end remove
-                
-            }).catch(_ =>{});
+                updateTip(historyRecord.previousBlock.getBetSignal());
+            }).catch(e => console.error("Error in handleBlueUnder1point20Click:", e));
         }
 
         function handlePurpleClick() {
-            clearAnimateTip().then(()=>{
+            clearAnimateTip().then(() => {
                 historyRecord.addFlewAway(new FlewAway({
                     color:"PURPLE",
                     multiple: 0,
                     previousId:historyRecord.previousBlockId,
                     multiple_segment:""
                 }));
-                // document.getElementById('tip').textContent = "Tip: Bet next rounds till u get 2.50x or 3.00x";
-                document.getElementById('tip').textContent = "Tip: "+historyRecord.previousBlock.getBetSignal();;
-                document.getElementById('tip').style.visibility = "visible";
-                //remoove
-                console.log({"historyRecord.previousBlockId":historyRecord.previousBlockId})
-                console.log({"historyRecord.stats":historyRecord.previousBlock.stats})
-                //end remove
-
-            }).catch(_ =>{});
+                updateTip(historyRecord.previousBlock.getBetSignal());
+            }).catch(e => console.error("Error in handlePurpleClick:", e));
         }
 
         function handleBlueOver1point20Click() {
-            clearAnimateTip().then(()=>{
+            clearAnimateTip().then(() => {
                 historyRecord.addFlewAway(new FlewAway({
                     color:"BLUE",
                     multiple: 0,
                     previousId:historyRecord.previousBlockId,
                     multiple_segment:"> 1.20"
                 }));
-                // document.getElementById('tip').textContent = "Tip: Don't bet";
-                document.getElementById('tip').textContent = "Tip: "+historyRecord.previousBlock.getBetSignal();
-                document.getElementById('tip').style.visibility = "visible";
-                //remoove
-                console.log({"historyRecord.previousBlockId":historyRecord.previousBlockId})
-                console.log({"historyRecord.stats":historyRecord.previousBlock.stats})
-                //end remove
-                
-            }).catch(_ =>{});
+                updateTip(historyRecord.previousBlock.getBetSignal());
+            }).catch(e => console.error("Error in handleBlueOver1point20Click:", e));
         }
 
         function handlePinkClick() {
-            clearAnimateTip().then(()=>{
+            clearAnimateTip().then(() => {
                 historyRecord.addFlewAway(new FlewAway({
                     color:"PINK",
                     multiple: 0,
                     previousId:historyRecord.previousBlockId,
                     multiple_segment:""
                 }));
-                // get bet signal
-
-                // document.getElementById('tip').textContent = "Tip: Don't bet";
-                document.getElementById('tip').textContent = "Tip: "+historyRecord.previousBlock.getBetSignal();;
-                document.getElementById('tip').style.visibility = "visible";
-
-                //remoove
-                console.log({"historyRecord.previousBlockId":historyRecord.previousBlockId})
-                console.log({"historyRecord.stats":historyRecord.previousBlock.stats})
-                //end remove
-                
-            }).catch(_ =>{});
+                updateTip(historyRecord.previousBlock.getBetSignal());
+            }).catch(e => console.error("Error in handlePinkClick:", e));
         }
 
+        // Theme Toggle Logic
+        function toggleTheme() {
+            const htmlElement = document.documentElement;
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme); // Save preference
+            updateThemeIconPath(newTheme); // Update icon path
+        }
 
+        // Function to update theme icon path
+        function updateThemeIconPath(theme) {
+            const themeIconPath = document.getElementById('themeIconPath');
+            if (theme === 'dark') {
+                // Moon icon path
+                themeIconPath.setAttribute('d', 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9 9 0 008.354-5.646z');
+            } else {
+                // Sun icon path
+                themeIconPath.setAttribute('d', 'M12 3v1m0 16v1m9-9h1M4 12H3m15.325 5.924l-.707.707M6.382 6.382l-.707-.707M18.325 6.382l.707-.707M6.382 18.325l.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z');
+            }
+        }
+
+        // Event listener for theme toggle button and initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggleButton = document.getElementById('themeToggle');
+            if (themeToggleButton) {
+                themeToggleButton.addEventListener('click', toggleTheme);
+            }
+
+            // Apply saved theme on load
+            const savedTheme = localStorage.getItem('theme');
+            const initialTheme = savedTheme || 'light';
+            document.documentElement.setAttribute('data-theme', initialTheme);
+            updateThemeIconPath(initialTheme); // Set initial icon based on theme
+
+            // Highlight the active navigation link based on the current page
+            const path = window.location.pathname;
+            const fileName = path.substring(path.lastIndexOf('/') + 1);
+            const activeNavId = {
+                'index.html': 'homeNav',
+                'Betpawa.html': 'betpawaNav',
+                'aviator.html': 'aviatorNav',
+                '': 'aviatorNav'
+            }[fileName];
+
+            if (activeNavId) {
+                const activeNavElement = document.getElementById(activeNavId);
+                if (activeNavElement) {
+                    activeNavElement.classList.add('active');
+                }
+            }
+        });
     </script>
-
-     <!-- First Bottom Navigation -->
-     <div class="bottom-nav">
-        <a href="./index.html">Home</a>
-        <a href="./aviator.html" class="active">Aviator</a>
-        <a href="./forex.html">Forex</a>
-    </div>
-
-
-   
 </body>
 </html>
