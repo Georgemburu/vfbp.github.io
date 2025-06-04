@@ -7,6 +7,7 @@
     <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="./api/index.js"></script>
     <style>
         /* Custom font for a clean look */
         body {
@@ -286,20 +287,23 @@
         //     percentageChange: "+211.25%" // (8.45 / 4.00) * 100
         // };
         // const DOMAIN_URL = "http://localhost:30019";
-        // const DOMAIN_URL = "https://simple-distinctly-eft.ngrok-free.app";
-        const DOMAIN_URL = "https://inn-formal-executed-require.trycloudflare.com";
+        const DOMAIN_URL = "https://simple-distinctly-eft.ngrok-free.app";
+        // const DOMAIN_URL = "https://inn-formal-executed-require.trycloudflare.com";
 
         async function get_eventsSourceData(){
             
-            const histResp = await fetch(DOMAIN_URL+"/history-multipliers",{
-                                headers: {
-                                    "ngrok-skip-browser-warning": "any-value",
+            // const histResp = await fetch(DOMAIN_URL+"/events",{
+            //                     headers: {
+            //                         "ngrok-skip-browser-warning": "any-value",
                                     
-                                    origin:window.location
-                                },
-                                mode:"no-cors"
-                            }).then(res => res.json())
-            const respData = JSON.parse(e.data);
+            //                         "User-Agent":""
+            //                     },
+            //                     mode:"no-cors"
+            //                 }).then(res => res.json())
+            const respData = await performJSONFetch(DOMAIN_URL+"/events",{
+                                method:"POST",
+                                body: ""
+                            })
             const openTradeData = respData.data;
             console.log('New message:',respData);
             /**
@@ -515,14 +519,10 @@
         //
         async function get_tradeHistoryDataAsync(){
             
-            const histResp = await fetch(DOMAIN_URL+"/history-multipliers",{
-                                headers: {
-                                    "ngrok-skip-browser-warning": "any-value",
-                                    
-                                    origin:window.location
-                                },
-                                mode:"no-cors"
-                            }).then(res => res.json())
+            const histResp = await performJSONFetch(DOMAIN_URL+"/history-multipliers",{
+                                method:"POST",
+                                body: ""
+                            })
             console.log({histResp})
             let tradeHistoryData = histResp.data.map((position)=> {
                 // {
