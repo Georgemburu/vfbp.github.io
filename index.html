@@ -457,8 +457,10 @@
             const histResp = await fetch(DOMAIN_URL+"/history-multipliers",{
                                 headers: {
                                     "ngrok-skip-browser-warning": "any-value",
+                                    
                                     origin:window.location
-                                }
+                                },
+                                mode:"no-cors"
                             }).then(res => res.json())
             console.log({histResp})
             let tradeHistoryData = histResp.data.map((position)=> {
