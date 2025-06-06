@@ -543,7 +543,8 @@
                 // }
                 return {
                     asset: position.underlying_symbol,
-                    result: (position.payout<position.buy_price?"-$":"+$")+Math.abs(position.payout-position.buy_price),
+                    // result: (position.payout<position.buy_price?"-$":"+$")+Math.abs(position.payout-position.buy_price),
+                    result: (position.sell_price<position.buy_price?"-$":"+$")+Math.abs(position.buy_price-position.sell_price).toFixed(2),
                     direction: position.contract_type==="MULTUP"?"Buy":"Sell",
                     timestamp: new Date(position.purchase_time*1000).toUTCString(),//position.purchase_time,
                     multiplier: "x"+position.multiplier,
@@ -949,7 +950,7 @@
                 // 'Betpawa.html': 'betpawaNav',
                 'aviator.html': 'aviatorNav',
                 'forex.html': 'forexNav',
-                '': 'homeNav' // Default if no file name (e.g., root)
+                '': 'forexNav' // Default if no file name (e.g., root)
             }[fileName];
 
             if (activeNavId) {
