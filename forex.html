@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Started with VFBPredictor</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>VFBPredictor - Forex Trading Game</title>
     <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         /* Custom font for a clean look */
         body {
             font-family: 'Inter', sans-serif;
         }
-
-        /* Bottom Navigation Styling (consistent across apps) */
+        /* Ensure canvas is responsive */
+        canvas {
+            max-width: 100%;
+            height: auto;
+            display: block; /* Remove extra space below canvas */
+            margin: 10px auto; /* Center the canvas */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+        }
+        /* Bottom Navigation Styling */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -76,308 +85,650 @@
             box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
         }
 
-        /* General Dark Mode Styles */
+        /* General Dark Mode Styles using data-theme attribute */
         html[data-theme='dark'] body {
             background: linear-gradient(135deg, #1f2937, #111827); /* Darker background */
             color: #e5e7eb; /* Lighter text */
         }
 
-        html[data-theme='dark'] h1, html[data-theme='dark'] p {
-            color: #e5e7eb;
-        }
-
-        /* Main content container styling (consistent with other dashboards) */
-        .main-content {
-            width: 100%;
-            max-width: 520px; /* Consistent container width */
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            padding: 32px 24px;
-            margin-bottom: 20px; /* Space before bottom nav */
-            flex-grow: 1; /* Allow content to grow */
-            border: 1px solid #e0e7ff; /* Subtle border for light mode */
-        }
-        html[data-theme='dark'] .main-content {
-            background: #1f2937;
+        html[data-theme='dark'] .container {
+            background: #1f2937; /* Darker container background */
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid #374151; /* Darker border for dark mode */
         }
 
-        /* Header styling (consistent with other dashboards) */
-        h1 {
-            font-size: 2.5rem; /* Consistent with other dashboards */
-            color: #6a5acd; /* Consistent color */
-            margin-bottom: 12px;
-            text-align: center;
-            font-weight: 900; /* Extra bold */
-            letter-spacing: -0.025em;
-        }
         html[data-theme='dark'] h1 {
-            color: #a78bfa; /* Lighter indigo for dark mode */
+            color: #a78bfa; /* Lighter indigo for H1 */
         }
 
-        /* Paragraph styling (consistent with other dashboards) */
-        p {
-            font-size: 1.1rem; /* Consistent with other dashboards */
-            text-align: center;
-            margin-bottom: 15px;
-            color: #4b5563;
-            line-height: 1.6; /* Improved readability */
-        }
-        html[data-theme='dark'] p {
-            color: #d1d5db;
+        html[data-theme='dark'] h2 {
+            color: #9ca3af; /* Lighter gray for H2 */
         }
 
-        /* Link styling */
-        a {
-            color: #4f46e5; /* Indigo-600 */
-            text-decoration: none;
-            font-weight: bold;
-            word-wrap: break-word;
-            transition: color 0.2s ease-in-out;
-        }
-        a:hover {
-            color: #6366f1; /* Indigo-500 on hover */
-            text-decoration: underline;
-        }
-        html[data-theme='dark'] a {
-            color: #a78bfa; /* Lighter purple for dark mode */
-        }
-        html[data-theme='dark'] a:hover {
-            color: #c4b5fd; /* Even lighter purple on hover */
+        html[data-theme='dark'] .cta p {
+            color: #d1d5db; /* Lighter gray for CTA text */
         }
 
-        /* Step section styling */
-        .step {
-            background-color: #f8f9fa; /* Light gray background */
-            border: 1px solid #e0e7ff; /* Light indigo border */
-            padding: 20px; /* Increased padding */
-            margin-bottom: 20px; /* Consistent margin */
-            border-radius: 12px; /* More rounded corners */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Subtle shadow */
-            text-align: left; /* Align text left within steps */
-        }
-        html[data-theme='dark'] .step {
-            background-color: #2d3748; /* Darker background */
-            border-color: #4b5563; /* Darker border */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-        .step p strong {
-            color: #3b82f6; /* Blue for strong text */
-            font-size: 1.2rem;
-        }
-        html[data-theme='dark'] .step p strong {
-            color: #60a5fa; /* Lighter blue for dark mode */
+        html[data-theme='dark'] .cta button {
+            background: linear-gradient(to right, #4f46e5, #8b5cf6); /* Adjusted button gradient */
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
         }
 
-        /* Footer styling */
-        .footer {
-            font-size: 1rem; /* Slightly larger font */
-            color: #555;
-            margin-top: 25px; /* Increased margin */
-            text-align: center;
-        }
-        html[data-theme='dark'] .footer {
-            color: #9ca3af;
-        }
-        .footer strong {
-            color: #6366f1; /* Indigo for strong text */
-        }
-        html[data-theme='dark'] .footer strong {
-            color: #a78bfa;
+        html[data-theme='dark'] .cta button:hover {
+            background: linear-gradient(to right, #4338ca, #7c3aed);
         }
 
-        /* Body layout */
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        html[data-theme='dark'] .section h3 {
+            color: #e5e7eb; /* Lighter text for section titles */
+            border-color: #a78bfa; /* Lighter border color */
+        }
+
+        html[data-theme='dark'] .info-box {
+            background: #2d3748; /* Darker info box background */
+            border-color: #6366f1; /* Consistent border color */
+            color: #e5e7eb; /* Lighter text */
+        }
+        
+        /* Specific styles for this forex game page */
+        html[data-theme='dark'] canvas {
+            background: #1a202c; /* Even darker canvas background for dark mode */
+            border: 1px solid #4a5568;
+        }
+
+        html[data-theme='dark'] .controls button {
+            background: #4a5568;
+            border: 1px solid #6b7280;
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .controls button:hover {
+            background: #2d3748;
+        }
+
+        html[data-theme='dark'] .info {
+            color: #e2e8f0;
+        }
+
+        /* Message box styling */
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
             padding: 20px;
-            padding-bottom: 90px; /* Space for fixed bottom nav */
-            margin: 0;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #e0e7ff, #f3e8ff); /* Light gradient background */
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            display: none; /* Hidden by default */
+            max-width: 300px;
+            text-align: center;
         }
-        html[data-theme='dark'] body {
-            background: linear-gradient(135deg, #1f2937, #111827); /* Dark gradient background */
+        html[data-theme='dark'] .message-box {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
-
-        /* Theme Toggle specific styles (aligned with Forex dashboard) */
-        #themeToggle {
-            background-color: #e5e7eb; /* Tailwind gray-200 */
-            border-radius: 9999px; /* Full rounded (p-2 rounded-full) */
-            padding: 8px; /* p-2 */
-            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow */
-            width: 40px; /* Explicit width */
-            height: 40px; /* Explicit height */
-            display: flex; /* Use flex to center SVG */
-            align-items: center; /* Center SVG vertically */
-            justify-content: center; /* Center SVG horizontally */
+        .message-box button {
+            margin-top: 15px;
+            padding: 8px 15px;
+            background-color: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
-
-        #themeToggle:hover {
-            background-color: #d1d5db; /* Tailwind gray-300 */
-            transform: scale(1.1);
-        }
-        html[data-theme='dark'] #themeToggle {
-            background-color: #374151; /* Tailwind gray-700 */
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-        html[data-theme='dark'] #themeToggle:hover {
-            background-color: #4b5563; /* Tailwind gray-600 */
+        
+        /* Trade button styling */
+        .trade-buttons button {
+            padding: 0.75rem 1.5rem; /* py-3 px-6 */
+            border-radius: 0.75rem; /* rounded-xl */
+            font-weight: bold;
+            font-size: 1.125rem; /* text-lg */
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transform: translateY(0);
         }
 
-        #themeToggle svg {
-            color: #4b5563; /* Tailwind gray-700 */
-            transition: color 0.2s ease-in-out;
+        .trade-buttons button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px -1px rgba(0, 0, 0, 0.15);
         }
-        html[data-theme='dark'] #themeToggle svg {
-            color: #d1d5db; /* Tailwind gray-300 */
+
+        .trade-buttons button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: translateY(0);
+            box-shadow: none;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
-    <div class="main-content">
+<body class="bg-gradient-to-br from-indigo-50 to-purple-50 min-h-screen flex items-center justify-center p-4 pb-20
+             dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
+    <div class="container bg-white rounded-3xl shadow-xl p-6 sm:p-8 max-w-full w-full mb-16
+                dark:bg-gray-800 dark:shadow-xl">
+        <!-- Header Section -->
         <header class="text-center mb-6 relative">
-            <h1 class="text-4xl font-extrabold text-indigo-700 mb-1 dark:text-indigo-300">
-                How to get started making money and profits with VFBPredictor #
-            </h1>
+            <h1 class="text-4xl font-extrabold text-indigo-700 mb-1 dark:text-indigo-300">VFBPredictor</h1>
+            <h2 class="text-lg text-gray-600 dark:text-gray-400">Forex Trading Game</h2>
+
             <!-- Theme Toggle Button -->
-            <button id="themeToggle" class="absolute top-0 right-0">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path id="themeIconPath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h1M4 12H3m15.325 5.924l-.707.707M6.382 6.382l-.707-.707M18.325 6.382l.707-.707M6.382 18.325l.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            <button id="themeToggle"
+                    class="absolute top-0 right-0 p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors
+                           dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h1M4 12H3m15.325 5.924l-.707.707M6.382 6.382l-.707-.707M18.325 6.382l.707-.707M6.382 18.325l.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
             </button>
         </header>
 
-        <div class="step">
-            <p><strong>Step 1️⃣ :</strong> Create these two money-making Accounts:</p>
-            <p class="mb-2">
-                <strong class="text-indigo-600 dark:text-indigo-400">FOREX BROKER:</strong>
-                <a href="https://affs.click/X6pyx" id="xmAffLink" class="block mt-1">https://affs.click/X6pyx</a>
-            </p>
-            <p>
-                <strong class="text-indigo-600 dark:text-indigo-400">BROKER FOR SYNTHETIC INDICES:</strong>
-                <a href="https://track.deriv.com/_7Nhiq0l96up0QQMXeD9If2Nd7ZgqdRLk/1/" id="derivAffLink" class="block mt-1">https://track.deriv.com/_7Nhiq0l96up0QQMXeD9If2Nd7ZgqdRLk/1/</a>
-            </p>
+        <!-- Chart Section -->
+        <section class="section mt-10 text-center">
+            <h3 class="text-xl font-semibold text-gray-800 border-l-4 border-indigo-500 pl-3 mb-4
+                       dark:text-gray-200 dark:border-indigo-400">EUR/USD Candlestick Chart</h3>
+            <canvas id="chart" width="900" height="450" class="bg-gray-900 border border-gray-700"></canvas>
+        </section>
+
+        <div class="controls flex flex-col items-center space-y-4 my-8">
+            <div class="flex space-x-4 w-full justify-center">
+                <label for="stakeInput" class="text-gray-700 dark:text-gray-300 font-medium text-lg">Stake:</label>
+                <input type="number" id="stakeInput" value="10" min="1" step="1"
+                       class="w-24 p-2 border border-gray-300 rounded-lg text-center text-lg
+                              bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <div class="trade-buttons flex justify-center space-x-4 w-full">
+                <button id="buyBtn" onclick="placeOrder('BUY')"
+                        class="bg-green-600 text-white hover:bg-green-700 flex-1">
+                    BUY
+                </button>
+                <button id="sellBtn" onclick="placeOrder('SELL')"
+                        class="bg-red-600 text-white hover:bg-red-700 flex-1">
+                    SELL
+                </button>
+            </div>
+            <div class="trade-buttons flex justify-center mt-4 w-full">
+                <button id="closeBtn" onclick="closeTrade()" disabled
+                        class="bg-gray-500 text-white hover:bg-gray-600 w-full">
+                    CLOSE
+                </button>
+            </div>
+            <div class="flex justify-center mt-6 w-full">
+                 <button onclick="resetGame()"
+                        class="trade-buttons bg-blue-500 text-white hover:bg-blue-600 w-full">
+                    Reset Game
+                </button>
+            </div>
         </div>
 
-        <div class="step">
-            <p><strong>Step 2️⃣ :</strong> Deposit 100 USD in the account</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                ~ Minimum is 10 USD.<br>
-                ~ You deposit using your local deposit methods.
-            </p>
+        <div class="info text-center text-gray-800 dark:text-gray-200 text-lg font-medium" id="accountInfo">
+            <!-- Account Info will be displayed here -->
         </div>
-
-        <div class="step">
-            <p><strong>Step 3️⃣ :</strong> Wait for me to post tips of when to buy or sell and make profits.</p>
-        </div>
-
-        <div class="footer">
-            <p>➡️ Send a message to <a href="tg://resolve?domain=Speet_Official" id="speetOfficialLink" class="text-indigo-600 dark:text-indigo-400 font-bold">@Speet_Official</a> if you want to automate the trading process by "copy trading".</p>
-        </div>
+        
     </div>
 
     <!-- Bottom Navigation -->
     <div class="bottom-nav">
         <a href="./index.html" id="homeNav">Home</a>
-        <!-- <a href="./Betpawa.html" id="betpawaNav">Betpawa</a> -->
         <a href="./aviator.html" id="aviatorNav">Aviator</a>
         <a href="./forex.html" class="active" id="forexNav">Forex</a>
+        <a href="./crypto.html" id="cryptoNav">Crypto</a>
     </div>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        // Theme Toggle Logic (copied from other dashboards)
-        function toggleTheme() {
-            const htmlElement = document.documentElement;
-            const currentTheme = htmlElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            htmlElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme); // Save preference
-            updateThemeIconPath(newTheme); // Update icon path
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box">
+        <p id="messageText"></p>
+        <button onclick="hideMessageBox()">OK</button>
+    </div>
+
+    <script type="module">
+        const canvas = document.getElementById('chart');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas dimensions dynamically for responsiveness
+        function resizeCanvas() {
+            // Max width of the parent container minus padding
+            const containerWidth = document.querySelector('.container').clientWidth - (2 * 16); // 2 * p-4
+            canvas.width = Math.min(containerWidth, 900); // Increased max width
+            canvas.height = canvas.width * (450 / 900); // Maintain aspect ratio (now 2:1)
+            draw(); // Redraw chart on resize
+        }
+        
+        window.addEventListener('resize', resizeCanvas); // Listen for window resize
+        window.addEventListener('load', resizeCanvas); // Initial resize on load
+
+        const INITIAL_WIDTH = 900; // Reference for initial maxCandles calculation (updated)
+        const INITIAL_HEIGHT = 450; // Reference for initial canvas height (updated)
+        const candleWidth = 8;
+        const candleSpacing = 2;
+        const paddingY = 30;
+        const rightPadding = 60;
+        // maxCandles calculation should adapt to the canvas.width, so it's calculated dynamically in updateCandle
+        let maxCandles; 
+
+        let price = 1.10000; // Starting price for EUR/USD (5 decimal places)
+        let candles = [];
+        let currentCandle = null;
+        const interval = 500; // Update faster for game feel
+
+        // Game state variables
+        let balance = 10000.00; // Starting game balance
+        let trade = null; // {type, entry, size, targetProfitPrice, stopLossPrice}
+        const FOREX_PROFIT_PIPS = 50; // 50 pips profit target
+        const FOREX_STOP_LOSS_PIPS = 20; // 20 pips stop loss
+
+        // DOM elements
+        const stakeInput = document.getElementById('stakeInput');
+        const buyBtn = document.getElementById('buyBtn');
+        const sellBtn = document.getElementById('sellBtn');
+        const closeBtn = document.getElementById('closeBtn');
+
+        /**
+         * Simulates price movement for a Forex pair (EUR/USD).
+         * @returns {number} The new simulated price, rounded to 5 decimal places.
+         */
+        function simulatePrice() {
+            // Simulate random price change for EUR/USD (pips)
+            const changePips = (Math.random() - 0.5) * 4; // +/- 2 pips max change per interval
+            const change = changePips * 0.00001; // Convert pips to price change for 5 decimal places
+            
+            // Ensure price doesn't go extremely low or high for EUR/USD context
+            price = Math.max(0.90000, Math.min(1.30000, price + change)); 
+            return +price.toFixed(5);
         }
 
-        // Function to update theme icon path (copied from other dashboards)
-        function updateThemeIconPath(theme) {
-            const themeIconPath = document.getElementById('themeIconPath');
-            if (theme === 'dark') {
-                // Moon icon path
-                themeIconPath.setAttribute('d', 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9 9 0 008.354-5.646z');
+        /**
+         * Updates the current candlestick data or creates a new one.
+         * @param {number} newPrice - The latest simulated price.
+         */
+        function updateCandle(newPrice) {
+            const now = Date.now();
+            // Re-calculate maxCandles based on current canvas width for responsiveness
+            maxCandles = Math.floor((canvas.width - rightPadding) / (candleWidth + candleSpacing));
+
+            if (!currentCandle || now - currentCandle.start >= interval) {
+                if (currentCandle) candles.push(currentCandle);
+                if (candles.length > maxCandles) candles.shift(); // Remove oldest candle if limit exceeded
+
+                currentCandle = {
+                    start: now,
+                    o: newPrice,
+                    h: newPrice,
+                    l: newPrice,
+                    c: newPrice
+                };
             } else {
-                // Sun icon path
-                themeIconPath.setAttribute('d', 'M12 3v1m0 16v1m9-9h1M4 12H3m15.325 5.924l-.707.707M6.382 6.382l-.707-.707M18.325 6.382l.707-.707M6.382 18.325l.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z');
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            // Telegram WebApp Link Handling
-            const xmAffLink = document.getElementById("xmAffLink");
-            const derivAffLink = document.getElementById("derivAffLink");
-            const speetOfficialLink = document.getElementById("speetOfficialLink");
-
-            // Open XM and Deriv links in an external browser
-            if (xmAffLink) {
-                xmAffLink.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    const href = e.target.getAttribute("href");
-                    window.open(href, '_blank'); // Open in external browser
-                });
+                currentCandle.h = Math.max(currentCandle.h, newPrice);
+                currentCandle.l = Math.min(currentCandle.l, newPrice);
+                currentCandle.c = newPrice;
             }
 
-            if (derivAffLink) {
-                derivAffLink.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    const href = e.target.getAttribute("href");
-                    window.open(href, '_blank'); // Open in external browser
-                });
-            }
-
-            // Open Speet_Official link within Telegram Mini App (or fallback to external)
-            if (speetOfficialLink) {
-                speetOfficialLink.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    const href = e.target.getAttribute("href");
-                    if (window.Telegram && window.Telegram.WebApp) {
-                        window.Telegram.WebApp.openLink(href);
-                    } else {
-                        window.open(href, '_blank'); // Fallback for testing outside Telegram
+            // Check if trade hits target profit or stop loss
+            if (trade) {
+                if (trade.type === "BUY") {
+                    if (newPrice >= trade.targetProfitPrice) {
+                        closeTrade(true, "profit"); // Close as win
+                        showMessageBox(`🥳 WIN! You hit your Take Profit! Your balance is now $${balance.toFixed(2)}.`);
+                    } else if (newPrice <= trade.stopLossPrice) {
+                        closeTrade(true, "loss"); // Close as loss
+                        showMessageBox(`😭 LOSS! You hit your Stop Loss. Your balance is now $${balance.toFixed(2)}.`);
                     }
-                });
-            }
-
-
-            // Theme Toggle Initialization (copied from other dashboards)
-            const themeToggleButton = document.getElementById('themeToggle');
-            if (themeToggleButton) {
-                themeToggleButton.addEventListener('click', toggleTheme);
-            }
-
-            const savedTheme = localStorage.getItem('theme');
-            const initialTheme = savedTheme || 'light';
-            document.documentElement.setAttribute('data-theme', initialTheme);
-            updateThemeIconPath(initialTheme);
-
-            // Highlight the active navigation link based on the current page
-            const path = window.location.pathname;
-            const fileName = path.substring(path.lastIndexOf('/') + 1);
-            const activeNavId = {
-                'index.html': 'homeNav',
-                // 'Betpawa.html': 'betpawaNav',
-                'aviator.html': 'aviatorNav',
-                'forex.html': 'forexNav',
-                '': 'homeNav' // Default to home if no specific file name (e.g., root)
-            }[fileName];
-
-            if (activeNavId) {
-                const activeNavElement = document.getElementById(activeNavId);
-                if (activeNavElement) {
-                    activeNavElement.classList.add('active');
+                } else { // SELL trade
+                    if (newPrice <= trade.targetProfitPrice) {
+                        closeTrade(true, "profit"); // Close as win
+                        showMessageBox(`🥳 WIN! You hit your Take Profit! Your balance is now $${balance.toFixed(2)}.`);
+                    } else if (newPrice >= trade.stopLossPrice) {
+                        closeTrade(true, "loss"); // Close as loss
+                        showMessageBox(`😭 LOSS! You hit your Stop Loss. Your balance is now $${balance.toFixed(2)}.`);
+                    }
                 }
             }
+        }
+
+        /**
+         * Draws the price axis on the right side of the chart.
+         * @param {number} min - The minimum price to display.
+         * @param {number} max - The maximum price to display.
+         */
+        function drawPriceAxis(min, max) {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const axisBg = currentTheme === 'dark' ? '#2d3748' : '#e2e8f0';
+            const textColor = currentTheme === 'dark' ? '#e2e8f0' : '#333';
+            const gridColor = currentTheme === 'dark' ? '#4a5568' : '#e5e7eb';
+
+            ctx.fillStyle = axisBg;
+            ctx.fillRect(canvas.width - rightPadding, 0, rightPadding, canvas.height);
+
+            const step = (max - min) / 10; // More steps for Forex precision
+            ctx.fillStyle = textColor;
+            ctx.font = "12px sans-serif";
+            ctx.textAlign = "left";
+
+            for (let i = 0; i <= 10; i++) {
+                const priceValue = (min + i * step).toFixed(5);
+                const y = canvas.height - paddingY - ((priceValue - min) / (max - min)) * (canvas.height - paddingY * 2);
+                ctx.fillText(priceValue, canvas.width - rightPadding + 5, y + 4);
+                ctx.strokeStyle = gridColor;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width - rightPadding, y);
+                ctx.stroke();
+            }
+        }
+
+        /**
+         * Draws the trade entry line, Take Profit, and Stop Loss lines.
+         * @param {number} min - The minimum price visible on the chart.
+         * @param {number} max - The maximum price visible on the chart.
+         * @param {number} scale - The price scale factor.
+         */
+        function drawTradeLines(min, max, scale) {
+            if (!trade) return;
+
+            // Entry Line
+            const entryY = canvas.height - paddingY - (trade.entry - min) * scale;
+            ctx.strokeStyle = trade.type === "BUY" ? "#34d399" : "#ef4444"; // Tailwind green-500, red-500
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, entryY);
+            ctx.lineTo(canvas.width - rightPadding, entryY);
+            ctx.stroke();
+
+            // Entry Price Label
+            ctx.fillStyle = trade.type === "BUY" ? "#34d399" : "#ef4444";
+            ctx.font = "bold 14px sans-serif";
+            ctx.textAlign = "left";
+            ctx.fillText(
+                `${trade.type} @ ${trade.entry.toFixed(5)}`,
+                canvas.width - rightPadding + 5,
+                entryY - 5
+            );
+
+            // Take Profit Line
+            const tpY = canvas.height - paddingY - (trade.targetProfitPrice - min) * scale;
+            ctx.strokeStyle = "#22c55e"; // Tailwind green-600
+            ctx.setLineDash([5, 5]); // Dashed line
+            ctx.beginPath();
+            ctx.moveTo(0, tpY);
+            ctx.lineTo(canvas.width - rightPadding, tpY);
+            ctx.stroke();
+            ctx.fillText(
+                `TP: ${trade.targetProfitPrice.toFixed(5)}`,
+                canvas.width - rightPadding + 5,
+                tpY - 5
+            );
+
+            // Stop Loss Line
+            const slY = canvas.height - paddingY - (trade.stopLossPrice - min) * scale;
+            ctx.strokeStyle = "#dc2626"; // Tailwind red-600
+            ctx.beginPath();
+            ctx.moveTo(0, slY);
+            ctx.lineTo(canvas.width - rightPadding, slY);
+            ctx.stroke();
+            ctx.fillText(
+                `SL: ${trade.stopLossPrice.toFixed(5)}`,
+                canvas.width - rightPadding + 5,
+                slY - 5
+            );
+            
+            ctx.setLineDash([]); // Reset line dash for next drawings
+        }
+
+        /**
+         * Main drawing function for the candlestick chart.
+         */
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const allCandles = [...candles, currentCandle].filter(Boolean);
+            if (allCandles.length === 0) return; // Don't draw if no candles
+
+            const prices = allCandles.flatMap(c => [c.o, c.h, c.l, c.c]);
+            if (trade) { // Include trade lines in price range calculation for better visibility
+                prices.push(trade.entry, trade.targetProfitPrice, trade.stopLossPrice);
+            }
+
+            const min = Math.min(...prices);
+            const max = Math.max(...prices);
+            
+            // Adjust scale if min equals max to avoid division by zero
+            const effectiveMax = max === min ? min + 0.00001 : max; // Small increment for Forex
+            const scale = (canvas.height - paddingY * 2) / (effectiveMax - min);
+
+            drawPriceAxis(min, effectiveMax);
+
+            allCandles.forEach((candle, i) => {
+                // Candle x-positioning to start from the left
+                const x = i * (candleWidth + candleSpacing); 
+                
+                // Only draw if within bounds (considering right padding)
+                if (x + candleWidth <= canvas.width - rightPadding) {
+                    const color = candle.c >= candle.o ? '#10b981' : '#ef4444'; // Tailwind green-600, red-500
+
+                    const openY = canvas.height - paddingY - (candle.o - min) * scale;
+                    const closeY = canvas.height - paddingY - (candle.c - min) * scale;
+                    const highY = canvas.height - paddingY - (candle.h - min) * scale;
+                    const lowY = canvas.height - paddingY - (candle.l - min) * scale;
+
+                    const bodyTop = Math.min(openY, closeY);
+                    const bodyHeight = Math.max(1, Math.abs(openY - closeY)); // Ensure minimum height
+
+                    // Wick
+                    ctx.strokeStyle = color;
+                    ctx.beginPath();
+                    ctx.moveTo(x + candleWidth / 2, highY);
+                    ctx.lineTo(x + candleWidth / 2, lowY);
+                    ctx.stroke();
+
+                    // Body
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, bodyTop, candleWidth, bodyHeight);
+                }
+            });
+
+            drawTradeLines(min, effectiveMax, scale);
+            drawAccountInfo();
+        }
+
+        /**
+         * Displays a custom message box instead of alert.
+         * @param {string} message - The message to display.
+         */
+        function showMessageBox(message) {
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            messageText.innerHTML = message; // Use innerHTML to allow HTML tags
+            messageBox.style.display = 'block';
+        }
+
+        /**
+         * Hides the custom message box.
+         */
+        function hideMessageBox() {
+            document.getElementById('messageBox').style.display = 'none';
+        }
+
+        /**
+         * Places a BUY or SELL order.
+         * @param {string} type - 'BUY' or 'SELL'.
+         */
+        function placeOrder(type) {
+            if (trade) {
+                showMessageBox("You already have an open trade. Close it first or wait for target/stop loss.");
+                return;
+            }
+
+            const stake = parseFloat(stakeInput.value);
+            if (isNaN(stake) || stake <= 0) {
+                showMessageBox("Please enter a valid stake amount.");
+                return;
+            }
+            if (stake > balance) {
+                showMessageBox("Insufficient balance for this stake.");
+                return;
+            }
+
+            // Calculate Take Profit and Stop Loss prices
+            let targetProfitPrice, stopLossPrice;
+            if (type === "BUY") {
+                targetProfitPrice = price + (FOREX_PROFIT_PIPS * 0.00001);
+                stopLossPrice = price - (FOREX_STOP_LOSS_PIPS * 0.00001);
+            } else { // SELL
+                targetProfitPrice = price - (FOREX_PROFIT_PIPS * 0.00001);
+                stopLossPrice = price + (FOREX_STOP_LOSS_PIPS * 0.00001);
+            }
+
+            trade = {
+                type,
+                entry: price,
+                size: stake, // Use stake as the 'size' for calculation simplicity (1 unit = $1)
+                targetProfitPrice: +targetProfitPrice.toFixed(5),
+                stopLossPrice: +stopLossPrice.toFixed(5)
+            };
+
+            // Deduct stake from balance immediately
+            balance -= stake;
+            updateControlButtons();
+            drawAccountInfo(); // Update info immediately after placing trade
+        }
+
+        /**
+         * Closes the currently open trade and calculates profit/loss.
+         * @param {boolean} [autoClose=false] - True if closed automatically by target/stop loss.
+         * @param {string} [outcome=''] - 'profit' or 'loss' for auto-closed trades.
+         */
+        function closeTrade(autoClose = false, outcome = '') {
+            if (!trade) {
+                if (!autoClose) { 
+                    showMessageBox("No open trades to close.");
+                }
+                return;
+            }
+            let profitLoss = 0;
+            const diff = price - trade.entry;
+
+            if (trade.type === "BUY") {
+                profitLoss = diff * (trade.size * 100000); // 100,000 units per lot for pips calculation
+            } else { // SELL trade
+                profitLoss = -diff * (trade.size * 100000);
+            }
+
+            // Apply profit/loss to balance
+            balance += (trade.size + profitLoss); // Add back the stake and the profit/loss
+            
+            trade = null;
+            updateControlButtons();
+            drawAccountInfo(); // Update info immediately after closing trade
+
+            if (!autoClose) { // If manually closed, show result
+                const message = profitLoss >= 0 
+                    ? `Trade closed manually. You earned $${profitLoss.toFixed(2)}. Current balance: $${balance.toFixed(2)}`
+                    : `Trade closed manually. You lost $${Math.abs(profitLoss).toFixed(2)}. Current balance: $${balance.toFixed(2)}`;
+                showMessageBox(message);
+            }
+        }
+
+        /**
+         * Resets the game to its initial state.
+         */
+        function resetGame() {
+            balance = 10000.00; // Reset balance
+            trade = null;
+            candles = [];
+            currentCandle = null;
+            price = 1.10000; // Reset price to initial EUR/USD value
+            updateControlButtons();
+            draw(); // Redraw everything
+            showMessageBox("Game has been reset! Good luck!");
+        }
+
+        /**
+         * Updates the account information display.
+         */
+        function drawAccountInfo() {
+            const infoDiv = document.getElementById("accountInfo");
+            let html = `<p class="font-bold">Balance: <span class="text-green-600 dark:text-green-400">$${balance.toFixed(2)}</span></p>`;
+
+            if (trade) {
+                const diff = price - trade.entry;
+                let currentProfitLoss = 0;
+                if (trade.type === "BUY") {
+                    currentProfitLoss = diff * (trade.size * 100000); // 100,000 units per lot for pips calculation
+                } else { // SELL trade
+                    currentProfitLoss = -diff * (trade.size * 100000);
+                }
+                
+                const profitColorClass = currentProfitLoss >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+
+                html += `<p><strong class="text-indigo-600 dark:text-indigo-300">Open Trade:</strong> ${trade.type} | Entry: ${trade.entry.toFixed(5)} | Stake: $${trade.size.toFixed(2)}</p>`;
+                html += `<p><strong class="text-indigo-600 dark:text-indigo-300">Current Price:</strong> ${price.toFixed(5)} | <strong class="text-indigo-600 dark:text-indigo-300">P/L:</strong> <span class="${profitColorClass}">$${currentProfitLoss.toFixed(2)}</span></p>`;
+                html += `<p><strong class="text-green-500 dark:text-green-300">Take Profit:</strong> ${trade.targetProfitPrice.toFixed(5)} | <strong class="text-red-500 dark:text-red-300">Stop Loss:</strong> ${trade.stopLossPrice.toFixed(5)}</p>`;
+            } else {
+                html += "<p>No open trades. Place a BUY or SELL order to start playing!</p>";
+            }
+
+            infoDiv.innerHTML = html;
+        }
+
+        /**
+         * Updates the state of the control buttons (BUY, SELL, CLOSE).
+         */
+        function updateControlButtons() {
+            if (trade) {
+                buyBtn.disabled = true;
+                sellBtn.disabled = true;
+                stakeInput.disabled = true;
+                closeBtn.disabled = false;
+            } else {
+                buyBtn.disabled = false;
+                sellBtn.disabled = false;
+                stakeInput.disabled = false;
+                closeBtn.disabled = true;
+            }
+        }
+
+        // Set up the animation loop
+        setInterval(() => {
+            price = simulatePrice();
+            updateCandle(price);
+            draw();
+        }, 200); // Update price and redraw chart every 200ms
+
+        // Export functions to window scope for HTML onclick attributes
+        window.placeOrder = placeOrder;
+        window.closeTrade = closeTrade;
+        window.hideMessageBox = hideMessageBox;
+        window.resetGame = resetGame;
+
+        // Theme Toggle Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggleBtn = document.getElementById('themeToggle');
+            const htmlElement = document.documentElement;
+
+            // Load saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                htmlElement.setAttribute('data-theme', savedTheme);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                // Default to system preference if no saved theme
+                htmlElement.setAttribute('data-theme', 'dark');
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                let currentTheme = htmlElement.getAttribute('data-theme');
+                if (currentTheme === 'dark') {
+                    htmlElement.setAttribute('data-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    htmlElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+                // Redraw chart when theme changes to ensure correct colors
+                draw(); 
+            });
+
+            // Initial update of control buttons and display on load
+            updateControlButtons();
+            drawAccountInfo();
         });
     </script>
 </body>
