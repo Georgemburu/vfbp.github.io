@@ -205,7 +205,7 @@
             <div id="currentTrade" class="info-box bg-indigo-50 border-l-4 border-indigo-400 rounded-lg p-4 text-gray-800 text-base shadow-sm
                                         dark:bg-gray-700 dark:border-indigo-500 dark:text-gray-200">
                 <!-- Content will be loaded by JavaScript -->
-                Loading current trade...
+                Loading current trades...
             </div>
         </section>
 
@@ -274,6 +274,10 @@
         let currentWeekEnd;
 
         // Sample data for demonstration (expanded to cover more weeks)
+        /**
+         * @type {{[id:string]:{}}}
+         * **/
+        let currentTradesDataObj = {}
         let currentTradeData = {};
         // {
         //     asset: "Volatility 75 Index",
@@ -287,7 +291,8 @@
         //     percentageChange: "+211.25%" // (8.45 / 4.00) * 100
         // };
         // const DOMAIN_URL = "http://localhost:30019";
-        const DOMAIN_URL = "https://simple-distinctly-eft.ngrok-free.app";
+        // const DOMAIN_URL = "https://simple-distinctly-eft.ngrok-free.app";
+        const DOMAIN_URL = "https://26894e4bd0b90180675a23e9a5811731.serveo.net";
         // const DOMAIN_URL = "https://inn-formal-executed-require.trycloudflare.com";
 
         async function get_eventsSourceData(){
@@ -301,7 +306,7 @@
             //                     mode:"no-cors"
             //                 }).then(res => res.json())
             const respData = await performJSONFetch(DOMAIN_URL+"/events",{
-                                method:"POST",
+                                method:"GET",
                                 body: ""
                             })
             const openTradeData = respData.data;
@@ -352,6 +357,7 @@
                 stake: "$"+openTradeData.buy_price,//"$4.00",
                 percentageChange: getPriceChangePercentage(openTradeData.entry_spot,openTradeData.current_spot,openTradeData.contract_type)+"%"//"+211.25%" // (8.45 / 4.00) * 100
             };
+            currentTradesDataObj[openTradeData.contract_id] = currentTradeData;
             console.log({currentTradeData})
             updateCurrentTrade();
             
@@ -518,9 +524,9 @@
 
         //
         async function get_tradeHistoryDataAsync(){
-            
+            console.log("(fn:get_tradeHistoryDataAsync)")
             const histResp = await performJSONFetch(DOMAIN_URL+"/history-multipliers",{
-                                method:"POST",
+                                method:"GET",
                                 body: ""
                             })
             console.log({histResp})
@@ -586,24 +592,58 @@
 
         // Function to update current trade display
         function updateCurrentTrade() {
-            const currentTradeElement = document.getElementById("currentTrade");
-            const profitColorClass = currentTradeData.profit.startsWith('+') ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400';
-            const directionColorClass = currentTradeData.direction === 'Buy' ? 'text-green-600 dark:text-green-300' : 'text-red-600 dark:text-red-300';
-            const percentageColorClass = currentTradeData.percentageChange.startsWith('+') ? 'text-green-500 dark:text-green-200' : 'text-red-500 dark:text-red-200';
+            const tradeIds = Object.keys(currentTradesDataObj)
+       
+            let main_currentTradeElement = document.getElementById("currentTrade")||document.getElementById(tradeIds[0]);
+            // const currentTradeElement_Clone =main_currentTradeElement.cloneNode(true)
+            console.log({main_currentTradeElement})
+            let tradesNodes = [];
+            let index = 0;
+            for(const idAsKey in currentTradesDataObj){
+                console.log({idAsKey})
+                // document.getElementById(idAsKey)?.remove()
+                let currentTradeElement = document.getElementById(idAsKey)||main_currentTradeElement.cloneNode(true);
+                if(index==0){
+                    currentTradeElement.id = idAsKey;
+                }
+                currentTradeElement.id = idAsKey;
+                console.log({id:currentTradeElement.id})
 
-            currentTradeElement.innerHTML = `
-                <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-base">
-                    <p><strong class="text-indigo-600 dark:text-indigo-300">Asset:</strong> ${currentTradeData.asset}</p>
-                    <p><strong class="text-indigo-600 dark:text-indigo-300">Direction:</strong> <span class="${directionColorClass} font-bold">${currentTradeData.direction}</span></p>
-                    <p><strong class="text-indigo-600 dark:text-indigo-300">Profit:</strong> <span class="${profitColorClass} font-bold text-lg">${currentTradeData.profit}</span></p>
-                    <p><strong class="text-indigo-600 dark:text-indigo-300">Change:</strong> <span class="${percentageColorClass} font-medium">${currentTradeData.percentageChange}</span></p>
-                    <p><strong class="text-indigo-600 dark:text-indigo-300">Multiplier:</strong> <span class="font-medium">${currentTradeData.multiplier}</span></p>
-                    <p><strong class="text-indigo-600 dark:text-indigo-300">Stake:</strong> <span class="font-medium">${currentTradeData.stake}</span></p>
-                    <p><strong class="text-indigo-600 dark:text-indigo-300">Entry Price:</strong> ${currentTradeData.entryPrice}</p>
-                    <p><strong class="text-indigo-600 dark:text-indigo-300">Current Price:</strong> ${currentTradeData.currentPrice}</p>
-                </div>
-                <p class="text-sm text-gray-500 mt-2 dark:text-gray-400"><strong class="text-indigo-600 dark:text-indigo-300">Status:</strong> ${currentTradeData.time}</p>
-            `;
+               let currentTradeData = currentTradesDataObj[idAsKey];
+
+               const profitColorClass = currentTradeData.profit.startsWith('+') ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400';
+               const directionColorClass = currentTradeData.direction === 'Buy' ? 'text-green-600 dark:text-green-300' : 'text-red-600 dark:text-red-300';
+               const percentageColorClass = currentTradeData.percentageChange.startsWith('+') ? 'text-green-500 dark:text-green-200' : 'text-red-500 dark:text-red-200';
+   
+                currentTradeElement.innerHTML =  `
+                   <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-base" ">
+                       <p><strong class="text-indigo-600 dark:text-indigo-300">Asset:</strong> ${currentTradeData.asset}</p>
+                       <p><strong class="text-indigo-600 dark:text-indigo-300">Direction:</strong> <span class="${directionColorClass} font-bold">${currentTradeData.direction}</span></p>
+                       <p><strong class="text-indigo-600 dark:text-indigo-300">Profit:</strong> <span class="${profitColorClass} font-bold text-lg">${currentTradeData.profit}</span></p>
+                       <p><strong class="text-indigo-600 dark:text-indigo-300">Change:</strong> <span class="${percentageColorClass} font-medium">${currentTradeData.percentageChange}</span></p>
+                       <p><strong class="text-indigo-600 dark:text-indigo-300">Multiplier:</strong> <span class="font-medium">${currentTradeData.multiplier}</span></p>
+                       <p><strong class="text-indigo-600 dark:text-indigo-300">Stake:</strong> <span class="font-medium">${currentTradeData.stake}</span></p>
+                       <p><strong class="text-indigo-600 dark:text-indigo-300">Entry Price:</strong> ${currentTradeData.entryPrice}</p>
+                       <p><strong class="text-indigo-600 dark:text-indigo-300">Current Price:</strong> ${currentTradeData.currentPrice}</p>
+                   </div>
+                   <p class="text-sm text-gray-500 mt-2 dark:text-gray-400"><strong class="text-indigo-600 dark:text-indigo-300">Status:</strong> ${currentTradeData.time}</p>
+
+               `;
+                // htmlString += htmlString;
+                // if(!document.getElementById(idAsKey) && index!=0)tradesNodes.push(currentTradeElement)
+                console.log({currentTradeElement})
+                tradesNodes.push(currentTradeElement)
+                index+=1;
+            }
+           
+            for(const tradeNode of tradesNodes){
+                 console.log({main_currentTradeElement})
+                // if(!main_currentTradeElement.parentElement.getElementById(tradeNode.id))
+                main_currentTradeElement.parentElement.appendChild(tradeNode)
+
+            }
+            
+
         }
 
         // Helper to get Monday of the week for a given date
