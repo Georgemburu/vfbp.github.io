@@ -967,6 +967,7 @@
             }
 
             //
+            await get_eventsSourceData();
             setInterval(async ()=>{
                 await get_eventsSourceData();
             },(1000*60))
