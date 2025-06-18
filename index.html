@@ -969,7 +969,7 @@
             //
             setInterval(async ()=>{
                 await get_eventsSourceData();
-            },1000)
+            },(1000*60))
             tradeHistoryData = await get_tradeHistoryDataAsync();
             console.log({tradeHistoryData})
             // Initial updates
