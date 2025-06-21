@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VFBPredictor - Strategy Board</title>
     <!-- Tailwind CSS CDN -->
+     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./api/index.js"></script>
     <!-- Google Fonts - Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -187,7 +189,7 @@
         <a href="./forex.html" id="forexNav">Forex</a>
     </div>
 
-    <script>
+    <script type="module">
         // Placeholder for store.js, as no implementation was provided in the context
         window.store = {
             appStore: {
@@ -217,7 +219,8 @@
         // --- Start of utils.js content ---
         // This content is taken from your previously provided utils.js
         //@ts-check
-        const SERVER_DOMAIN = "https://a3fe0c1d74daeb.lhr.life/BETPAWA_Server";//"http://78.159.114.104:3008";
+        // let SERVER_DOMAIN="";
+        
         const ACTIVATION_CODES = {
             BETPAWA: {
                 ONE_X_TWO_ODDS_PREDICTOR: {
@@ -276,104 +279,7 @@
             return resp;
         } 
             
-        async function fetchBetpawaUpcomingMatches_Standings_JSON(){
-            const API_VERSION_NAME = "1.1.1.3"
-            try {
-                /** @type {any} */
-                const respJson = await performJSONFetch(`${SERVER_DOMAIN}/api/v${API_VERSION_NAME}/betpawa/upcoming-matches/standings/`,{
-                    method:"POST",
-                    body: JSON.stringify({
-                        ACTIVATION_CODE: ACTIVATION_CODES.BETPAWA.ONE_X_TWO_ODDS_PREDICTOR.SUPPORTERS,
-                        ACTIVATION_CODE_TYPE: "SUPPORTER",
-                        APP_VERSION_NAME:API_VERSION_NAME, 
-                    })
-                });
-                console.log("[API] Standings Response:", respJson);
-                return respJson; 
-            } catch (error) {
-                console.error("[API Error] fetchBetpawaUpcomingMatches_Standings_JSON failed:", error);
-                // Return a structured error object so the calling component can handle it gracefully
-                return { success: false, message: "Failed to fetch standings data due to network or server issue." };
-            }
-        }
-        async function fetchBetpawa1X20Predictor_PredictionsJSON(){
-            const API_VERSION_NAME = "1.1.1.3"
-            try {
-                /** @type {any} */
-                const respJson = await performJSONFetch(`${SERVER_DOMAIN}/api/v${API_VERSION_NAME}/betpawa/get-1x2oddspredictor-predictions/`,{
-                    method:"POST",
-                    body: JSON.stringify({
-                        ACTIVATION_CODE: ACTIVATION_CODES.BETPAWA.ONE_X_TWO_ODDS_PREDICTOR.SUPPORTERS,
-                        ACTIVATION_CODE_TYPE: "SUPPORTER",
-                        APP_VERSION_NAME:API_VERSION_NAME, 
-                    }) 
-                });
-                console.log("[API] 1X20 Predictions Response:", respJson);
-                return respJson; 
-            } catch (error) {
-                console.error("[API Error] fetchBetpawa1X20Predictor_PredictionsJSON failed:", error);
-                return { success: false, message: "Failed to fetch 1X20 predictions" };
-            }
-        } 
-        async function fetchBetpawa1X20Predictor_AccuraciesJSON(){
-            const API_VERSION_NAME = "1.1.1.3"
-            try {
-                /** @type {any} */
-                const respJson = await performJSONFetch(`${SERVER_DOMAIN}/PREDICTOR_1X20_accuracies`,{
-                    method:"GET"
-                }); 
-                console.log("[API] 1X20 Accuracies Response:", respJson);
-                return respJson; 
-            } catch (error) {
-                console.error("[API Error] fetchBetpawa1X20Predictor_AccuraciesJSON failed:", error);
-                return { success: false, message: "Failed to fetch 1X20 accuracies" };
-            }
-        }
 
-        async function fetchBetpawaPrice1X2Predictor_PredictionsJSON(){
-            const API_VERSION_NAME = "1.1.1.2"
-            try {
-                /** @type {any} */
-                const respJson = await performJSONFetch(`${SERVER_DOMAIN}:3008/api/v${API_VERSION_NAME}/betpawa/get-price1x2-predictions/`,{
-                    method:"POST",
-                    body: JSON.stringify({
-                        ACTIVATION_CODE: ACTIVATION_CODES.BETPAWA.PRICE_1X2_PREDICTOR.SUPPORTERS,
-                        ACTIVATION_CODE_TYPE: "SUPPORTER",
-                        APP_VERSION_NAME:API_VERSION_NAME, 
-                    })
-                });
-                console.log("[API] Price1X2 Predictions Response:", respJson);
-                return respJson;
-            } catch (error) {
-                console.error("[API Error] fetchBetpawaPrice1X2Predictor_PredictionsJSON failed:", error);
-                return { success: false, message: "Failed to fetch Price1X2 predictions" };
-            }
-        }
-        async function fetchBetpawaPODPredictor_PredictionsJSON(){
-            const API_VERSION_NAME = "1.1.1.2"
-            try {
-                /** @type {any} */
-                const respJson = await performJSONFetch(`${SERVER_DOMAIN}/api/v${API_VERSION_NAME}/betpawa/get-pod-predictions/`,{
-                    method:"POST",
-                    body: JSON.stringify({
-                        ACTIVATION_CODE: ACTIVATION_CODES.BETPAWA.POD_PREDICTOR.SUPPORTERS,
-                        ACTIVATION_CODE_TYPE: "SUPPORTER",
-                        APP_VERSION_NAME:API_VERSION_NAME, 
-                    })
-                });
-                console.log("[API] POD Predictions Response:", respJson);
-                return respJson;
-            } catch (error) {
-                console.error("[API Error] fetchBetpawaPODPredictor_PredictionsJSON failed:", error);
-                return { success: false, message: "Failed to fetch POD predictions" };
-            }
-        }
-
-        /** @typedef {{ performJSONFetch: typeof performJSONFetch, fetchTemplateHTML: typeof fetchTemplateHTML, fetchBetpawa1X20Predictor_PredictionsJSON: typeof fetchBetpawa1X20Predictor_PredictionsJSON, fetchBetpawaPrice1X2Predictor_PredictionsJSON: typeof fetchBetpawaPrice1X2Predictor_PredictionsJSON, fetchBetpawaPODPredictor_PredictionsJSON: typeof fetchBetpawaPODPredictor_PredictionsJSON, fetchBetpawaUpcomingMatches_Standings_JSON: typeof fetchBetpawaUpcomingMatches_Standings_JSON, fetchBetpawa1X20Predictor_AccuraciesJSON: typeof fetchBetpawa1X20Predictor_AccuraciesJSON }} WindowWithUtils */
-
-        /** @type {Window & WindowWithUtils} */
-        const utils = window;
-        // --- End of utils.js content ---
 
         // Helper function for populating whatsNextProb tables (common to both strategy boards)
         /**
@@ -1161,11 +1067,15 @@
                 templateContent.innerHTML = userProvidedHtmlTemplate;
                 this.shadowRoot.appendChild(templateContent.cloneNode(true));
 
-                // Call the data fetching and display methods
-                this.listPredictions(0); // For RowIndex0 (BTTS)
-                this.list1X2StrategyPredictions(0); // For RowIndex0 (1X2)
-                this.listPredictions(1); // For RowIndex1 (BTTS)
-                this.list1X2StrategyPredictions(1); // For RowIndex1 (1X2)
+                window.fetchServerURL().then(({url})=>{
+                        const SERVER_DOMAIN = url + "/BETPAWA_Server";
+                        // Call the data fetching and display methods
+                        this.listPredictions(0,SERVER_DOMAIN); // For RowIndex0 (BTTS)
+                        this.list1X2StrategyPredictions(0,SERVER_DOMAIN); // For RowIndex0 (1X2)
+                        this.listPredictions(1,SERVER_DOMAIN); // For RowIndex1 (BTTS)
+                        this.list1X2StrategyPredictions(1,SERVER_DOMAIN); // For RowIndex1 (1X2)
+
+                });
                 
                 // Assuming `store` is globally available as per previous conversations
                 if (window.store && window.store.appStore) {
@@ -1211,11 +1121,49 @@
              * Fetches and lists BTTS predictions and strategy data for a given row index.
              * @param {number} rowIndex - The index of the match to display (0 for first, 1 for second, etc.).
              */
-            async listPredictions(rowIndex){
+            async listPredictions(rowIndex,SERVER_DOMAIN){
+                 ////////////////////
+                 async function fetchBetpawa1X20Predictor_AccuraciesJSON(SERVER_DOMAIN){
+                    const API_VERSION_NAME = "1.1.1.3"
+                    console.log({SERVER_DOMAIN})
+                    try {
+                        /** @type {any} */
+                        const respJson = await performJSONFetch(`${SERVER_DOMAIN}/PREDICTOR_1X20_accuracies`,{
+                            method:"GET"
+                        }); 
+                        console.log("[API] 1X20 Accuracies Response:", respJson);
+                        return respJson; 
+                    } catch (error) {
+                        console.error("[API Error] fetchBetpawa1X20Predictor_AccuraciesJSON failed:", error);
+                        return { success: false, message: "Failed to fetch 1X20 accuracies" };
+                    }
+                }
+                async function fetchBetpawa1X20Predictor_PredictionsJSON(SERVER_DOMAIN){
+                    const API_VERSION_NAME = "1.1.1.3"
+                    try {
+                        /** @type {any} */
+                        const respJson = await performJSONFetch(`${SERVER_DOMAIN}/api/v${API_VERSION_NAME}/betpawa/get-1x2oddspredictor-predictions/`,{
+                            method:"POST",
+                            body: JSON.stringify({
+                                ACTIVATION_CODE: ACTIVATION_CODES.BETPAWA.ONE_X_TWO_ODDS_PREDICTOR.SUPPORTERS,
+                                ACTIVATION_CODE_TYPE: "SUPPORTER",
+                                APP_VERSION_NAME:API_VERSION_NAME, 
+                            }) 
+                        });
+                        console.log("[API] 1X20 Predictions Response:", respJson);
+                        return respJson; 
+                    } catch (error) {
+                        console.error("[API Error] fetchBetpawa1X20Predictor_PredictionsJSON failed:", error);
+                        return { success: false, message: "Failed to fetch 1X20 predictions" };
+                    }
+                } 
+
+
+                ///////////////
                 console.log(`[StrategyBoardApp] Fetching BTTS predictions for RowIndex${rowIndex}`);
                 let errorMessage = "Error loading BTTS data: Failed to fetch predictions.";
                 try {
-                    const predictionsResp = await utils.fetchBetpawa1X20Predictor_PredictionsJSON();
+                    const predictionsResp = await fetchBetpawa1X20Predictor_PredictionsJSON(SERVER_DOMAIN);
                     if (!predictionsResp.success || !predictionsResp.data || !predictionsResp.data.leagues_and_match_predictions) {
                         errorMessage = predictionsResp.message || "Invalid prediction data structure.";
                         console.error(`[StrategyBoardApp Error] Failed to fetch 1X20 predictions for RowIndex${rowIndex}:`, errorMessage);
@@ -1256,7 +1204,8 @@
                     if (yesPercentage) yesPercentage.textContent = formattedYes;
                     if (noPercentage) noPercentage.textContent = formattedNo;
 
-                    const accuraciesResp = await utils.fetchBetpawa1X20Predictor_AccuraciesJSON();
+                    const accuraciesResp = await fetchBetpawa1X20Predictor_AccuraciesJSON(SERVER_DOMAIN);
+                    console.log({accuraciesResp})
                     if (accuraciesResp.success && accuraciesResp.data) {
                         const accuracyDataKey = `BTTS_EnglishLeague_RowIndex${rowIndex}_winsRecord`;
                         const accuracyRecord = accuraciesResp.data[accuracyDataKey];
@@ -1327,11 +1276,50 @@
              * Fetches and lists 1X2 strategy predictions and data for a given row index.
              * @param {number} rowIndex - The index of the match to display (0 for first, 1 for second, etc.).
              */
-            async list1X2StrategyPredictions(rowIndex){
+            async list1X2StrategyPredictions(rowIndex,SERVER_DOMAIN){
+                ////////////////////
+                async function fetchBetpawa1X20Predictor_AccuraciesJSON(SERVER_DOMAIN){
+                    const API_VERSION_NAME = "1.1.1.3"
+                    console.log({SERVER_DOMAIN})
+                    try {
+                        /** @type {any} */
+                        const respJson = await performJSONFetch(`${SERVER_DOMAIN}/PREDICTOR_1X20_accuracies`,{
+                            method:"GET"
+                        }); 
+                        console.log("[API] 1X20 Accuracies Response:", respJson);
+                        return respJson; 
+                    } catch (error) {
+                        console.error("[API Error] fetchBetpawa1X20Predictor_AccuraciesJSON failed:", error);
+                        return { success: false, message: "Failed to fetch 1X20 accuracies" };
+                    }
+                }
+                async function fetchBetpawa1X20Predictor_PredictionsJSON(SERVER_DOMAIN){
+                    const API_VERSION_NAME = "1.1.1.3"
+                    try {
+                        /** @type {any} */
+                        const respJson = await performJSONFetch(`${SERVER_DOMAIN}/api/v${API_VERSION_NAME}/betpawa/get-1x2oddspredictor-predictions/`,{
+                            method:"POST",
+                            body: JSON.stringify({
+                                ACTIVATION_CODE: ACTIVATION_CODES.BETPAWA.ONE_X_TWO_ODDS_PREDICTOR.SUPPORTERS,
+                                ACTIVATION_CODE_TYPE: "SUPPORTER",
+                                APP_VERSION_NAME:API_VERSION_NAME, 
+                            }) 
+                        });
+                        console.log("[API] 1X20 Predictions Response:", respJson);
+                        return respJson; 
+                    } catch (error) {
+                        console.error("[API Error] fetchBetpawa1X20Predictor_PredictionsJSON failed:", error);
+                        return { success: false, message: "Failed to fetch 1X20 predictions" };
+                    }
+                } 
+
+
+                ///////////////
+                
                 console.log(`[StrategyBoardApp] Fetching 1X2 predictions for RowIndex${rowIndex}`);
                 let errorMessage = "Error loading 1X2 data: Failed to fetch predictions.";
                 try {
-                    const predictionsResp = await utils.fetchBetpawa1X20Predictor_PredictionsJSON();
+                    const predictionsResp = await fetchBetpawa1X20Predictor_PredictionsJSON(SERVER_DOMAIN);
                     if (!predictionsResp.success || !predictionsResp.data || !predictionsResp.data.leagues_and_match_predictions) {
                         errorMessage = predictionsResp.message || "Invalid prediction data structure.";
                         console.error(`[StrategyBoardApp Error] Failed to fetch 1X20 predictions for 1X2 RowIndex${rowIndex}:`, errorMessage);
@@ -1381,7 +1369,7 @@
                     if (xPercentage_1X2) xPercentage_1X2.textContent = formattedX;
                     if (twoPercentage_1X2) twoPercentage_1X2.textContent = formattedTwo;
 
-                    const accuraciesResp = await utils.fetchBetpawa1X20Predictor_AccuraciesJSON();
+                    const accuraciesResp = await fetchBetpawa1X20Predictor_AccuraciesJSON(SERVER_DOMAIN);
                     if (accuraciesResp.success && accuraciesResp.data) {
                         const accuracyDataKey = `1X2_EnglishLeague_RowIndex${rowIndex}_winsRecord`;
                         const accuracyRecord = accuraciesResp.data[accuracyDataKey];
