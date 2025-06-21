@@ -269,6 +269,13 @@
     </div>
 
     <script type="module">
+        // (async()=>{
+        //     try{
+
+        //     }catch(error){
+        //         console.log({error})
+        //     }
+        // })()
         // Global variables to manage the current week
         let currentWeekStart;
         let currentWeekEnd;
@@ -279,6 +286,8 @@
          * **/
         let currentTradesDataObj = {}
         let currentTradeData = {};
+
+        let SERVER_DOMAIN = "";
         // {
         //     asset: "Volatility 75 Index",
         //     direction: "Buy",
@@ -291,9 +300,9 @@
         //     percentageChange: "+211.25%" // (8.45 / 4.00) * 100
         // };
         // const DOMAIN_URL = "http://localhost:30019";
-        // const DOMAIN_URL = "https://simple-distinctly-eft.ngrok-free.app";
-        const DOMAIN_URL = "https://a3fe0c1d74daeb.lhr.life/DERIV_Trader";
-        // const DOMAIN_URL = "https://inn-formal-executed-require.trycloudflare.com";
+        
+
+        
 
         async function get_eventsSourceData(){
             
@@ -305,7 +314,7 @@
             //                     },
             //                     mode:"no-cors"
             //                 }).then(res => res.json())
-            const respData = await performJSONFetch(DOMAIN_URL+"/events",{
+            const respData = await performJSONFetch(SERVER_DOMAIN+"/events",{
                                 method:"GET",
                                 body: ""
                             })
@@ -525,7 +534,7 @@
         //
         async function get_tradeHistoryDataAsync(){
             console.log("(fn:get_tradeHistoryDataAsync)")
-            const histResp = await performJSONFetch(DOMAIN_URL+"/history-multipliers",{
+            const histResp = await performJSONFetch(SERVER_DOMAIN+"/history-multipliers",{
                                 method:"GET",
                                 body: ""
                             })
@@ -966,7 +975,14 @@
                 document.documentElement.setAttribute('data-theme', 'light');
             }
 
+
+
             //
+            const {url:DOMAIN_URL} = await window.fetchServerURL();
+            SERVER_DOMAIN = DOMAIN_URL+"/DERIV_Trader";//"http://78.159.114.104:3008";
+            // const DOMAIN_URL = "https://a3fe0c1d74daeb.lhr.life/DERIV_Trader";
+            // const DOMAIN_URL = "https://inn-formal-executed-require.trycloudflare.com";
+            
             await get_eventsSourceData();
             setInterval(async ()=>{
                 await get_eventsSourceData();
@@ -1001,6 +1017,7 @@
                 }
             }
         });
+    
     </script>
 </body>
 </html>
