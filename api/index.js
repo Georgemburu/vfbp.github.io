@@ -3,7 +3,8 @@
 //curl -H "ngrok-skip-browser-warning: true" https://mint-golden-toad.ngrok-free.app
 
 // const SERVER_DOMAIN = "http://rnbty-78-159-114-104.a.free.pinggy.link";
-const SERVER_DOMAIN = "https://simple-distinctly-eft.ngrok-free.app";//"http://78.159.114.104:3008";
+// const SERVER_DOMAIN = "https://simple-distinctly-eft.ngrok-free.app";//"http://78.159.114.104:3008";
+const SERVER_DOMAIN = "https://tidy-whole-dory.ngrok-free.app";//"http://78.159.114.104:3008";
 const BETPAWA_HTFT_BETTOR_SERVER_DOMAIN = SERVER_DOMAIN;//"http://78.159.114.104:3019";
 const ACTIVATION_CODES = {
     BETPAWA: {
@@ -38,7 +39,8 @@ async function performJSONFetch(url,param1){
         const headers = new Headers();
         // headers.append("Access-Control-Allow-Origin","*");
         headers.append("Content-Type","application/json");
-        headers.append("ngrok-skip-browser-warning","true");
+        headers.append("origin","serveo.net");
+        // headers.append("ngrok-skip-browser-warning","true");
 
         const response = await fetch(url,{
             headers: headers,
@@ -92,12 +94,33 @@ async function fetchBetpawa_HTFT_PickedBetsJSON_WithPostReq(){
 }
 
 
+async function fetchServerURL(){
+    try{
+        const FIREBASE_REALTIME_DB_URL = "https://vfbpredictor-3b27b-default-rtdb.firebaseio.com";
+        const respData = await fetch(FIREBASE_REALTIME_DB_URL+'/tunnel.json').then(res => res.json())
+        return {url:respData.url};
+        // .then(data => {
+        //     const url = data.url;
+        //     document.getElementById('link').href = url;
+        //     document.getElementById('link').innerText = url;
+        // });
+
+    }catch(error){
+        error.message = `(fn:fetchServerURL) ${error.message}`;
+        throw error;
+    }
+}
+
+
+
+
 
 /**
  * @typedef {{
  *  performJSONFetch: performJSONFetch,
  *  fetchBetpawaPickedBetsJSON_WithPostReq: fetchBetpawaPickedBetsJSON_WithPostReq,
- *  fetchBetpawa_HTFT_PickedBetsJSON_WithPostReq: fetchBetpawa_HTFT_PickedBetsJSON_WithPostReq
+ *  fetchBetpawa_HTFT_PickedBetsJSON_WithPostReq: fetchBetpawa_HTFT_PickedBetsJSON_WithPostReq,
+ *  fetchServerURL: fetchServerURL
  * }} WindowWithUtils
 */
 //  *  fetchUsersJSON: fetchUsersJSON,
