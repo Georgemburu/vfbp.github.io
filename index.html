@@ -1,1023 +1,1755 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>VFBPredictor - Forex Growth</title>
-    <!-- Tailwind CSS CDN for modern styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="./api/index.js"></script>
-    <style>
-        /* Custom font for a clean look */
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        /* Ensure canvas is responsive */
-        canvas {
-            max-width: 100%;
-            height: auto;
-            display: block; /* Remove extra space below canvas */
-        }
-        /* Bottom Navigation Styling */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            background-color: #ffffff; /* White background */
-            padding: 10px 0;
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1); /* Shadow at the top */
-            border-top-left-radius: 15px; /* Rounded top corners */
-            border-top-right-radius: 15px; /* Rounded top corners */
-            z-index: 1000; /* Ensure it stays on top */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📊 Deriv Live Trades Dashboard</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      background: #121212; /* Darker background */
+      color: #e0e0e0; /* Lighter text */
+      padding: 20px;
+      margin: 0;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #1e1e1e; /* Card background */
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .main-header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+        margin-bottom: 20px; /* Replaces h2's margin-bottom */
+    }
+    .main-header-container h2 {
+        color: #bb86fc; /* Accent color for headers */
+        /* Removed border-bottom and padding-bottom as it's on parent */
+        margin-top: 0;
+        margin-bottom: 0; /* Align with button */
+    }
+    h3 {
+      color: #bb86fc; /* Accent color for headers */
+      border-bottom: 1px solid #333;
+      padding-bottom: 10px;
+      margin-top: 0;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 5px;
+      color: #a0a0a0; /* Lighter label color */
+      font-weight: 500;
+    }
+    input[type="text"], input[type="number"], select, textarea {
+      width: calc(100% - 24px); /* Full width minus padding and border */
+      padding: 12px;
+      margin-bottom: 12px; /* Consistent margin */
+      border-radius: 5px;
+      border: 1px solid #444; /* Subtle border */
+      background: #2c2c2c; /* Input background */
+      color: #e0e0e0;
+      font-size: 14px;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+        border-color: #bb86fc;
+        box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.3);
+        outline: none;
+    }
+    button {
+      background: #03dac6; /* Primary action color */
+      color: #121212; /* Dark text on light button */
+      padding: 12px 20px;
+      margin: 10px 5px 10px 0;
+      border-radius: 5px;
+      border: none;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+    button:hover {
+      background: #01ab9d; /* Slightly darker shade on hover */
+      transform: translateY(-1px);
+    }
+    button:active {
+        transform: translateY(0px);
+    }
+    button:disabled {
+      background: #444;
+      color: #888;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .secondary-action-button {
+        background: #3a3a3a; /* Darker, less prominent background */
+        color: #03dac6; /* Accent color text */
+        border: 1px solid #03dac6; /* Accent color border */
+        padding: 8px 15px; /* Slightly smaller padding */
+        font-size: 13px;
+        font-weight: normal;
+    }
+    .secondary-action-button:hover {
+        background: #4a4a4a;
+        border-color: #01ab9d;
+        color: #01ab9d;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    th, td {
+      border: 1px solid #333; /* Darker border */
+      padding: 12px 15px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: #2c2c2c; /* Header background */
+      color: #bb86fc; /* Header text color */
+      font-weight: 600;
+      font-size: 0.9em;
+      text-transform: uppercase;
+    }
+    td button.close-trade-btn { /* Specific class for close button */
+      background: #cf6679; /* Error/danger color */
+      color: white;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    td button.close-trade-btn:hover {
+      background: #b00020; /* Darker danger color */
+    }
+    .tab-bar {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #333;
+      display: flex;
+      flex-wrap: wrap; /* Allow tabs to wrap on smaller screens */
+    }
+    .tab-button {
+      padding: 12px 20px;
+      margin: 0 2px -1px 0; /* Align with bottom border */
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-bottom: none;
+      background: #2c2c2c;
+      color: #a0a0a0;
+      border-radius: 5px 5px 0 0;
+      transition: background-color 0.2s, color 0.2s;
+      font-weight: 500;
+      white-space: nowrap; /* Prevent text wrapping inside button */
+    }
+    .tab-button.active {
+      background: #1e1e1e; /* Match container background */
+      color: #03dac6; /* Active tab text color */
+      border-color: #333;
+      border-bottom-color: #1e1e1e; /* Hide bottom border part */
+      font-weight: bold;
+    }
+    .tab-content {
+      display: none;
+      padding: 20px;
+      border: 1px solid #333;
+      border-top: none;
+      border-radius: 0 0 5px 5px;
+      background: #252525; /* Slightly different background for content area */
+    }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .message-area { /* For general messages like login status */
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 0.95em;
+    }
+    .error-msg { color: #cf6679; background-color: rgba(207, 102, 121, 0.15); border: 1px solid #cf6679; }
+    .success-msg { color: #66bb6a; background-color: rgba(102, 187, 106, 0.15); border: 1px solid #66bb6a;}
+    .info-msg { color: #29b6f6; background-color: rgba(41, 182, 246, 0.1); border: 1px solid #29b6f6; }
+
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85); /* Darker overlay */
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+      padding: 15px;
+    }
+    .modal-content {
+      background: #2c2c2c; /* Modal background */
+      padding: 25px 30px;
+      border-radius: 8px;
+      text-align: center;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+      animation: modalOpen 0.3s ease-out;
+    }
+    @keyframes modalOpen {
+        from { opacity: 0; transform: scale(0.95) translateY(10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-content p {
+        margin-bottom: 20px;
+        font-size: 1.1em;
+        line-height: 1.5;
+        color: #e0e0e0;
+    }
+    .modal-content button {
+      margin: 10px 8px;
+      padding: 10px 20px;
+    }
+    button.confirm-yes { background-color: #cf6679; color: white;}
+    button.confirm-yes:hover { background-color: #b00020; }
+    button.confirm-no { background-color: #555; color: white;}
+    button.confirm-no:hover { background-color: #444; }
+
+    .modal-message {
+      margin-top: 15px;
+      padding: 10px 15px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.95em;
+    }
+    .modal-message.success { color: #66bb6a; background-color: rgba(102, 187, 106, 0.2); }
+    .modal-message.error { color: #cf6679; background-color: rgba(207, 102, 121, 0.2); }
+    #modalLoading { color: #a0a0a0; font-style: italic; }
+
+    .history-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #282828;
+        border-radius: 6px;
+    }
+    .history-navigation button {
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+    #historyDateRangeDisplay, #signalsHistoryDateRangeDisplay { /* Combined */
+        font-weight: bold;
+        color: #c0c0c0;
+    }
+    .no-data-message {
+        text-align: center; 
+        padding: 20px; 
+        color: #a0a0a0;
+    }
+    
+    #totalOpenPnlDisplay, #historyTabTotalPnlTitleDisplay, #signalsTotalOpenPnlDisplay, #signalsHistoryTabTotalPnlTitleDisplay { /* Combined styles */
+        font-size: 0.8em;
+        font-weight: normal;
+        margin-left: 15px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        color: white; /* Default, will be overridden by JS */
+    }
+    
+    .pnl-positive {
+        background-color: rgba(102, 187, 106, 0.2); /* Light green background */
+        color: #66bb6a !important; /* Green text, !important to override default if needed */
+    }
+    
+    .pnl-negative {
+        background-color: rgba(207, 102, 121, 0.2); /* Light red background */
+        color: #cf6679 !important; /* Red text, !important to override default if needed */
+    }
+    .pnl-neutral {
+        background-color: rgba(128, 128, 128, 0.2); /* Light gray background */
+        color: #a0a0a0 !important; /* Gray text, !important to override default if needed */
+    }
+
+
+    /* Responsive Table Styles */
+    @media screen and (max-width: 768px) {
+      #openTradesTab table, #historyTab table, #signalsTab table { /* Apply to all tables */
+        border: 0;
+        box-shadow: none;
+      }
+
+      #openTradesTab thead, #historyTab thead, #signalsTab thead { /* Apply to all tables */
+        display: none; /* Hide the original table header */
+      }
+
+      #openTradesTab tr, #historyTab tr, #signalsTab tr { /* Apply to all tables */
+        display: block;
+        margin-bottom: 1.2em; /* Space between cards */
+        border: 1px solid #383838; /* Border for each card */
+        border-radius: 6px;
+        background-color: #282828; /* Card background */
+        padding: 0.8em 0.5em; /* Padding inside the card */
+      }
+      
+      #openTradesTab td, #historyTab td, #signalsTab td { /* Apply to all tables */
+        display: block;
+        text-align: right; /* Align value to the right */
+        font-size: 0.9em;
+        padding: 10px 12px; /* Padding within each "field" */
+        border-bottom: 1px dotted #333; /* Separator for fields */
+        position: relative; /* For pseudo-element positioning */
+        min-height: 1.5em; /* Ensure space for label */
+      }
+
+      #openTradesTab td:last-child, #historyTab td:last-child, #signalsOpenTradesTable td:nth-last-child(2), #signalsHistoryTable td:last-child { 
+        /* Last child for history, second to last for signals open (no action button) */
+        border-bottom: 0;
+      }
+
+
+      #openTradesTab td::before, #historyTab td::before, #signalsTab td::before { /* Apply to all tables */
+        content: attr(data-label); /* Get label from data-label attribute */
+        position: absolute;
+        left: 12px; /* Position label to the left */
+        top: 50%;
+        transform: translateY(-50%);
+        width: auto; /* Let it take necessary width */
+        padding-right: 15px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: 600; /* Bolder label */
+        color: #b0b0b0; /* Label color */
+      }
+
+      /* Specific styling for the action button container in Open Trades */
+      #openTradesTab td:has(button.close-trade-btn) {
+        text-align: center; /* Center the button */
+        padding-top: 15px;
+        padding-bottom: 10px;
+      }
+      #openTradesTab td:has(button.close-trade-btn)::before {
+        display: none; /* No label for the button cell */
+      }
+
+      #openTradesTab td button.close-trade-btn {
+        width: auto; 
+        min-width: 100px;
+        padding: 10px 18px;
+        margin: 5px 0;
+        font-size: 14px;
+      }
+
+      /* Adjust Profit/Loss color and font directly if ::before interferes */
+      #openTradesTab td[data-label="Profit/Loss"], 
+      #historyTab td[data-label="PNL ($)"],
+      #signalsOpenTradesTable td[data-label="Profit/Loss"],
+      #signalsHistoryTable td[data-label="PNL ($)"] {
+        font-weight: bold; /* Ensure value is bold */
+      }
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.6.0"
+  }
+}
+</script>
+<style>
+    /* Nav Sttylles */
+    .bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #1f2937; /* dark background */
+  padding: 10px 0;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.6);
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  z-index: 1000;
+}
+
+.bottom-nav a {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  color: #cccccc;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  margin: 0 5px;
+}
+
+.bottom-nav a:hover {
+  background-color: #374151;
+  color: #a78bfa;
+}
+
+.bottom-nav a.active {
+  background-color: #4f46e5;
+  color: white;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.5);
+}
+
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded",()=>{
+        const path = window.location.pathname;
+        const fileName = path.substring(path.lastIndexOf('/') + 1);
+        const activeNavId = {
+          'index.html': 'homeNav',
+          'betpawa.html': 'betpawaNav',
+          'aviator.html': 'aviatorNav',
+          'forex.html': 'forexNav',
+          '': 'homeNav'
+        }[fileName];
+      
+        if (activeNavId) {
+          const link = document.getElementById(activeNavId);
+          if (link) link.classList.add('active');
         }
 
-        /* Dark mode styles for bottom navigation */
-        html[data-theme='dark'] .bottom-nav {
-            background-color: #333333;
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
-        }
+    })
+</script>
 
-        .bottom-nav a {
-            flex: 1; /* Distribute space evenly */
-            text-align: center;
-            padding: 8px 0;
-            color: #6b7280; /* Gray text */
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-radius: 8px; /* Slightly rounded links */
-            margin: 0 5px; /* Space between links */
-        }
 
-        /* Dark mode styles for bottom navigation links */
-        html[data-theme='dark'] .bottom-nav a {
-            color: #cccccc;
-        }
-
-        .bottom-nav a:hover {
-            background-color: #e0e7ff; /* Light indigo on hover */
-            color: #4f46e5; /* Deeper indigo text on hover */
-        }
-
-        /* Dark mode styles for bottom navigation link hover */
-        html[data-theme='dark'] .bottom-nav a:hover {
-            background-color: #444444;
-            color: #a78bfa; /* Lighter purple on hover */
-        }
-
-        .bottom-nav a.active {
-            background-color: #6366f1; /* Indigo background for active link */
-            color: white; /* White text for active link */
-            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4); /* Shadow for active link */
-        }
-
-        /* Dark mode styles for active bottom navigation link */
-        html[data-theme='dark'] .bottom-nav a.active {
-            background-color: #4f46e5; /* Slightly darker indigo for active */
-            color: white;
-            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
-        }
-
-        /* General Dark Mode Styles using data-theme attribute */
-        html[data-theme='dark'] body {
-            background: linear-gradient(135deg, #1f2937, #111827); /* Darker background */
-            color: #e5e7eb; /* Lighter text */
-        }
-
-        html[data-theme='dark'] .container {
-            background: #1f2937; /* Darker container background */
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        html[data-theme='dark'] h1 {
-            color: #a78bfa; /* Lighter indigo for H1 */
-        }
-
-        html[data-theme='dark'] h2 {
-            color: #9ca3af; /* Lighter gray for H2 */
-        }
-
-        html[data-theme='dark'] .cta p {
-            color: #d1d5db; /* Lighter gray for CTA text */
-        }
-
-        html[data-theme='dark'] .cta button {
-            background: linear-gradient(to right, #4f46e5, #8b5cf6); /* Adjusted button gradient */
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
-        }
-
-        html[data-theme='dark'] .cta button:hover {
-            background: linear-gradient(to right, #4338ca, #7c3aed);
-        }
-
-        html[data-theme='dark'] .section h3 {
-            color: #e5e7eb; /* Lighter text for section titles */
-            border-color: #a78bfa; /* Lighter border color */
-        }
-
-        html[data-theme='dark'] .info-box {
-            background: #2d3748; /* Darker info box background */
-            border-color: #6366f1; /* Consistent border color */
-            color: #e5e7eb; /* Lighter text */
-        }
-
-        html[data-theme='dark'] #currentTrade {
-            background: #2d3748;
-            border-color: #6366f1;
-        }
-
-        html[data-theme='dark'] #tradeHistory {
-            background: #2d3748;
-            border-color: #4b5563; /* Darker gray border */
-        }
-
-        html[data-theme='dark'] .info-box strong {
-            color: #c4b5fd; /* Lighter indigo for strong tags */
-        }
-
-        html[data-theme='dark'] .info-box .text-green-600 { color: #4ade80; } /* Lighter green for dark mode */
-        html[data-theme='dark'] .info-box .text-red-600 { color: #f87171; } /* Lighter red for dark mode */
-        html[data-theme='dark'] .info-box .text-green-700 { color: #22c55e; } /* Lighter green for dark mode */
-        html[data-theme='dark'] .info-box .text-red-700 { color: #ef4444; } /* Lighter red for dark mode */
-        html[data-theme='dark'] .info-box .text-green-500 { color: #86efac; } /* Lighter green for dark mode */
-        html[data-theme='dark'] .info-box .text-red-500 { color: #fca5a5; } /* Lighter red for dark mode */
-
-        html[data-theme='dark'] canvas {
-            background: #374151; /* Darker canvas background */
-        }
-
-        html[data-theme='dark'] .chart-labels {
-            color: #9ca3af; /* Lighter gray for chart labels */
-        }
-
-        html[data-theme='dark'] h4 {
-            color: #a78bfa; /* Lighter indigo for daily group header */
-            background-color: #374151; /* Darker background */
-        }
-        html[data-theme='dark'] .text-gray-900 { color: #e5e7eb; } /* Adjust text color for trade asset */
-        html[data-theme='dark'] .text-gray-600 { color: #d1d5db; } /* Adjust text color for trade details */
-        html[data-theme='dark'] .text-gray-400 { color: #9ca3af; } /* Adjust text color for timestamp */
-        html[data-theme='dark'] .border-gray-200 { border-color: #4b5563; } /* Adjust border color */
-    </style>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-<body class="bg-gradient-to-br from-indigo-50 to-purple-50 min-h-screen flex items-center justify-center p-4 pb-20
-             dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
-    <div class="container bg-white rounded-3xl shadow-xl p-6 sm:p-8 max-w-md w-full mb-16
-                dark:bg-gray-800 dark:shadow-xl">
-        <!-- Header Section -->
-        <header class="text-center mb-6 relative">
-            <h1 class="text-4xl font-extrabold text-indigo-700 mb-1 dark:text-indigo-300">VFBPredictor</h1>
-            <h2 class="text-lg text-gray-600 dark:text-gray-400">Forex Trading Dashboard</h2>
-
-            <!-- Theme Toggle Button -->
-            <button id="themeToggle"
-                    class="absolute top-0 right-0 p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors
-                           dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h1M4 12H3m15.325 5.924l-.707.707M6.382 6.382l-.707-.707M18.325 6.382l.707-.707M6.382 18.325l.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-            </button>
-        </header>
-
-        <!-- Call to Action Section -->
-        <section class="cta text-center my-8">
-            <p class="text-gray-700 text-lg mb-4 font-semibold dark:text-gray-300">Start your journey to financial growth:</p>
-            <button
-                onclick="Telegram.WebApp.openLink('https://track.deriv.com/_7Nhiq0l96up0QQMXeD9If2Nd7ZgqdRLk/1/', { try_instant_view: false });"
-                class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-bold py-3 px-8 rounded-xl
-                       shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration-300 ease-in-out
-                       transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-300
-                       dark:from-indigo-700 dark:to-purple-800 dark:focus:ring-indigo-600"
-            >
-                Create a Deriv Account
-            </button>
-        </section>
-
-        <!-- Current Trade Section -->
-        <section class="section mt-10">
-            <h3 class="text-xl font-semibold text-gray-800 border-l-4 border-indigo-500 pl-3 mb-4
-                       dark:text-gray-200 dark:border-indigo-400">Current Trade (Live)</h3>
-            <div id="currentTrade" class="info-box bg-indigo-50 border-l-4 border-indigo-400 rounded-lg p-4 text-gray-800 text-base shadow-sm
-                                        dark:bg-gray-700 dark:border-indigo-500 dark:text-gray-200">
-                <!-- Content will be loaded by JavaScript -->
-                Loading current trades...
-            </div>
-        </section>
-
-        <!-- Account Growth Chart Section -->
-        <section class="section mt-8">
-            <h3 class="text-xl font-semibold text-gray-800 border-l-4 border-indigo-500 pl-3 mb-4
-                       dark:text-gray-200 dark:border-indigo-400">Account Growth</h3>
-            <!-- New element to display total PnL for the week -->
-            <p id="totalWeekPnl" class="text-center text-lg font-bold mb-4">
-                Total PnL for this week: <span class="text-gray-700 dark:text-gray-300">Calculating...</span>
-            </p>
-            <div class="relative">
-                <canvas id="growthChart" width="400" height="200" class="bg-gray-100 rounded-xl shadow-inner
-                                                                         dark:bg-gray-700"></canvas>
-                <div class="chart-labels flex justify-between text-sm text-gray-500 mt-2 px-2
-                            dark:text-gray-400">
-                    <span>Start of Week</span>
-                    <span>End of Week</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- Trade History Section -->
-        <section class="section mt-8">
-            <h3 class="text-xl font-semibold text-gray-800 border-l-4 border-indigo-500 pl-3 mb-4
-                       dark:text-gray-200 dark:border-indigo-400">Recent Trade History</h3>
-
-            <!-- Week Navigation Filter -->
-            <div class="flex justify-between items-center bg-gray-100 rounded-lg p-2 mb-4 shadow-sm
-                        dark:bg-gray-700">
-                <button onclick="showPreviousWeek()" class="px-3 py-1 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300 transition-colors duration-200
-                                dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500">
-                    &larr; Prev
-                </button>
-                <span id="currentWeekDisplay" class="font-semibold text-gray-800 text-sm sm:text-base
-                                                    dark:text-gray-200">
-                    <!-- Week range will be displayed here -->
-                </span>
-                <button onclick="showNextWeek()" class="px-3 py-1 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300 transition-colors duration-200
-                                dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500">
-                    Next &rarr;
-                </button>
-            </div>
-
-            <div id="tradeHistory" class="info-box bg-gray-50 border-l-4 border-gray-300 rounded-lg p-4 text-gray-800 text-base shadow-sm max-h-96 overflow-y-auto
-                                        dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200">
-                <!-- Content will be loaded by JavaScript -->
-                No trade history loaded.
-            </div>
-        </section>
-
-        
+<body>
+  <div class="container">
+    <!-- <div class="main-header-container">
+      <h2>📊 Deriv Live Trades Dashboard</h2>
+      <button id="createDerivAccountBtn" class="secondary-action-button">🚀 Create Deriv Account</button>
+    </div> -->
+    <div class="main-header-container">
+    <div>
+        <h1 style="margin: 0; color: #ffffff;">VFBPredictor</h1>
+        <h2 style="margin: 0;">📊 Deriv Live Trades Dashboard</h2>
+    </div>
+    <button id="createDerivAccountBtn" class="secondary-action-button">🚀 Create Deriv Account</button>
     </div>
 
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-        <a href="./index.html" class="active" id="homeNav">Home</a>
-        <a href="./betpawa.html" id="betpawaNav">Betpawa</a>
-        <a href="./aviator.html" id="aviatorNav">Aviator</a>
-        <a href="./forex.html" id="forexNav">Forex</a>
+    <label for="token">🔑 Deriv API Token:</label>
+    <input type="text" id="token" size="60" placeholder="Paste your Deriv API token here..." aria-label="Deriv API Token" />
+    <button id="connectBtn">🔗 Connect</button>
+    <div id="info" class="message-area" role="status" aria-live="assertive"></div>
+
+    <div class="tab-bar">
+      <button class="tab-button active" onclick="window.switchTab(event, 'signalsTab')" aria-controls="signalsTab" role="tab">📢 Signals</button>
+      <button class="tab-button" onclick="window.switchTab(event, 'tradeTab')" aria-controls="tradeTab" role="tab">📈 Place Trade</button>
+      <button class="tab-button" onclick="window.switchTab(event, 'openTradesTab')" aria-controls="openTradesTab" role="tab">📂 Open Positions</button>
+      <button class="tab-button" onclick="window.switchTab(event, 'historyTab')" aria-controls="historyTab" role="tab">📜 History</button>
     </div>
 
-    <script type="module">
-        // (async()=>{
-        //     try{
+    <div id="signalsTab" class="tab-content active" role="tabpanel">
+      <h3>📢 Trading Signals Account</h3>
+      <div id="signalsInfoDiv" class="message-area info-msg" role="status" aria-live="assertive">Connecting to signals provider...</div>
+      
+      <h4>Live Open Signals <span id="signalsTotalOpenPnlDisplay" role="status" aria-live="polite"></span></h4>
+      <table id="signalsOpenTradesTable" aria-label="Open Signal Trades Table">
+        <thead>
+          <tr>
+            <th>Market</th>
+            <th>Buy Price</th>
+            <th>Current Value</th>
+            <th>Profit/Loss</th>
+            <th>Multiplier</th>
+            <th>Direction</th>
+            <th>Start Time</th>
+          </tr>
+        </thead>
+        <tbody id="signalsOpenTradesTableBody" aria-live="polite"></tbody>
+      </table>
+      <div id="noSignalsOpenTradesMessage" class="no-data-message" style="display:none;">No open signals at the moment.</div>
 
-        //     }catch(error){
-        //         console.log({error})
-        //     }
-        // })()
-        // Global variables to manage the current week
-        let currentWeekStart;
-        let currentWeekEnd;
+      <h4 style="margin-top: 30px;">Signals Account - Weekly PNL <span id="signalsHistoryTabTotalPnlTitleDisplay" role="status" aria-live="polite"></span></h4>
+      <div class="history-navigation" id="signalsHistoryNavigation">
+          <button id="signalsHistoryPrevWeekBtn" aria-label="Previous Week Signals History">⬅️ Previous Week</button>
+          <div id="signalsHistoryDateRangeDisplay" aria-live="polite">Loading date range...</div>
+          <button id="signalsHistoryNextWeekBtn" aria-label="Next Week Signals History">Next Week ➡️</button>
+      </div>
+      <table id="signalsHistoryTable" aria-label="Signals Account Closed Trades History">
+          <thead>
+              <tr>
+                  <th>Market</th>
+                  <th>Close Time</th>
+                  <th>Direction</th>
+                  <th>Stake ($)</th>
+                  <th>Value at Close ($)</th>
+                  <th>PNL ($)</th>
+              </tr>
+          </thead>
+          <tbody id="signalsHistoryTableBody" aria-live="polite"></tbody>
+      </table>
+      <div id="noSignalsHistoryTradesMessage" class="no-data-message" style="display:none;">No closed signal trades in this period.</div>
+    </div>
 
-        // Sample data for demonstration (expanded to cover more weeks)
-        /**
-         * @type {{[id:string]:{}}}
-         * **/
-        let currentTradesDataObj = {}
-        let currentTradeData = {};
+    <div id="tradeTab" class="tab-content" role="tabpanel">
+      <div class="trade-form">
+        <h3>🚀 Open New Multiplier Trade</h3>
+        <label for="symbol">Market Symbol:</label>
+        <select id="symbol" aria-label="Market Symbol">
+          <option value="frxXAUUSD">Gold (XAUUSD)</option>
+        </select>
+        <label for="stake">Stake Amount ($):</label>
+        <input type="number" id="stake" placeholder="e.g. 5" min="0.35" step="any" aria-label="Stake Amount" />
+        <label for="multiplier">Multiplier:</label>
+        <select id="multiplier" aria-label="Multiplier"></select>
+        <label for="direction">Direction:</label>
+        <select id="direction" aria-label="Trade Direction">
+          <option value="MULTUP">📈 Up (Buy)</option>
+          <option value="MULTDOWN">🔻 Down (Sell)</option>
+        </select>
+        <button onclick="window.placeTrade()">🛒 Place Trade</button>
+        <div id="tradeResponse" class="message-area" role="status" aria-live="polite"></div>
+      </div>
+    </div>
 
-        let SERVER_DOMAIN = "";
-        // {
-        //     asset: "Volatility 75 Index",
-        //     direction: "Buy",
-        //     profit: "+$8.45",
-        //     time: "Running since 3 mins",
-        //     entryPrice: "123.45",
-        //     currentPrice: "123.50",
-        //     multiplier: "x200", 
-        //     stake: "$4.00",
-        //     percentageChange: "+211.25%" // (8.45 / 4.00) * 100
-        // };
-        // const DOMAIN_URL = "http://localhost:30019";
+    <div id="openTradesTab" class="tab-content" role="tabpanel">
+      <h3>📂 Open Positions <span id="totalOpenPnlDisplay" role="status" aria-live="polite"></span></h3>
+      <table id="trades" aria-label="Open Positions Table">
+        <thead>
+          <tr>
+            <th>Market</th>
+            <th>Buy Price</th>
+            <th>Current Value</th>
+            <th>Profit/Loss</th>
+            <th>Multiplier</th>
+            <th>Direction</th>
+            <th>Start Time</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tradeRows" aria-live="polite"></tbody>
+      </table>
+      <div id="noTradesMessage" class="no-data-message" style="display:none;">No open positions. Use the 'Place Trade' tab to open a new position.</div>
+    </div>
+
+    <div id="historyTab" class="tab-content" role="tabpanel">
+        <h3>📜 Closed Trades History <span id="historyTabTotalPnlTitleDisplay" role="status" aria-live="polite"></span></h3>
+        <div class="history-navigation">
+            <button id="historyPrevWeekBtn" aria-label="Previous Week">⬅️ Previous Week</button>
+            <div id="historyDateRangeDisplay" aria-live="polite">Loading date range...</div>
+            <button id="historyNextWeekBtn" aria-label="Next Week">Next Week ➡️</button>
+        </div>
+        <table id="historyTable" aria-label="Closed Trades History Table">
+            <thead>
+                <tr>
+                    <th>Market</th>
+                    <th>Close Time</th>
+                    <th>Direction</th>
+                    <th>Stake ($)</th>
+                    <th>Value at Close ($)</th>
+                    <th>PNL ($)</th>
+                </tr>
+            </thead>
+            <tbody id="historyTableBody" aria-live="polite"></tbody>
+        </table>
+        <div id="noHistoryTradesMessage" class="no-data-message" style="display:none;">No closed trades in this period.</div>
+    </div>
+
+  </div>
+
+  <div class="modal" id="confirmModal" role="dialog" aria-labelledby="modalText" aria-modal="true">
+    <div class="modal-content">
+      <p id="modalText"></p>
+      <div id="modalButtons">
+        <button onclick="window.confirmClose(true)" class="confirm-yes">✅ Yes, Close</button>
+        <button onclick="window.confirmClose(false)" class="confirm-no">❌ Cancel</button>
+      </div>
+      <div id="modalLoading" style="display:none;">⏳ Closing trade...</div>
+      <div id="modalMessage" class="modal-message" role="alert"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+<div class="bottom-nav">
+  <a href="./index.html" id="homeNav">Home</a>
+  <a href="./betpawa.html" id="betpawaNav">Betpawa</a>
+  <a href="./aviator.html" id="aviatorNav">Aviator</a>
+  <a href="./forex.html" id="forexNav">Forex</a>
+</div>
+
+
+  <script type="module">
+const WS_READY_STATE = {
+    CONNECTING: 0,
+    OPEN: 1,
+    CLOSING: 2,
+    CLOSED: 3,
+};
+
+let ws; // User's WebSocket
+let currentToken = '';
+let selectedContractId = null;
+let openContractsCache = []; 
+let closedTradesHistory = [];
+let currentHistoryWeekOffset = 0;
+const PROFIT_TABLE_PAGE_SIZE = 100;
+
+// Signals Account related variables
+const SIGNALS_API_KEY = 'HPtCXXojmjH3Y0r';
+let signalsWs; // Signals WebSocket
+let signalsOpenContractsCache = [];
+let signalsClosedTradesHistory = [];
+let currentSignalsHistoryWeekOffset = 0;
+let signalsWsConnecting = false;
+
+
+const symbolNames = {
+  'frxXAUUSD': 'Gold (XAUUSD)', 'XAUUSD': 'Gold (XAUUSD)',
+  'frxEURUSD': 'EUR/USD', 'EURUSD': 'EUR/USD',
+  'frxGBPUSD': 'GBP/USD', 'GBPUSD': 'GBP/USD',
+  'frxUSDJPY': 'USD/JPY', 'USDJPY': 'USD/JPY',
+  'R_100': 'Volatility 100 Index',
+  'R_50': 'Volatility 50 Index',
+  'R_25': 'Volatility 25 Index',
+  '1HZ100V': 'Volatility 100 1s Index',
+  '1HZ50V': 'Volatility 50 1s Index',
+  '1HZ25V': 'Volatility 25 1s Index',
+  'stpRNG10': 'Step Index 10',
+  'stpRNG20': 'Step Index 20',
+};
+
+const ui = {
+    tokenInput: document.getElementById('token'),
+    connectBtn: document.getElementById('connectBtn'),
+    createDerivAccountBtn: document.getElementById('createDerivAccountBtn'), // New button
+    infoDiv: document.getElementById('info'),
+    tradeRows: document.getElementById('tradeRows'),
+    tradeResponse: document.getElementById('tradeResponse'),
+    symbolSelect: document.getElementById('symbol'),
+    stakeInput: document.getElementById('stake'),
+    multiplierSelect: document.getElementById('multiplier'),
+    directionSelect: document.getElementById('direction'),
+    confirmModal: document.getElementById('confirmModal'),
+    modalText: document.getElementById('modalText'),
+    modalButtons: document.getElementById('modalButtons'),
+    modalLoading: document.getElementById('modalLoading'),
+    modalMessage: document.getElementById('modalMessage'),
+    noTradesMessage: document.getElementById('noTradesMessage'),
+    totalOpenPnlDisplay: document.getElementById('totalOpenPnlDisplay'),
+    // History Tab UI
+    historyTabContent: document.getElementById('historyTab'),
+    historyTableBody: document.getElementById('historyTableBody'),
+    historyTabTotalPnlTitleDisplay: document.getElementById('historyTabTotalPnlTitleDisplay'),
+    historyDateRangeDisplay: document.getElementById('historyDateRangeDisplay'),
+    historyPrevWeekBtn: document.getElementById('historyPrevWeekBtn'),
+    historyNextWeekBtn: document.getElementById('historyNextWeekBtn'),
+    noHistoryTradesMessage: document.getElementById('noHistoryTradesMessage'),
+    // Signals Tab UI
+    signalsTabContent: document.getElementById('signalsTab'),
+    signalsInfoDiv: document.getElementById('signalsInfoDiv'),
+    signalsOpenTradesTableBody: document.getElementById('signalsOpenTradesTableBody'),
+    signalsTotalOpenPnlDisplay: document.getElementById('signalsTotalOpenPnlDisplay'),
+    noSignalsOpenTradesMessage: document.getElementById('noSignalsOpenTradesMessage'),
+    signalsHistoryTableBody: document.getElementById('signalsHistoryTableBody'),
+    signalsHistoryTabTotalPnlTitleDisplay: document.getElementById('signalsHistoryTabTotalPnlTitleDisplay'),
+    signalsHistoryDateRangeDisplay: document.getElementById('signalsHistoryDateRangeDisplay'),
+    signalsHistoryPrevWeekBtn: document.getElementById('signalsHistoryPrevWeekBtn'),
+    signalsHistoryNextWeekBtn: document.getElementById('signalsHistoryNextWeekBtn'),
+    noSignalsHistoryTradesMessage: document.getElementById('noSignalsHistoryTradesMessage'),
+};
+
+function getActualApiSymbol(selectedSymbol) {
+    if (!selectedSymbol) return selectedSymbol;
+    const upperSymbolNoPrefix = selectedSymbol.replace(/^FRX/i, '').toUpperCase();
+    const potentialFrxSymbol = "frx" + upperSymbolNoPrefix; 
+    if (symbolNames.hasOwnProperty(upperSymbolNoPrefix) && symbolNames.hasOwnProperty(potentialFrxSymbol) && !selectedSymbol.toLowerCase().startsWith("frx")) {
+        return potentialFrxSymbol;
+    }
+    if (symbolNames.hasOwnProperty(selectedSymbol)) {
+        return selectedSymbol;
+    }
+    const commonForexBases = ["XAUUSD", "EURUSD", "GBPUSD", "USDJPY"]; 
+    if (commonForexBases.includes(upperSymbolNoPrefix) && !selectedSymbol.toLowerCase().startsWith("frx")) {
+        return potentialFrxSymbol; 
+    }
+    return selectedSymbol;
+}
+
+function flashMessage(element, message, type = 'info', duration = 5000) {
+    if (!element) return;
+    element.innerHTML = message;
+    element.className = 'message-area'; // Reset classes first
+    if (type === 'info-msg' || type === 'info') element.classList.add('info-msg');
+    else if (type === 'success-msg' || type === 'success') element.classList.add('success-msg');
+    else if (type === 'error-msg' || type === 'error') element.classList.add('error-msg');
+    
+    element.style.display = message ? 'block' : 'none';
+
+    if (duration > 0) {
+        setTimeout(() => {
+            if (element.innerHTML === message) { 
+                 element.innerHTML = ''; 
+                 element.style.display = 'none';
+                 element.className = 'message-area';
+            }
+        }, duration);
+    }
+}
+
+
+function isActiveMultiplier(contract) {
+    if (!contract || typeof contract !== 'object' || !contract.contract_id) return false;
+    if (contract.is_sold || contract.status === 'sold' || contract.exit_tick_time) return false;
+    if (!(contract.contract_type === 'MULTUP' || contract.contract_type === 'MULTDOWN')) return false;
+    if (typeof contract.buy_price === 'undefined' || contract.buy_price === null) return false;
+    return true;
+}
+
+function renderOpenPositionsTable() {
+    ui.tradeRows.innerHTML = '';
+    let totalOpenPnl = 0;
+    const sortedContracts = [...openContractsCache].sort((a, b) => (b.date_start || 0) - (a.date_start || 0));
+    
+    sortedContracts.forEach(contract => {
+        if (isActiveMultiplier(contract)) {
+            const row = createTradeRowElement(contract);
+            ui.tradeRows.appendChild(row);
+            const profit = parseFloat(contract.profit || 0);
+            if (!isNaN(profit)) {
+                totalOpenPnl += profit;
+            }
+        }
+    });
+
+    if (ui.totalOpenPnlDisplay) {
+        ui.totalOpenPnlDisplay.textContent = `Total P/L: $${totalOpenPnl.toFixed(2)}`;
+        ui.totalOpenPnlDisplay.className = ''; 
+        if (totalOpenPnl > 0) {
+            ui.totalOpenPnlDisplay.classList.add('pnl-positive');
+        } else if (totalOpenPnl < 0) {
+            ui.totalOpenPnlDisplay.classList.add('pnl-negative');
+        } else {
+            ui.totalOpenPnlDisplay.classList.add('pnl-neutral');
+        }
+    }
+    
+    ui.noTradesMessage.style.display = ui.tradeRows.children.length === 0 ? 'block' : 'none';
+}
+
+window.switchTab = function(evt, tabId) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  evt.currentTarget.classList.add('active');
+
+  if (tabId === 'openTradesTab') {
+    if (ws && ws.readyState === WS_READY_STATE.OPEN) {
+      sendToUserWs({ portfolio: 1 });
+    }
+    renderOpenPositionsTable();
+  } else if (tabId === 'historyTab') {
+    renderHistoryTab(currentHistoryWeekOffset);
+  } else if (tabId === 'signalsTab') {
+    if (!signalsWs || (signalsWs.readyState !== WS_READY_STATE.OPEN && signalsWs.readyState !== WS_READY_STATE.CONNECTING)) {
+        connectSignalsAccount();
+    }
+    renderSignalsOpenTradesTable(); // Re-render in case data arrived while tab was inactive
+    renderSignalsHistoryTab(currentSignalsHistoryWeekOffset); // Re-render history too
+  }
+};
+
+function sendToUserWs(data) { // Renamed for clarity
+  if (ws && ws.readyState === WS_READY_STATE.OPEN) {
+    ws.send(JSON.stringify(data));
+  } else {
+    console.warn("User WebSocket not ready or open. Message not sent:", data);
+    const isCriticalAction = data.buy || data.sell;
+    const isAuthorizeAction = data.authorize;
+    const isContractsForAction = data.contracts_for;
+
+    if (isCriticalAction) {
+        const feedbackElem = data.sell ? ui.modalMessage : ui.tradeResponse;
+        const message = '❌ Connection issue. Please reconnect and try again.';
+        if (data.sell) {
+            showModalMessage(message, 'error');
+        } else {
+            flashMessage(feedbackElem, message, 'error-msg', 0);
+        }
+    } else if (isContractsForAction) {
+        setMultiplierSelectState("Connect to API first", true);
+    } else if (!isAuthorizeAction && !(ws && ws.readyState === WS_READY_STATE.CONNECTING)) {
+        flashMessage(ui.infoDiv, '⚠️ Action could not be sent. Please check connection.', 'error-msg', 5000);
+    }
+
+    if (!ws || ws.readyState === WS_READY_STATE.CLOSED || ws.readyState === WS_READY_STATE.CLOSING) {
+        flashMessage(ui.infoDiv, '🔌 Connection lost. Please reconnect.', 'error-msg', 0);
+        ui.connectBtn.innerText = "🔗 Reconnect";
+        ui.connectBtn.disabled = false;
+        if (!isContractsForAction) setMultiplierSelectState("Connect to API first", true);
+    } else if (ws && ws.readyState === WS_READY_STATE.CONNECTING) {
+        if (!isAuthorizeAction && !isContractsForAction) {
+            flashMessage(ui.infoDiv, '⏳ Connection in progress. Please wait...', 'info-msg', 5000);
+        }
+    }
+  }
+}
+
+function sendToSignalsWs(data) {
+    if (signalsWs && signalsWs.readyState === WS_READY_STATE.OPEN) {
+        signalsWs.send(JSON.stringify(data));
+    } else {
+        console.warn("Signals WebSocket not ready or open. Message not sent:", data);
+        flashMessage(ui.signalsInfoDiv, '⚠️ Signals provider connection issue. Cannot send request.', 'error-msg', 5000);
+    }
+}
+
+
+function fetchInitialClosedTrades() {
+    if (!ws || ws.readyState !== WS_READY_STATE.OPEN) {
+        console.warn("Cannot fetch closed trades, WebSocket not open.");
+        return;
+    }
+    sendToUserWs({
+        profit_table: 1,
+        description: 1,
+        limit: PROFIT_TABLE_PAGE_SIZE, 
+        sort: 'DESC' 
+    });
+}
+
+window.connect = function() {
+  currentToken = ui.tokenInput.value.trim();
+  if (!currentToken) {
+    alert("Please enter your Deriv API token.");
+    return;
+  }
+  localStorage.setItem("deriv_token", currentToken);
+  ui.connectBtn.innerText = "🔄 Connecting...";
+  ui.connectBtn.disabled = true;
+  flashMessage(ui.infoDiv, "Attempting to connect...", 'info-msg', 0);
+  setMultiplierSelectState("Connecting...", true);
+
+  if (ws) {
+    ws.onopen = null;
+    ws.onmessage = null;
+    ws.onclose = null;
+    ws.onerror = null;
+    if (ws.readyState === WS_READY_STATE.OPEN || ws.readyState === WS_READY_STATE.CONNECTING) {
+      ws.close();
+    }
+  }
+
+  ws = new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=1089");
+
+  ws.onopen = function() {
+    const wsInstance = this;
+    if (typeof WebSocket === 'undefined') {
+        flashMessage(ui.infoDiv, '❌ Internal Error: WebSocket API not available. Auth failed.', 'error-msg', 0);
+        ui.connectBtn.innerText = "🔗 Connect";
+        ui.connectBtn.disabled = false;
+        setMultiplierSelectState("Connection failed", true);
+        if (wsInstance && typeof wsInstance.close === 'function' &&
+            (wsInstance.readyState === WS_READY_STATE.CONNECTING || wsInstance.readyState === WS_READY_STATE.OPEN)) {
+           wsInstance.close();
+        }
+        return;
+    }
+    flashMessage(ui.infoDiv, "Authenticating...", 'info-msg', 0);
+    if (wsInstance.readyState === WS_READY_STATE.OPEN) {
+        try {
+            wsInstance.send(JSON.stringify({ authorize: currentToken }));
+        } catch (e) {
+            flashMessage(ui.infoDiv, `❌ Error during authentication: ${e.message}`, 'error-msg', 0);
+            ui.connectBtn.innerText = "🔗 Connect";
+            ui.connectBtn.disabled = false;
+            setMultiplierSelectState("Auth error", true);
+            if (wsInstance && (wsInstance.readyState === WS_READY_STATE.OPEN || wsInstance.readyState === WS_READY_STATE.CONNECTING)) {
+                wsInstance.close();
+            }
+        }
+    } else {
+        flashMessage(ui.infoDiv, `❌ Connection error: Instance state mismatch on open (${wsInstance.readyState} vs ${WS_READY_STATE.OPEN}). Please try again.`, 'error-msg', 0);
+        ui.connectBtn.innerText = "🔗 Connect";
+        ui.connectBtn.disabled = false;
+        setMultiplierSelectState("Connection error", true);
+        if (wsInstance && (wsInstance.readyState === WS_READY_STATE.CONNECTING || wsInstance.readyState === WS_READY_STATE.OPEN)) {
+             wsInstance.close();
+        }
+    }
+  };
+
+  ws.onmessage = function(msg) {
+    const data = JSON.parse(msg.data);
+
+    if (data.error) {
+      let errorStringToLog = data.error.message || JSON.stringify(data.error);
+      console.error("User WS Received API Error. Raw error object:", data.error);
+      console.error("User WS Received API Error. Details:", errorStringToLog);
+      let friendlyErrorMessage = `❌ Error: ${data.error.message || errorStringToLog}`;
+      if (data.echo_req && data.echo_req.passthrough && data.echo_req.passthrough.req_type === "multipliers_for_symbol") {
+        setMultiplierSelectState("Error loading multipliers", true);
+      } else if (data.msg_type === 'buy' || (data.echo_req && data.echo_req.buy)) {
+        flashMessage(ui.tradeResponse, friendlyErrorMessage, 'error-msg', 0);
+      } else if ((data.msg_type === 'sell' || (data.echo_req && data.echo_req.sell)) && ui.confirmModal.style.display === 'flex') {
+        showModalMessage(friendlyErrorMessage, 'error');
+      } else {
+         flashMessage(ui.infoDiv, friendlyErrorMessage, 'error-msg', 0);
+      }
+      if (data.msg_type === 'authorize' || (data.echo_req && data.echo_req.authorize)) {
+         ui.connectBtn.innerText = "🔗 Connect";
+         ui.connectBtn.disabled = false;
+         setMultiplierSelectState("Auth failed", true);
+      } else if (ws && ws.readyState !== WS_READY_STATE.OPEN) {
+         ui.connectBtn.innerText = "🔗 Connect";
+         ui.connectBtn.disabled = false;
+      }
+      return;
+    }
+
+    switch(data.msg_type) {
+        case "authorize":
+            if (data.authorize) {
+                flashMessage(ui.infoDiv, `✅ Logged in as: ${data.authorize.loginid}`, 'success-msg', 5000);
+                ui.connectBtn.innerText = "🔗 Reconnect";
+                openContractsCache = [];
+                closedTradesHistory = []; 
+                currentHistoryWeekOffset = 0; 
+                renderOpenPositionsTable();
+                fetchInitialClosedTrades(); 
+                sendToUserWs({ portfolio: 1 });
+                sendToUserWs({ proposal_open_contract: 1, subscribe: 1 });
+                fetchAndPopulateMultipliers(ui.symbolSelect.value); 
+            } else {
+                flashMessage(ui.infoDiv, `❌ Authorization failed. Check token.`, 'error-msg', 0);
+                ui.connectBtn.innerText = "🔗 Connect";
+                setMultiplierSelectState("Auth failed", true);
+            }
+            ui.connectBtn.disabled = false;
+            break;
+
+        case "contracts_for":
+            if (data.echo_req && data.echo_req.passthrough && data.echo_req.passthrough.req_type === "multipliers_for_symbol") {
+                populateMultiplierDropdown(data.contracts_for, data.echo_req.passthrough.symbol);
+            }
+            break;
+
+        case "portfolio":
+            const portfolioContracts = data.portfolio.contracts || [];
+            portfolioContracts.forEach(pContract => {
+                if (pContract.contract_type === 'MULTUP' || pContract.contract_type === 'MULTDOWN') {
+                    const existingIndex = openContractsCache.findIndex(cached => cached.contract_id === pContract.contract_id);
+                    if (existingIndex === -1 || typeof openContractsCache[existingIndex].buy_price === 'undefined') {
+                         sendToUserWs({ proposal_open_contract: 1, contract_id: pContract.contract_id });
+                    }
+                }
+            });
+            if (openContractsCache.length === 0 && portfolioContracts.length === 0) {
+                renderOpenPositionsTable();
+            }
+            break;
+
+        case "proposal_open_contract":
+            const c = data.proposal_open_contract;
+            if (!c || !c.contract_id) return;
+            const existingIndexPOC = openContractsCache.findIndex(cached => cached.contract_id === c.contract_id);
+            if (isActiveMultiplier(c)) {
+                if (existingIndexPOC !== -1) {
+                    openContractsCache[existingIndexPOC] = { ...openContractsCache[existingIndexPOC], ...c };
+                } else {
+                    openContractsCache.push(c);
+                }
+            } else {
+                if (existingIndexPOC !== -1) {
+                    openContractsCache.splice(existingIndexPOC, 1);
+                }
+            }
+            renderOpenPositionsTable();
+            break;
+
+        case "buy":
+             if (data.buy && data.buy.contract_id) {
+                flashMessage(ui.tradeResponse, `✅ Trade placed! ID: ${data.buy.contract_id}. View in 'Open Positions'.`, 'success-msg', 7000);
+                ui.stakeInput.value = '';
+             } else if (!data.error) {
+                flashMessage(ui.tradeResponse, `⚠️ Trade status uncertain. Please check 'Open Positions'.`, 'info-msg', 7000);
+             }
+            break;
         
+        case "profit_table":
+            if (data.profit_table && Array.isArray(data.profit_table.transactions)) {
+                closedTradesHistory = data.profit_table.transactions.map(tx => {
+                    const shortcodeParts = tx.shortcode.split('_');
+                    const contractTypeStr = shortcodeParts[0]; 
+                    const apiSymbol = tx.underlying_symbol || shortcodeParts[1]; 
+                    
+                    let direction = contractTypeStr;
+                    if (contractTypeStr === 'MULTUP') direction = '📈 Up';
+                    else if (contractTypeStr === 'MULTDOWN') direction = '🔻 Down';
 
-        
+                    const buyPriceRaw = parseFloat(tx.buy_price);
+                    const sellPriceRaw = parseFloat(tx.sell_price);
+                    
+                    const stake = isNaN(buyPriceRaw) ? 0 : buyPriceRaw;
+                    const valueAtClose = isNaN(sellPriceRaw) ? 0 : sellPriceRaw;
+                    
+                    let calculatedPnl = 0;
+                    if (!isNaN(buyPriceRaw) && !isNaN(sellPriceRaw)) {
+                        calculatedPnl = valueAtClose - stake;
+                    } else if (!isNaN(buyPriceRaw) && isNaN(sellPriceRaw)) { 
+                        calculatedPnl = -stake; 
+                    }
 
-        async function get_eventsSourceData(){
-            
-            // const histResp = await fetch(DOMAIN_URL+"/events",{
-            //                     headers: {
-            //                         "ngrok-skip-browser-warning": "any-value",
-                                    
-            //                         "User-Agent":""
-            //                     },
-            //                     mode:"no-cors"
-            //                 }).then(res => res.json())
-            const respData = await performJSONFetch(SERVER_DOMAIN+"/events",{
-                                method:"GET",
-                                body: ""
-                            })
-            const openTradeData = respData.data;
-            console.log('New message:',respData);
-            /**
-             * Calculates the percentage price change.
-             * @param {number} oldPrice - The previous price.
-             * @param {number} newPrice - The current price.
-             * @param {"MULTUP"|"MULTDOWN"} contract_type - The current price.
-             * @returns {number} Percentage change (positive or negative).
-             */
-            function getPriceChangePercentage(oldPrice, newPrice, contract_type) {
-                if (oldPrice === 0) return 0; // Avoid division by zero
-                const change_ = ((newPrice - oldPrice) / oldPrice) * 100;
-                const change = parseFloat(change_.toFixed(2)); // round to 2 decimal places
+                    return {
+                        contract_id: tx.contract_id,
+                        transaction_id: tx.transaction_id,
+                        marketName: symbolNames[apiSymbol] || apiSymbol,
+                        closeTime: tx.sell_time, 
+                        direction: direction,
+                        stake: stake,
+                        valueAtClose: valueAtClose,
+                        pnl: calculatedPnl,
+                        currency: tx.currency
+                    };
+                }).sort((a,b) => b.closeTime - a.closeTime); 
                 
-                if(contract_type=="MULTDOWN"){
-                    if(newPrice>oldPrice){//lossing
-                        if(change>0){
-                            return -change;
-                        }else {
-                            return change;
-                        }
-                    }
-                }else {
-                    // MULTUP
-                    if(newPrice<oldPrice){//lossing
-                        if(change>0){
-                            return -change;
-                        }else {
-                            return change;
-                        }
-                    }
-
+                if (document.getElementById('historyTab').classList.contains('active')) {
+                    renderHistoryTab(currentHistoryWeekOffset);
                 }
-                return change;
             }
+            break;
 
-            
-            currentTradeData  = {
-                asset: openTradeData.display_name,//"Volatility 75 Index",
-                direction: openTradeData.contract_type==="MULTUP"?"Buy":"Sell",//"Buy",
-                profit: (openTradeData.profit>0?"+$":"-$")+openTradeData.profit,//"+$8.45",
-                time: "Running since "+new Date(openTradeData.purchase_time*1000).toUTCString(),
-                entryPrice: openTradeData.entry_spot_display_value,//"123.45",
-                currentPrice: openTradeData.current_spot_display_value,//"123.50",
-                multiplier: "x"+openTradeData.multiplier,//"x200",
-                stake: "$"+openTradeData.buy_price,//"$4.00",
-                percentageChange: getPriceChangePercentage(openTradeData.entry_spot,openTradeData.current_spot,openTradeData.contract_type)+"%"//"+211.25%" // (8.45 / 4.00) * 100
-            };
-            currentTradesDataObj[openTradeData.contract_id] = currentTradeData;
-            console.log({currentTradeData})
-            updateCurrentTrade();
-            
-            // const eventSource = new EventSource(DOMAIN_URL+'/events');
-    
-            // eventSource.onmessage = function (e) {
-            //     console.log("fn:onMessage")
-            //     try{
+        case "transaction":
+            if (data.transaction && data.transaction.action === 'sell') {
+                const soldContractId = data.transaction.contract_id;
+                const profitLossRaw = parseFloat(data.transaction.amount);
+                const profitLoss = isNaN(profitLossRaw) ? 0 : profitLossRaw;
+                const currency = data.transaction.currency || 'USD';
+                const closeTime = data.transaction.transaction_time;
+
+                const originalContractDetails = openContractsCache.find(c_1 => c_1.contract_id === soldContractId);
+                if (originalContractDetails) {
+                    const marketName = symbolNames[originalContractDetails.underlying] || originalContractDetails.underlying;
+                    const direction = ['CALL', 'MULTUP'].includes(originalContractDetails.contract_type) ? '📈 Up' : '🔻 Down';
+                    const stakeRaw = parseFloat(originalContractDetails.buy_price);
+                    const stake = isNaN(stakeRaw) ? 0 : stakeRaw;
                     
-            //         // {
-            //             // "time": "2025-06-04T17:34:03.016Z",
-            //             // "data": {
-            //             //     "account_id": 120332368,
-            //             //     "barrier_count": 1,
-            //             //     "bid_price": 1.21,
-            //             //     "buy_price": 1,
-            //             //     "commission": 0.05,
-            //             //     "contract_id": 283754763728,
-            //             //     "contract_type": "MULTUP",
-            //             //     "currency": "USD",
-            //             //     "current_spot": 3378.11,
-            //             //     "current_spot_display_value": "3378.11",
-            //             //     "current_spot_time": 1749058442,
-            //             //     "date_expiry": 4902670500,
-            //             //     "date_settlement": 4902854400,
-            //             //     "date_start": 1749047403,
-            //             //     "display_name": "Gold/USD",
-            //             //     "entry_spot": 3369.33,
-            //             //     "entry_spot_display_value": "3369.33",
-            //             //     "entry_tick": 3369.33,
-            //             //     "entry_tick_display_value": "3369.33",
-            //             //     "entry_tick_time": 1749047404,
-            //             //     "expiry_time": 4902670500,
-            //             //     "id": "05d5d3a6-f603-bafa-67c1-8e580be9b229",
-            //             //     "is_expired": 0,
-            //             //     "is_forward_starting": 0,
-            //             //     "is_intraday": 0,
-            //             //     "is_path_dependent": 1,
-            //             //     "is_settleable": 0,
-            //             //     "is_sold": 0,
-            //             //     "is_valid_to_cancel": 0,
-            //             //     "is_valid_to_sell": 1,
-            //             //     "is_valid_to_update": {
-            //             //     "stop_loss": 1,
-            //             //     "stop_out": 0,
-            //             //     "take_profit": 1
-            //             //     },
-            //             //     "limit_order": {
-            //             //     "stop_loss": {
-            //             //         "display_name": "Stop loss",
-            //             //         "display_order_amount": "-1.00",
-            //             //         "order_amount": -1,
-            //             //         "order_date": 1749047403,
-            //             //         "value": "3337.44"
-            //             //     },
-            //             //     "stop_out": {
-            //             //         "display_name": "Stop out",
-            //             //         "display_order_amount": "-1.00",
-            //             //         "order_amount": -1,
-            //             //         "order_date": 1749047403,
-            //             //         "value": "3337.44"
-            //             //     }
-            //             //     },
-            //             //     "longcode": "If you select 'Up', your total profit/loss will be the percentage increase in Gold/USD, multiplied by 100, minus commissions.",
-            //             //     "multiplier": 100,
-            //             //     "profit": 0.21,
-            //             //     "profit_percentage": 21,
-            //             //     "purchase_time": 1749047403,
-            //             //     "shortcode": "MULTUP_FRXXAUUSD_1.00_100_1749047403_4902670500_0_0.00_N1_0",
-            //             //     "status": "open",
-            //             //     "transaction_ids": {
-            //             //     "buy": 565575304788
-            //             //     },
-            //             //     "underlying": "frxXAUUSD",
-            //             //     "validation_params": {
-            //             //     "stake": {
-            //             //         "max": "1000.00",
-            //             //         "min": "1.00"
-            //             //     },
-            //             //     "stop_loss": {
-            //             //         "max": "1.00",
-            //             //         "min": "0.10"
-            //             //     },
-            //             //     "take_profit": {
-            //             //         "max": "50.00",
-            //             //         "min": "0.22"
-            //             //     }
-            //             //     }
-            //             // }
-            //             // }
-        
-            //         const respData = JSON.parse(e.data);
-            //         const openTradeData = respData.data;
-            //         console.log('New message:',respData);
-            //         /**
-            //          * Calculates the percentage price change.
-            //          * @param {number} oldPrice - The previous price.
-            //          * @param {number} newPrice - The current price.
-            //          * @param {"MULTUP"|"MULTDOWN"} contract_type - The current price.
-            //          * @returns {number} Percentage change (positive or negative).
-            //          */
-            //         function getPriceChangePercentage(oldPrice, newPrice, contract_type) {
-            //             if (oldPrice === 0) return 0; // Avoid division by zero
-            //             const change_ = ((newPrice - oldPrice) / oldPrice) * 100;
-            //             const change = parseFloat(change_.toFixed(2)); // round to 2 decimal places
-                        
-            //             if(contract_type=="MULTDOWN"){
-            //                 if(newPrice>oldPrice){//lossing
-            //                     if(change>0){
-            //                         return -change;
-            //                     }else {
-            //                         return change;
-            //                     }
-            //                 }
-            //             }else {
-            //                 // MULTUP
-            //                 if(newPrice<oldPrice){//lossing
-            //                     if(change>0){
-            //                         return -change;
-            //                     }else {
-            //                         return change;
-            //                     }
-            //                 }
-        
-            //             }
-            //             return change;
-            //         }
-        
-                    
-            //         currentTradeData  = {
-            //             asset: openTradeData.display_name,//"Volatility 75 Index",
-            //             direction: openTradeData.contract_type==="MULTUP"?"Buy":"Sell",//"Buy",
-            //             profit: (openTradeData.profit>0?"+$":"-$")+openTradeData.profit,//"+$8.45",
-            //             time: "Running since "+new Date(openTradeData.purchase_time*1000).toUTCString(),
-            //             entryPrice: openTradeData.entry_spot_display_value,//"123.45",
-            //             currentPrice: openTradeData.current_spot_display_value,//"123.50",
-            //             multiplier: "x"+openTradeData.multiplier,//"x200",
-            //             stake: "$"+openTradeData.buy_price,//"$4.00",
-            //             percentageChange: getPriceChangePercentage(openTradeData.entry_spot,openTradeData.current_spot,openTradeData.contract_type)+"%"//"+211.25%" // (8.45 / 4.00) * 100
-            //         };
-            //         console.log({currentTradeData})
-            //         updateCurrentTrade();
-    
-            //     }catch(error){
-            //         console.log({error})
-            //     }
-    
-            // };
-    
-            // eventSource.addEventListener('heartbeat', function (e) {
-            //     console.log('Heartbeat:', JSON.parse(e.data));
-            // });
-    
-            // eventSource.addEventListener('welcome', function (e) {
-            //     console.log('Welcome:', JSON.parse(e.data));
-            // });
-    
-            // eventSource.onerror = function (e) {
-            //     console.error('EventSource error:', e);
-            // };
-            
-
-        }
-
-        //
-        async function get_tradeHistoryDataAsync(){
-            console.log("(fn:get_tradeHistoryDataAsync)")
-            const histResp = await performJSONFetch(SERVER_DOMAIN+"/history-multipliers",{
-                                method:"GET",
-                                body: ""
-                            })
-            console.log({histResp})
-            let tradeHistoryData = histResp.data.map((position)=> {
-                // {
-                //     "app_id": 1089,
-                //     "buy_price": 1,
-                //     "contract_id": 283645824528,
-                //     "contract_type": "MULTDOWN",
-                //     "duration_type": "days",
-                //     "longcode": "If you select 'Down', your total profit/loss will be the percentage decrease in Gold/USD, multiplied by 100, minus commissions.",
-                //     "multiplier": "100",
-                //     "payout": 0,
-                //     "purchase_time": 1748959203,
-                //     "sell_price": 0,
-                //     "sell_time": 1749047881,
-                //     "shortcode": "MULTDOWN_FRXXAUUSD_1.00_100_1748959203_4902595199_0_0.00_N1_0",
-                //     "transaction_id": 565359485988,
-                //     "underlying_symbol": "frxXAUUSD"
-                // }
-                return {
-                    asset: position.underlying_symbol,
-                    // result: (position.payout<position.buy_price?"-$":"+$")+Math.abs(position.payout-position.buy_price),
-                    result: (position.sell_price<position.buy_price?"-$":"+$")+Math.abs(position.buy_price-position.sell_price).toFixed(2),
-                    direction: position.contract_type==="MULTUP"?"Buy":"Sell",
-                    timestamp: new Date(position.purchase_time*1000).toUTCString(),//position.purchase_time,
-                    multiplier: "x"+position.multiplier,
-                    stake: "$"+position.buy_price,
-                    percentageChange: "+0",
-                    entryPrice: "0",
-                    exitPrice: "0",
-                    exitTime: new Date(position.sell_time*1000).toUTCString(),
+                    const newHistoryEntry = {
+                        contract_id: soldContractId,
+                        transaction_id: data.transaction.transaction_id, 
+                        marketName: marketName,
+                        closeTime: closeTime,
+                        direction: direction,
+                        stake: stake,
+                        valueAtClose: stake + profitLoss,
+                        pnl: profitLoss, 
+                        currency: currency
+                    };
+                    if (!closedTradesHistory.some(h => h.transaction_id === newHistoryEntry.transaction_id)) {
+                        closedTradesHistory.unshift(newHistoryEntry); 
+                    }
                 }
-            })
-            console.log({tradeHistoryData})
-
-            return tradeHistoryData;
-            ///
-        }
-        let tradeHistoryData = [];
-        
-        // const tradeHistoryData = [
-        //     // Current Week (e.g., June 3 - June 9, 2025, assuming today is June 4)
-        //     { asset: "VIX 100", result: "+$5.20", direction: "Buy", timestamp: "2025-06-04 10:30", multiplier: "x100", stake: "$5.00", percentageChange: "+104%", entryPrice: "150.20", exitPrice: "155.40" },
-        //     { asset: "Crash 500", result: "-$3.10", direction: "Sell", timestamp: "2025-06-04 09:15", multiplier: "x50", stake: "$6.00", percentageChange: "-51.67%", entryPrice: "200.50", exitPrice: "203.60" },
-        //     { asset: "Boom 1000", result: "+$7.30", direction: "Buy", timestamp: "2025-06-03 16:45", multiplier: "x200", stake: "$3.50", percentageChange: "+208.57%", entryPrice: "10.00", exitPrice: "17.30" },
-        //     { asset: "VIX 75", result: "+$2.00", direction: "Buy", timestamp: "2025-06-03 14:00", multiplier: "x75", stake: "$2.50", percentageChange: "+80%", entryPrice: "80.00", exitPrice: "82.00" },
-        //     // Previous Week (May 27 - June 2, 2025)
-        //     { asset: "Jump 25", result: "-$1.50", direction: "Sell", timestamp: "2025-06-02 11:20", multiplier: "x25", stake: "$3.00", percentageChange: "-50%", entryPrice: "50.00", exitPrice: "51.50" },
-        //     { asset: "VIX 50", result: "+$10.00", direction: "Buy", timestamp: "2025-06-01 09:00", multiplier: "x150", stake: "$4.00", percentageChange: "+250%", entryPrice: "100.00", exitPrice: "110.00" },
-        //     { asset: "Bear Market", result: "-$4.50", direction: "Sell", timestamp: "2025-05-31 17:00", multiplier: "x100", stake: "$9.00", percentageChange: "-50%", entryPrice: "30.00", exitPrice: "34.50" },
-        //     { asset: "Bull Market", result: "+$6.80", direction: "Buy", timestamp: "2025-05-30 14:30", multiplier: "x200", stake: "$3.00", percentageChange: "+226.67%", entryPrice: "20.00", exitPrice: "26.80" },
-        //     { asset: "VIX 10", result: "+$1.20", direction: "Buy", timestamp: "2025-05-29 10:00", multiplier: "x50", stake: "$1.00", percentageChange: "+120%", entryPrice: "5.00", exitPrice: "6.20" },
-        //     { asset: "Crash 1000", result: "-$2.00", direction: "Sell", timestamp: "2025-05-28 15:00", multiplier: "x75", stake: "$4.00", percentageChange: "-50%", entryPrice: "70.00", exitPrice: "72.00" },
-        //     { asset: "Boom 500", result: "+$4.00", direction: "Buy", timestamp: "2025-05-27 11:00", multiplier: "x100", stake: "$2.00", percentageChange: "+200%", entryPrice: "12.00", exitPrice: "16.00" },
-        //     // Week before that (May 20 - May 26, 2025)
-        //     { asset: "VIX 25", result: "+$3.00", direction: "Buy", timestamp: "2025-05-26 13:00", multiplier: "x120", stake: "$2.50", percentageChange: "+120%", entryPrice: "25.00", exitPrice: "28.00" },
-        //     { asset: "Jump 75", result: "-$0.80", direction: "Sell", timestamp: "2025-05-25 09:30", multiplier: "x30", stake: "$1.60", percentageChange: "-50%", entryPrice: "40.00", exitPrice: "40.80" },
-        //     { asset: "VIX 100", result: "+$1.50", direction: "Buy", timestamp: "2025-05-24 10:00", multiplier: "x100", stake: "$1.00", percentageChange: "+150%", entryPrice: "10.00", exitPrice: "11.50" },
-        //     { asset: "Crash 500", result: "-$0.50", direction: "Sell", timestamp: "2025-05-23 14:00", multiplier: "x50", stake: "$1.00", percentageChange: "-50%", entryPrice: "20.00", exitPrice: "20.50" },
-        //     { asset: "Boom 1000", result: "+$2.00", direction: "Buy", timestamp: "2025-05-22 16:00", multiplier: "x200", stake: "$1.00", percentageChange: "+200%", entryPrice: "5.00", exitPrice: "7.00" },
-        // ];
-
-        // Function to update current trade display
-        function updateCurrentTrade() {
-            const tradeIds = Object.keys(currentTradesDataObj)
-       
-            let main_currentTradeElement = document.getElementById("currentTrade")||document.getElementById(tradeIds[0]);
-            // const currentTradeElement_Clone =main_currentTradeElement.cloneNode(true)
-            console.log({main_currentTradeElement})
-            let tradesNodes = [];
-            let index = 0;
-            for(const idAsKey in currentTradesDataObj){
-                console.log({idAsKey})
-                // document.getElementById(idAsKey)?.remove()
-                let currentTradeElement = document.getElementById(idAsKey)||main_currentTradeElement.cloneNode(true);
-                if(index==0){
-                    currentTradeElement.id = idAsKey;
+                
+                const cacheIndex = openContractsCache.findIndex(cached => cached.contract_id === soldContractId);
+                if (cacheIndex !== -1) {
+                    openContractsCache.splice(cacheIndex, 1);
                 }
-                currentTradeElement.id = idAsKey;
-                console.log({id:currentTradeElement.id})
-
-               let currentTradeData = currentTradesDataObj[idAsKey];
-
-               const profitColorClass = currentTradeData.profit.startsWith('+') ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400';
-               const directionColorClass = currentTradeData.direction === 'Buy' ? 'text-green-600 dark:text-green-300' : 'text-red-600 dark:text-red-300';
-               const percentageColorClass = currentTradeData.percentageChange.startsWith('+') ? 'text-green-500 dark:text-green-200' : 'text-red-500 dark:text-red-200';
-   
-                currentTradeElement.innerHTML =  `
-                   <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-base" ">
-                       <p><strong class="text-indigo-600 dark:text-indigo-300">Asset:</strong> ${currentTradeData.asset}</p>
-                       <p><strong class="text-indigo-600 dark:text-indigo-300">Direction:</strong> <span class="${directionColorClass} font-bold">${currentTradeData.direction}</span></p>
-                       <p><strong class="text-indigo-600 dark:text-indigo-300">Profit:</strong> <span class="${profitColorClass} font-bold text-lg">${currentTradeData.profit}</span></p>
-                       <p><strong class="text-indigo-600 dark:text-indigo-300">Change:</strong> <span class="${percentageColorClass} font-medium">${currentTradeData.percentageChange}</span></p>
-                       <p><strong class="text-indigo-600 dark:text-indigo-300">Multiplier:</strong> <span class="font-medium">${currentTradeData.multiplier}</span></p>
-                       <p><strong class="text-indigo-600 dark:text-indigo-300">Stake:</strong> <span class="font-medium">${currentTradeData.stake}</span></p>
-                       <p><strong class="text-indigo-600 dark:text-indigo-300">Entry Price:</strong> ${currentTradeData.entryPrice}</p>
-                       <p><strong class="text-indigo-600 dark:text-indigo-300">Current Price:</strong> ${currentTradeData.currentPrice}</p>
-                   </div>
-                   <p class="text-sm text-gray-500 mt-2 dark:text-gray-400"><strong class="text-indigo-600 dark:text-indigo-300">Status:</strong> ${currentTradeData.time}</p>
-
-               `;
-                // htmlString += htmlString;
-                // if(!document.getElementById(idAsKey) && index!=0)tradesNodes.push(currentTradeElement)
-                console.log({currentTradeElement})
-                tradesNodes.push(currentTradeElement)
-                index+=1;
-            }
-           
-            for(const tradeNode of tradesNodes){
-                 console.log({main_currentTradeElement})
-                // if(!main_currentTradeElement.parentElement.getElementById(tradeNode.id))
-                main_currentTradeElement.parentElement.appendChild(tradeNode)
-
-            }
-            
-
-        }
-
-        // Helper to get Monday of the week for a given date
-        function getMonday(d) {
-            d = new Date(d);
-            const day = d.getDay(); // 0 for Sunday, 1 for Monday, ..., 6 for Saturday
-            const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday
-            const monday = new Date(d.setDate(diff));
-            monday.setHours(0, 0, 0, 0); // Set to start of the day
-            return monday;
-        }
-
-        // Helper to get Sunday of the week for a given Monday
-        function getSunday(monday) {
-            const sunday = new Date(monday);
-            sunday.setDate(monday.getDate() + 6);
-            sunday.setHours(23, 59, 59, 999); // Set to end of the day
-            return sunday;
-        }
-
-        // Function to format date for grouping (YYYY-MM-DD)
-        function formatDateForGrouping(dateString) {
-            const date = new Date(dateString);
-            return date.toISOString().split('T')[0];
-        }
-
-        // Function to get display date string (Today, Yesterday, or actual date)
-        function getDisplayDate(dateString) {
-            const today = new Date();
-            const date = new Date(dateString);
-
-            // Set both dates to midnight for accurate comparison
-            today.setHours(0, 0, 0, 0);
-            date.setHours(0, 0, 0, 0);
-
-            const yesterday = new Date(today);
-            yesterday.setDate(today.getDate() - 1);
-
-            if (date.toDateString() === today.toDateString()) {
-                return "Today";
-            } else if (date.toDateString() === yesterday.toDateString()) {
-                return "Yesterday";
-            } else {
-                return new Intl.DateTimeFormat('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(date);
-            }
-        }
-
-        // Function to update the displayed week range
-        function updateWeekDisplay() {
-            const weekDisplayElement = document.getElementById('currentWeekDisplay');
-            const options = { month: 'short', day: 'numeric', year: 'numeric' };
-            const startFormatted = currentWeekStart.toLocaleDateString('en-US', options);
-            const endFormatted = currentWeekEnd.toLocaleDateString('en-US', options);
-            weekDisplayElement.textContent = `${startFormatted} - ${endFormatted}`;
-        }
-
-        // Function to filter trades for the current week
-        function filterTradesForCurrentWeek() {
-            console.log("fn:filterTradesForCurrentWeek");
-            console.log({tradeHistoryData})
-            return tradeHistoryData.filter(trade => {
-                const tradeDate = new Date(trade.timestamp);
-                console.log({tradeDate})
-                return tradeDate >= currentWeekStart && tradeDate <= currentWeekEnd;
-            });
-        }
-
-        // Function to update trade history display with daily grouping and week filtering
-        async function updateTradeHistory() {
-            // //
-            // const histResp = await fetch("http://localhost:30019/history-multipliers").then(res => res.json())
-            // console.log({histResp})
-            // tradeHistoryData = histResp.data.map((position)=> {
-            //     // {
-            //     //     "app_id": 1089,
-            //     //     "buy_price": 1,
-            //     //     "contract_id": 283645824528,
-            //     //     "contract_type": "MULTDOWN",
-            //     //     "duration_type": "days",
-            //     //     "longcode": "If you select 'Down', your total profit/loss will be the percentage decrease in Gold/USD, multiplied by 100, minus commissions.",
-            //     //     "multiplier": "100",
-            //     //     "payout": 0,
-            //     //     "purchase_time": 1748959203,
-            //     //     "sell_price": 0,
-            //     //     "sell_time": 1749047881,
-            //     //     "shortcode": "MULTDOWN_FRXXAUUSD_1.00_100_1748959203_4902595199_0_0.00_N1_0",
-            //     //     "transaction_id": 565359485988,
-            //     //     "underlying_symbol": "frxXAUUSD"
-            //     // }
-            //     return {
-            //         asset: position.underlying_symbol,
-            //         result: position.payout,
-            //         direction: position.contract_type,
-            //         timestamp: position.purchase_time,
-            //         multiplier: position.multiplier,
-            //         stake: position.buy_price,
-            //         percentageChange: 0,
-            //         entryPrice: 0,
-            //         exitPrice: 0,
-            //         exitTime: position.sell_time
-            //     }
-            // })
-            // ///
-            const tradeHistoryElement = document.getElementById("tradeHistory");
-            const filteredTrades = filterTradesForCurrentWeek();
-
-            if (filteredTrades.length === 0) {
-                tradeHistoryElement.innerHTML = `<p class="text-gray-500 dark:text-gray-400">No trade history available for this week.</p>`;
-                // Also clear or reset chart and total PnL if no trades
-                drawGrowthChart([]);
-                document.getElementById('totalWeekPnl').innerHTML = `Total PnL for this week: <span class="text-gray-500 dark:text-gray-400">$0.00</span>`;
-                return;
-            }
-
-            // Sort trades by timestamp for cumulative PnL calculation
-            filteredTrades.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
-            // Calculate cumulative PnL and total PnL for the week
-            let cumulativePnL = 0;
-            const pnlDataPoints = [];
-            filteredTrades.forEach(trade => {
-                const pnl = parseFloat(trade.result.replace('+$', '').replace('-$', '-'));
-                cumulativePnL += pnl;
-                pnlDataPoints.push(cumulativePnL);
-            });
-
-            const totalWeekPnlElement = document.getElementById('totalWeekPnl');
-            const totalPnLFormatted = cumulativePnL.toFixed(2);
-            const totalPnLColorClass = cumulativePnL >= 0 ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400';
-            totalWeekPnlElement.innerHTML = `Total PnL for this week: <span class="${totalPnLColorClass}">$${totalPnLFormatted}</span>`;
-
-
-            // Group trades by date for display
-            const groupedTrades = filteredTrades.reduce((acc, trade) => {
-                const dateKey = formatDateForGrouping(trade.timestamp);
-                if (!acc[dateKey]) {
-                    acc[dateKey] = [];
+                renderOpenPositionsTable();
+                
+                if (document.getElementById('historyTab').classList.contains('active')) {
+                    renderHistoryTab(currentHistoryWeekOffset);
                 }
-                acc[dateKey].push(trade);
-                return acc;
-            }, {});
 
-            let historyHtml = '';
-            // Sort dates in descending order for display
-            const sortedDates = Object.keys(groupedTrades).sort((a, b) => new Date(b) - new Date(a));
-
-            sortedDates.forEach(dateKey => {
-                const tradesForDay = groupedTrades[dateKey];
-                historyHtml += `
-                    <div class="mb-4">
-                        <h4 class="text-md font-semibold text-indigo-700 bg-indigo-100 rounded-md py-1 px-3 mb-2 sticky top-0 z-10 shadow-sm
-                                   dark:text-indigo-400 dark:bg-gray-700">
-                            ${getDisplayDate(dateKey)}
-                        </h4>
-                        ${tradesForDay.map(t => `
-                            <div class="border-b border-gray-200 last:border-b-0 py-2 px-1 dark:border-gray-600">
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="font-semibold text-gray-900 dark:text-gray-100">${t.asset}</span>
-                                    <span class="${t.result.startsWith('+') ? 'text-green-600 dark:text-green-300' : 'text-red-600 dark:text-red-300'} font-bold text-lg">${t.result}</span>
-                                </div>
-                                <div class="grid grid-cols-2 gap-x-4 text-sm text-gray-600 dark:text-gray-300">
-                                    <span>Direction: <span class="${t.direction === 'Buy' ? 'text-green-500 dark:text-green-200' : 'text-red-500 dark:text-red-200'} font-medium">${t.direction}</span></span>
-                                    <span>Multiplier: <span class="font-medium">${t.multiplier}</span></span>
-                                    <span>Stake: <span class="font-medium">${t.stake}</span></span>
-                                    <span>Change: <span class="${t.percentageChange.startsWith('+') ? 'text-green-500 dark:text-green-200' : 'text-red-500 dark:text-red-200'} font-medium">${t.percentageChange}</span></span>
-                                    <span>Entry: <span class="font-medium">${t.entryPrice}</span></span>
-                                    <span>Exit: <span class="font-medium">${t.exitPrice}</span></span>
-                                </div>
-                                <div class="text-xs text-gray-400 mt-1 text-right dark:text-gray-500">${new Date(t.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            });
-            tradeHistoryElement.innerHTML = historyHtml;
-            updateWeekDisplay(); // Update week display after rendering trades
-            drawGrowthChart(pnlDataPoints); // Pass cumulative PnL to the chart
-        }
-
-        // Navigation functions for week selection
-        function showPreviousWeek() {
-            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-            currentWeekEnd = getSunday(currentWeekStart);
-            updateTradeHistory();
-        }
-
-        function showNextWeek() {
-            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-            currentWeekEnd = getSunday(currentWeekStart);
-            updateTradeHistory();
-        }
-
-        // Function to draw the growth chart
-        function drawGrowthChart(pnlData) {
-            const canvas = document.getElementById("growthChart");
-            const ctx = canvas.getContext("2d");
-
-            // Adjust canvas resolution for better quality on high-DPI screens
-            const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            ctx.scale(dpr, dpr);
-
-            const width = canvas.width / dpr;
-            const height = canvas.height / dpr;
-
-            // Clear canvas
-            ctx.clearRect(0, 0, width, height);
-
-            if (pnlData.length === 0) {
-                // Display a message if no data
-                ctx.fillStyle = document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#666'; // Adjust text color for theme
-                ctx.font = "16px Inter";
-                ctx.textAlign = "center";
-                ctx.fillText("No growth data for this week.", width / 2, height / 2);
-                return;
+                showModalMessage(`✅ Trade ${soldContractId} closed. P/L: ${profitLoss.toFixed(2)} ${currency}`, 'success');
+                setTimeout(closeModal, 3000);
             }
+            break;
+    }
+  };
 
-            // Find min and max PnL for normalization
-            const minPnL = Math.min(0, ...pnlData); // Start from 0 or lowest negative PnL
-            const maxPnL = Math.max(0, ...pnlData); // End at 0 or highest positive PnL
-            const range = maxPnL - minPnL;
+  ws.onclose = function(event) {
+    flashMessage(ui.infoDiv, "🔌 Connection closed. Click Reconnect.", 'error-msg', 0);
+    ui.connectBtn.innerText = "🔗 Reconnect";
+    ui.connectBtn.disabled = false;
+    openContractsCache = [];
+    renderOpenPositionsTable();
+    setMultiplierSelectState("Disconnected", true);
+  };
 
-            // Normalize data points to fit canvas height (0 to 1 range, then scaled)
-            // If range is 0 (all PnL are same, e.g., all 0), prevent division by zero
-            const normalizedDataPoints = pnlData.map(pnl => {
-                if (range === 0) return 0.5; // Center the line if no change
-                return (pnl - minPnL) / range;
-            });
+  ws.onerror = function(error) {
+    flashMessage(ui.infoDiv, "🕸️ Connection error. Please try again.", 'error-msg', 0);
+    ui.connectBtn.innerText = "🔗 Connect";
+    ui.connectBtn.disabled = false;
+    setMultiplierSelectState("Connection error", true);
+    if (ui.confirmModal.style.display === 'flex') {
+        showModalMessage('❌ Error during operation. Check console.', 'error');
+    }
+  };
+};
 
-            // Determine chart colors based on theme
-            const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-            const lineColor = isDarkMode ? '#a78bfa' : '#6a5acd'; // Lighter purple for dark mode
-            const fillColor = isDarkMode ? 'rgba(167, 139, 250, 0.15)' : 'rgba(106, 90, 205, 0.1)'; // Adjusted fill for dark mode
-            const dotColor = isDarkMode ? '#a78bfa' : '#6a5acd';
-            const zeroLineColor = isDarkMode ? '#4b5563' : '#ccc';
+function createTradeRowElement(c) {
+  const row = document.createElement("tr");
+  row.id = `contract-${c.contract_id}`;
+  const symbolKey = c.underlying || c.symbol || (c.shortcode?.split('_')[1]) || 'N/A';
+  const marketName = symbolNames[symbolKey] || symbolKey;
+  const direction = ['CALL', 'MULTUP'].includes(c.contract_type) ? '📈 Up' : ['PUT', 'MULTDOWN'].includes(c.contract_type) ? '🔻 Down' : c.contract_type || 'N/A';
+  const profit = parseFloat(c.profit || 0);
+  const bidPrice = parseFloat(c.bid_price || 0);
+  const buyPrice = parseFloat(c.buy_price || 0);
+  const multiplier = c.multiplier || 'N/A';
 
-            // Draw background fill
-            ctx.beginPath();
-            ctx.moveTo(0, height - (normalizedDataPoints[0] * height)); // Start from the first point's Y
-            normalizedDataPoints.forEach((point, i) => {
-                const x = (i / (normalizedDataPoints.length - 1)) * width;
-                const y = height - (point * height);
-                ctx.lineTo(x, y);
-            });
-            ctx.lineTo(width, height - (normalizedDataPoints[normalizedDataPoints.length - 1] * height)); // Go to last point's Y
-            ctx.lineTo(width, height - (0 - minPnL) / range * height); // Go to the normalized zero line at the end
-            ctx.lineTo(0, height - (0 - minPnL) / range * height); // Go to the normalized zero line at the start
-            ctx.closePath();
-            ctx.fillStyle = fillColor;
-            ctx.fill();
+  // Robustly escape marketName for HTML attributes and JavaScript string literals
+  const safeMarketNameForHtml = marketName.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+  const safeMarketNameForJs = JSON.stringify(marketName);
 
-            // Draw line
-            ctx.beginPath();
-            ctx.moveTo(0, height - (normalizedDataPoints[0] * height));
-            normalizedDataPoints.forEach((point, i) => {
-                const x = (i / (normalizedDataPoints.length - 1)) * width;
-                const y = height - (point * height);
-                ctx.lineTo(x, y);
-            });
-            ctx.strokeStyle = lineColor;
-            ctx.lineWidth = 4;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.stroke();
+  row.innerHTML = `
+    <td data-label="Market">${marketName}</td>
+    <td data-label="Buy Price">$${buyPrice.toFixed(2)}</td>
+    <td data-label="Current Value">$${bidPrice.toFixed(2)}</td>
+    <td data-label="Profit/Loss" style="color:${profit >= 0 ? '#66bb6a' : '#cf6679'}; font-weight: bold;">$${profit.toFixed(2)}</td>
+    <td data-label="Multiplier">${multiplier}x</td>
+    <td data-label="Direction">${direction}</td>
+    <td data-label="Start Time">${c.date_start ? new Date(c.date_start * 1000).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) : '-'}</td>
+    <td><button class="close-trade-btn" onclick="window.openModal(${c.contract_id}, ${safeMarketNameForJs})" aria-label="Close trade for ${safeMarketNameForHtml}">Close</button></td>
+  `;
+  return row;
+}
 
-            // Draw a dot at the last data point
-            const lastX = ( (normalizedDataPoints.length - 1) / (normalizedDataPoints.length - 1)) * width;
-            const lastY = height - (normalizedDataPoints[normalizedDataPoints.length - 1] * height);
-            ctx.beginPath();
-            ctx.arc(lastX, lastY, 6, 0, Math.PI * 2); // Circle with radius 6
-            ctx.fillStyle = dotColor;
-            ctx.fill();
-            ctx.strokeStyle = "white"; // Dot border remains white for contrast
-            ctx.lineWidth = 2;
-            ctx.stroke();
+window.openModal = function(contractId, marketName = '') {
+  selectedContractId = contractId;
+  let modalTextContent = `Close trade ${contractId}?`;
+  // marketName is already a JS string (potentially from JSON.stringify), so direct usage is fine.
+  const actualMarketName = marketName || (openContractsCache.find(c_1 => c_1.contract_id === contractId) ? (symbolNames[openContractsCache.find(c_1 => c_1.contract_id === contractId).underlying || openContractsCache.find(c_1 => c_1.contract_id === contractId).symbol] || openContractsCache.find(c_1 => c_1.contract_id === contractId).underlying || openContractsCache.find(c_1 => c_1.contract_id === contractId).symbol) : '');
+  if (actualMarketName) {
+      modalTextContent = `Are you sure you want to close the trade for ${actualMarketName} (ID: ${contractId})?`;
+  } else {
+      modalTextContent = `Are you sure you want to close the trade with ID: ${contractId}?`;
+  }
+  ui.modalText.innerText = modalTextContent;
+  ui.modalButtons.style.display = 'flex';
+  ui.modalLoading.style.display = 'none';
+  ui.modalMessage.innerHTML = '';
+  ui.modalMessage.className = 'modal-message';
+  ui.confirmModal.style.display = 'flex';
+};
 
-            // Draw zero line (if applicable)
-            if (minPnL < 0 && maxPnL > 0) {
-                const zeroY = height - ((0 - minPnL) / range) * height;
-                ctx.beginPath();
-                ctx.moveTo(0, zeroY);
-                ctx.lineTo(width, zeroY);
-                ctx.strokeStyle = zeroLineColor;
-                ctx.lineWidth = 1;
-                ctx.setLineDash([5, 5]); // Dashed line
-                ctx.stroke();
-                ctx.setLineDash([]); // Reset line dash
+window.confirmClose = function(confirm) {
+  if (confirm && selectedContractId !== null) {
+    ui.modalButtons.style.display = 'none';
+    ui.modalLoading.style.display = 'block';
+    ui.modalMessage.innerHTML = '';
+    sendToUserWs({ sell: selectedContractId, price: 0 }); 
+  } else {
+    closeModal();
+  }
+};
+
+function showModalMessage(message, type) {
+  ui.modalLoading.style.display = 'none';
+  ui.modalMessage.innerHTML = message;
+  ui.modalMessage.className = `modal-message ${type}`;
+  ui.modalButtons.style.display = (type === 'success') ? 'none' : 'flex';
+}
+
+function closeModal() {
+  ui.confirmModal.style.display = 'none';
+  selectedContractId = null;
+  ui.modalText.innerText = '';
+  ui.modalMessage.innerHTML = '';
+  ui.modalMessage.className = 'modal-message';
+  ui.modalButtons.style.display = 'flex';
+  ui.modalLoading.style.display = 'none';
+}
+
+function setMultiplierSelectState(message, disabled) {
+    if (!ui.multiplierSelect) return;
+    ui.multiplierSelect.innerHTML = '';
+    const placeholderOption = document.createElement('option');
+    placeholderOption.value = "";
+    placeholderOption.textContent = message;
+    placeholderOption.disabled = true;
+    placeholderOption.selected = true;
+    ui.multiplierSelect.appendChild(placeholderOption);
+    ui.multiplierSelect.disabled = disabled;
+}
+
+function fetchAndPopulateMultipliers(selectedSymbolValue) {
+    const apiSymbol = getActualApiSymbol(selectedSymbolValue);
+    if (!apiSymbol) {
+        setMultiplierSelectState("Select a market symbol", true);
+        return;
+    }
+    if (!ws || ws.readyState !== WS_READY_STATE.OPEN) {
+        setMultiplierSelectState("Connect to API first", true);
+        return;
+    }
+    setMultiplierSelectState("Loading multipliers...", true);
+    sendToUserWs({
+        contracts_for: apiSymbol,
+        currency: "USD",
+        product_type: "basic", 
+        passthrough: { "req_type": "multipliers_for_symbol", "symbol": apiSymbol }
+    });
+}
+
+function populateMultiplierDropdown(contractsForData, symbolFromPassthrough) {
+    if (!ui.multiplierSelect) return;
+    const currentSelectedSymbolValue = ui.symbolSelect.value;
+    const currentApiSymbol = getActualApiSymbol(currentSelectedSymbolValue);
+
+    if (symbolFromPassthrough !== currentApiSymbol) {
+        if (!ui.multiplierSelect.disabled || (ui.multiplierSelect.firstChild && ui.multiplierSelect.firstChild.textContent !== "Loading multipliers...")) {
+             return; 
+        }
+    }
+    
+    if (!contractsForData || !Array.isArray(contractsForData.available)) {
+        setMultiplierSelectState("Error: Multiplier data format", true);
+        return;
+    }
+    let allParsedMultipliers = [];
+    contractsForData.available.forEach(contractDetail => {
+        if (contractDetail && Array.isArray(contractDetail.multiplier_range) && contractDetail.multiplier_range.length > 0) {
+            const numericMultipliers = contractDetail.multiplier_range
+                .map(m_val => parseFloat(m_val))
+                .filter(m_num => !isNaN(m_num) && m_num > 0); 
+            if(numericMultipliers.length > 0) {
+                allParsedMultipliers.push(...numericMultipliers);
             }
         }
-
-        // Theme Toggle Logic
-        async function toggleTheme() {
-            const htmlElement = document.documentElement;
-            const currentTheme = htmlElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            htmlElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme); // Save preference
-
-            // Redraw chart to update colors based on new theme
-            await updateTradeHistory();
-        }
-
-        // Event listener for theme toggle button
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log("fn:DOMContentLoaded")
-            
-            const themeToggleButton = document.getElementById('themeToggle');
-            if (themeToggleButton) {
-                themeToggleButton.addEventListener('click', toggleTheme);
-            }
-
-            // Apply saved theme on load
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                document.documentElement.setAttribute('data-theme', savedTheme);
-            } else {
-                // Default to light theme if no preference is saved
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
-
-
-
-            //
-            const {url:DOMAIN_URL} = await window.fetchServerURL();
-            SERVER_DOMAIN = DOMAIN_URL+"/DERIV_Trader";//"http://78.159.114.104:3008";
-            // const DOMAIN_URL = "https://a3fe0c1d74daeb.lhr.life/DERIV_Trader";
-            // const DOMAIN_URL = "https://inn-formal-executed-require.trycloudflare.com";
-            
-            await get_eventsSourceData();
-            setInterval(async ()=>{
-                await get_eventsSourceData();
-            },(1000))
-            tradeHistoryData = await get_tradeHistoryDataAsync();
-            console.log({tradeHistoryData})
-            // Initial updates
-            currentWeekStart = getMonday(new Date());
-            console.log({currentWeekStart})
-            currentWeekEnd = getSunday(currentWeekStart);
-            console.log({currentWeekEnd})
-
-            // updateCurrentTrade();
-            updateTradeHistory();
-            window.addEventListener('resize', async () => await updateTradeHistory());
-
-            // Highlight the active navigation link based on the current page
-            const path = window.location.pathname;
-            const fileName = path.substring(path.lastIndexOf('/') + 1);
-            const activeNavId = {
-                'index.html': 'homeNav',
-                'betpawa.html': 'betpawaNav',
-                'aviator.html': 'aviatorNav',
-                'forex.html': 'forexNav',
-                '': 'forexNav' // Default if no file name (e.g., root)
-            }[fileName];
-
-            if (activeNavId) {
-                const activeNavElement = document.getElementById(activeNavId);
-                if (activeNavElement) {
-                    activeNavElement.classList.add('active');
-                }
-            }
+    });
+    
+    let availableMultipliers = [];
+    if (allParsedMultipliers.length > 0) {
+        availableMultipliers = [...new Set(allParsedMultipliers)].sort((a, b) => a - b);
+    }
+    ui.multiplierSelect.innerHTML = ''; 
+    if (availableMultipliers.length > 0) {
+        availableMultipliers.forEach(m => {
+            const option = document.createElement('option');
+            option.value = m;
+            option.textContent = `${m}x`;
+            ui.multiplierSelect.appendChild(option);
         });
+        ui.multiplierSelect.disabled = false;
+    } else {
+        setMultiplierSelectState("No multipliers available", true);
+    }
+}
+
+window.placeTrade = function() {
+  const selectedSymbolValue = ui.symbolSelect.value;
+  const apiSymbol = getActualApiSymbol(selectedSymbolValue);
+  const stake = ui.stakeInput.value;
+  const multiplier = ui.multiplierSelect.value; 
+  const direction = ui.directionSelect.value;
+  flashMessage(ui.tradeResponse, '', 'info-msg', 0); 
+  if (!apiSymbol || !stake || !multiplier || multiplier === "" || !direction) { 
+    flashMessage(ui.tradeResponse, '❌ Please fill all fields and select a valid multiplier.', 'error-msg', 5000);
+    return;
+  }
+  const stakeAmount = parseFloat(stake);
+  const multiplierAmount = parseInt(multiplier); 
+  if (isNaN(stakeAmount) || isNaN(multiplierAmount) || stakeAmount <= 0 || multiplierAmount <= 0) {
+    flashMessage(ui.tradeResponse, '❌ Stake must be a positive number and multiplier must be selected.', 'error-msg', 5000);
+    return;
+  }
+   if (stakeAmount < 0.35) { 
+    flashMessage(ui.tradeResponse, '❌ Minimum stake is typically $0.35. Please check current limits.', 'error-msg', 5000);
+    return;
+  }
+  if (!ws || ws.readyState !== WS_READY_STATE.OPEN) {
+    flashMessage(ui.tradeResponse, '❌ Not connected to Deriv. Please connect first.', 'error-msg', 5000);
+    return;
+  }
+  const tradeRequest = {
+    buy: "1", 
+    price: stakeAmount, 
+    parameters: {
+      amount: stakeAmount,
+      basis: "stake",
+      contract_type: direction, 
+      currency: "USD",
+      symbol: apiSymbol, 
+      multiplier: multiplierAmount,
+    },
+    subscribe: 1 
+  };
+  flashMessage(ui.tradeResponse, '⏳ Sending trade request...', 'info-msg', 0);
+  sendToUserWs(tradeRequest);
+};
+
+// --- History Tab Functions ---
+function getWeekDateRange(offsetWeeks = 0) {
+    const now = new Date();
+    now.setDate(now.getDate() + offsetWeeks * 7);
+
+    const dayOfWeek = now.getDay(); 
     
-    </script>
+    const startDate = new Date(now);
+    startDate.setDate(now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); 
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6);
+    endDate.setHours(23, 59, 59, 999);
+
+    const options = { month: 'short', day: 'numeric', year: 'numeric' };
+    const displayRangeString = `${startDate.toLocaleDateString(undefined, options)} - ${endDate.toLocaleDateString(undefined, options)}`;
+    
+    return { startDate, endDate, displayRangeString };
+}
+
+function renderHistoryTab(weekOffset = 0) {
+    if (!ui.historyTabContent || !closedTradesHistory) return;
+
+    const { startDate, endDate, displayRangeString } = getWeekDateRange(weekOffset);
+    ui.historyDateRangeDisplay.textContent = displayRangeString;
+
+    const tradesForWeek = closedTradesHistory.filter(trade => {
+        const closeDate = new Date(trade.closeTime * 1000);
+        return closeDate >= startDate && closeDate <= endDate;
+    });
+
+    ui.historyTableBody.innerHTML = '';
+    let totalPnlForWeek = 0;
+
+    if (tradesForWeek.length > 0) {
+        tradesForWeek.forEach(trade => {
+            const row = document.createElement('tr');
+            const pnlColor = trade.pnl >= 0 ? '#66bb6a' : '#cf6679';
+            const pnlValue = typeof trade.pnl === 'number' ? trade.pnl : 0;
+            const stakeValue = typeof trade.stake === 'number' ? trade.stake : 0;
+            const valueAtCloseValue = typeof trade.valueAtClose === 'number' ? trade.valueAtClose : 0;
+
+            row.innerHTML = `
+                <td data-label="Market">${trade.marketName}</td>
+                <td data-label="Close Time">${new Date(trade.closeTime * 1000).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</td>
+                <td data-label="Direction">${trade.direction}</td>
+                <td data-label="Stake ($)">${stakeValue.toFixed(2)}</td>
+                <td data-label="Value at Close ($)">${valueAtCloseValue.toFixed(2)}</td>
+                <td data-label="PNL ($)" style="color:${pnlColor}; font-weight: bold;">${pnlValue.toFixed(2)}</td>
+            `;
+            ui.historyTableBody.appendChild(row);
+            totalPnlForWeek += pnlValue;
+        });
+        ui.noHistoryTradesMessage.style.display = 'none';
+    } else {
+        ui.noHistoryTradesMessage.style.display = 'block';
+    }
+
+    if (ui.historyTabTotalPnlTitleDisplay) {
+        ui.historyTabTotalPnlTitleDisplay.textContent = `Total P/L: $${totalPnlForWeek.toFixed(2)}`;
+        ui.historyTabTotalPnlTitleDisplay.className = ''; 
+        if (totalPnlForWeek > 0) {
+            ui.historyTabTotalPnlTitleDisplay.classList.add('pnl-positive');
+        } else if (totalPnlForWeek < 0) {
+            ui.historyTabTotalPnlTitleDisplay.classList.add('pnl-negative');
+        } else {
+            ui.historyTabTotalPnlTitleDisplay.classList.add('pnl-neutral');
+        }
+    }
+    
+    ui.historyNextWeekBtn.disabled = weekOffset >= 0; 
+}
+
+
+// --- Signals Tab Functions ---
+function connectSignalsAccount() {
+    if (signalsWsConnecting || (signalsWs && (signalsWs.readyState === WS_READY_STATE.OPEN || signalsWs.readyState === WS_READY_STATE.CONNECTING))) {
+        flashMessage(ui.signalsInfoDiv, 'ℹ️ Signals provider connection already active or in progress.', 'info-msg', 3000);
+        return;
+    }
+    signalsWsConnecting = true;
+    flashMessage(ui.signalsInfoDiv, '⏳ Connecting to signals provider...', 'info-msg', 0);
+
+    if (signalsWs) {
+        signalsWs.onopen = null;
+        signalsWs.onmessage = null;
+        signalsWs.onclose = null;
+        signalsWs.onerror = null;
+        if (signalsWs.readyState === WS_READY_STATE.OPEN || signalsWs.readyState === WS_READY_STATE.CONNECTING) {
+            signalsWs.close();
+        }
+    }
+
+    signalsWs = new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=1089");
+
+    signalsWs.onopen = function() {
+        signalsWsConnecting = false;
+        flashMessage(ui.signalsInfoDiv, 'Authenticating signals provider...', 'info-msg', 0);
+        sendToSignalsWs({ authorize: SIGNALS_API_KEY });
+    };
+
+    signalsWs.onmessage = function(msg) {
+        const data = JSON.parse(msg.data);
+
+        if (data.error) {
+            console.error("Signals WS Error:", data.error);
+            flashMessage(ui.signalsInfoDiv, `❌ Signals Error: ${data.error.message}`, 'error-msg', 0);
+            signalsWsConnecting = false;
+            return;
+        }
+
+        switch (data.msg_type) {
+            case "authorize":
+                if (data.authorize) {
+                    flashMessage(ui.signalsInfoDiv, `✅ Signals provider connected: ${data.authorize.loginid}`, 'success-msg', 5000);
+                    signalsOpenContractsCache = [];
+                    signalsClosedTradesHistory = [];
+                    currentSignalsHistoryWeekOffset = 0;
+                    renderSignalsOpenTradesTable();
+                    renderSignalsHistoryTab(currentSignalsHistoryWeekOffset);
+
+                    sendToSignalsWs({ portfolio: 1 });
+                    sendToSignalsWs({ profit_table: 1, description: 1, limit: PROFIT_TABLE_PAGE_SIZE, sort: 'DESC' });
+                    sendToSignalsWs({ proposal_open_contract: 1, subscribe: 1 });
+                } else {
+                    flashMessage(ui.signalsInfoDiv, `❌ Signals provider authorization failed.`, 'error-msg', 0);
+                    signalsWsConnecting = false;
+                }
+                break;
+            case "portfolio":
+                const portfolioContracts = data.portfolio.contracts || [];
+                portfolioContracts.forEach(pContract => {
+                     if (pContract.contract_type === 'MULTUP' || pContract.contract_type === 'MULTDOWN') {
+                        const existingIndex = signalsOpenContractsCache.findIndex(cached => cached.contract_id === pContract.contract_id);
+                        if (existingIndex === -1 || typeof signalsOpenContractsCache[existingIndex].buy_price === 'undefined') { // If new or incomplete
+                             sendToSignalsWs({ proposal_open_contract: 1, contract_id: pContract.contract_id });
+                        }
+                    }
+                });
+                if (signalsOpenContractsCache.length === 0 && portfolioContracts.length === 0) {
+                    renderSignalsOpenTradesTable(); // Ensure table is updated if initially empty
+                }
+                break;
+            case "proposal_open_contract":
+                const c = data.proposal_open_contract;
+                if (!c || !c.contract_id) return;
+                const existingIndexPOC = signalsOpenContractsCache.findIndex(cached => cached.contract_id === c.contract_id);
+                if (isActiveMultiplier(c)) {
+                    if (existingIndexPOC !== -1) {
+                        signalsOpenContractsCache[existingIndexPOC] = { ...signalsOpenContractsCache[existingIndexPOC], ...c };
+                    } else {
+                        signalsOpenContractsCache.push(c);
+                    }
+                } else { // Contract is no longer active (e.g. sold, expired)
+                    if (existingIndexPOC !== -1) {
+                        signalsOpenContractsCache.splice(existingIndexPOC, 1);
+                    }
+                }
+                renderSignalsOpenTradesTable();
+                break;
+            case "profit_table":
+                if (data.profit_table && Array.isArray(data.profit_table.transactions)) {
+                    signalsClosedTradesHistory = data.profit_table.transactions.map(tx => {
+                        const shortcodeParts = tx.shortcode.split('_');
+                        const contractTypeStr = shortcodeParts[0];
+                        const apiSymbol = tx.underlying_symbol || shortcodeParts[1];
+                        let direction = contractTypeStr;
+                        if (contractTypeStr === 'MULTUP') direction = '📈 Up';
+                        else if (contractTypeStr === 'MULTDOWN') direction = '🔻 Down';
+                        
+                        const buyPriceRaw = parseFloat(tx.buy_price);
+                        const sellPriceRaw = parseFloat(tx.sell_price);
+                        const stake = isNaN(buyPriceRaw) ? 0 : buyPriceRaw;
+                        const valueAtClose = isNaN(sellPriceRaw) ? 0 : sellPriceRaw;
+                        let calculatedPnl = 0;
+                        if (!isNaN(buyPriceRaw) && !isNaN(sellPriceRaw)) {
+                            calculatedPnl = valueAtClose - stake;
+                        } else if (!isNaN(buyPriceRaw) && isNaN(sellPriceRaw)) {
+                            calculatedPnl = -stake;
+                        }
+
+                        return {
+                            contract_id: tx.contract_id,
+                            transaction_id: tx.transaction_id,
+                            marketName: symbolNames[apiSymbol] || apiSymbol,
+                            closeTime: tx.sell_time,
+                            direction: direction,
+                            stake: stake,
+                            valueAtClose: valueAtClose,
+                            pnl: calculatedPnl,
+                            currency: tx.currency
+                        };
+                    }).sort((a,b) => b.closeTime - a.closeTime);
+                    
+                    if (document.getElementById('signalsTab').classList.contains('active')) {
+                         renderSignalsHistoryTab(currentSignalsHistoryWeekOffset);
+                    }
+                }
+                break;
+             case "transaction": // Handle if a signal trade gets closed during session
+                if (data.transaction && data.transaction.action === 'sell') {
+                    const soldContractId = data.transaction.contract_id;
+                    const profitLossRaw = parseFloat(data.transaction.amount);
+                    const profitLoss = isNaN(profitLossRaw) ? 0 : profitLossRaw;
+
+                    const originalSignalContract = signalsOpenContractsCache.find(c_1 => c_1.contract_id === soldContractId);
+                    if (originalSignalContract) {
+                         const marketName = symbolNames[originalSignalContract.underlying] || originalSignalContract.underlying;
+                         const direction = ['CALL', 'MULTUP'].includes(originalSignalContract.contract_type) ? '📈 Up' : '🔻 Down';
+                         const stakeRaw = parseFloat(originalSignalContract.buy_price);
+                         const stake = isNaN(stakeRaw) ? 0 : stakeRaw;
+
+                        const newSignalHistoryEntry = {
+                            contract_id: soldContractId,
+                            transaction_id: data.transaction.transaction_id,
+                            marketName: marketName,
+                            closeTime: data.transaction.transaction_time,
+                            direction: direction,
+                            stake: stake,
+                            valueAtClose: stake + profitLoss,
+                            pnl: profitLoss,
+                            currency: data.transaction.currency || 'USD'
+                        };
+                        if (!signalsClosedTradesHistory.some(h => h.transaction_id === newSignalHistoryEntry.transaction_id)) {
+                             signalsClosedTradesHistory.unshift(newSignalHistoryEntry);
+                        }
+                    }
+                    const cacheIndex = signalsOpenContractsCache.findIndex(cached => cached.contract_id === soldContractId);
+                    if (cacheIndex !== -1) {
+                        signalsOpenContractsCache.splice(cacheIndex, 1);
+                    }
+                    renderSignalsOpenTradesTable();
+                    if (document.getElementById('signalsTab').classList.contains('active')) {
+                        renderSignalsHistoryTab(currentSignalsHistoryWeekOffset);
+                    }
+                }
+                break;
+
+        }
+    };
+
+    signalsWs.onclose = function() {
+        signalsWsConnecting = false;
+        flashMessage(ui.signalsInfoDiv, '🔌 Signals provider disconnected.', 'error-msg', 0);
+        signalsOpenContractsCache = []; // Clear cache on disconnect
+        renderSignalsOpenTradesTable(); // Update UI
+    };
+
+    signalsWs.onerror = function(error) {
+        signalsWsConnecting = false;
+        console.error("Signals WS Error object:", error);
+        flashMessage(ui.signalsInfoDiv, '🕸️ Signals provider connection error.', 'error-msg', 0);
+    };
+}
+
+function renderSignalsOpenTradesTable() {
+    ui.signalsOpenTradesTableBody.innerHTML = '';
+    let totalOpenPnl = 0;
+    const sortedContracts = [...signalsOpenContractsCache].sort((a, b) => (b.date_start || 0) - (a.date_start || 0));
+
+    sortedContracts.forEach(contract => {
+        if (isActiveMultiplier(contract)) {
+            const row = createSignalTradeRowElement(contract); // Use a specific renderer for signals
+            ui.signalsOpenTradesTableBody.appendChild(row);
+            const profit = parseFloat(contract.profit || 0);
+            if (!isNaN(profit)) {
+                totalOpenPnl += profit;
+            }
+        }
+    });
+
+    if (ui.signalsTotalOpenPnlDisplay) {
+        ui.signalsTotalOpenPnlDisplay.textContent = `Total P/L: $${totalOpenPnl.toFixed(2)}`;
+        ui.signalsTotalOpenPnlDisplay.className = ''; 
+        if (totalOpenPnl > 0) {
+            ui.signalsTotalOpenPnlDisplay.classList.add('pnl-positive');
+        } else if (totalOpenPnl < 0) {
+            ui.signalsTotalOpenPnlDisplay.classList.add('pnl-negative');
+        } else {
+            ui.signalsTotalOpenPnlDisplay.classList.add('pnl-neutral');
+        }
+    }
+    ui.noSignalsOpenTradesMessage.style.display = ui.signalsOpenTradesTableBody.children.length === 0 ? 'block' : 'none';
+}
+
+function createSignalTradeRowElement(c) {
+  const row = document.createElement("tr");
+  const symbolKey = c.underlying || c.symbol || (c.shortcode?.split('_')[1]) || 'N/A';
+  const marketName = symbolNames[symbolKey] || symbolKey;
+  const direction = ['CALL', 'MULTUP'].includes(c.contract_type) ? '📈 Up' : ['PUT', 'MULTDOWN'].includes(c.contract_type) ? '🔻 Down' : c.contract_type || 'N/A';
+  const profit = parseFloat(c.profit || 0);
+  const bidPrice = parseFloat(c.bid_price || 0);
+  const buyPrice = parseFloat(c.buy_price || 0);
+  const multiplier = c.multiplier || 'N/A';
+
+  row.innerHTML = `
+    <td data-label="Market">${marketName}</td>
+    <td data-label="Buy Price">$${buyPrice.toFixed(2)}</td>
+    <td data-label="Current Value">$${bidPrice.toFixed(2)}</td>
+    <td data-label="Profit/Loss" style="color:${profit >= 0 ? '#66bb6a' : '#cf6679'}; font-weight: bold;">$${profit.toFixed(2)}</td>
+    <td data-label="Multiplier">${multiplier}x</td>
+    <td data-label="Direction">${direction}</td>
+    <td data-label="Start Time">${c.date_start ? new Date(c.date_start * 1000).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) : '-'}</td>
+  `;
+  return row;
+}
+
+function renderSignalsHistoryTab(weekOffset = 0) {
+    if (!ui.signalsTabContent || !signalsClosedTradesHistory) return;
+
+    const { startDate, endDate, displayRangeString } = getWeekDateRange(weekOffset);
+    ui.signalsHistoryDateRangeDisplay.textContent = displayRangeString;
+
+    const tradesForWeek = signalsClosedTradesHistory.filter(trade => {
+        const closeDate = new Date(trade.closeTime * 1000);
+        return closeDate >= startDate && closeDate <= endDate;
+    });
+
+    ui.signalsHistoryTableBody.innerHTML = '';
+    let totalPnlForWeek = 0;
+
+    if (tradesForWeek.length > 0) {
+        tradesForWeek.forEach(trade => {
+            const row = document.createElement('tr');
+            const pnlColor = trade.pnl >= 0 ? '#66bb6a' : '#cf6679';
+            const pnlValue = typeof trade.pnl === 'number' ? trade.pnl : 0;
+            const stakeValue = typeof trade.stake === 'number' ? trade.stake : 0;
+            const valueAtCloseValue = typeof trade.valueAtClose === 'number' ? trade.valueAtClose : 0;
+
+            row.innerHTML = `
+                <td data-label="Market">${trade.marketName}</td>
+                <td data-label="Close Time">${new Date(trade.closeTime * 1000).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</td>
+                <td data-label="Direction">${trade.direction}</td>
+                <td data-label="Stake ($)">${stakeValue.toFixed(2)}</td>
+                <td data-label="Value at Close ($)">${valueAtCloseValue.toFixed(2)}</td>
+                <td data-label="PNL ($)" style="color:${pnlColor}; font-weight: bold;">${pnlValue.toFixed(2)}</td>
+            `;
+            ui.signalsHistoryTableBody.appendChild(row);
+            totalPnlForWeek += pnlValue;
+        });
+        ui.noSignalsHistoryTradesMessage.style.display = 'none';
+    } else {
+        ui.noSignalsHistoryTradesMessage.style.display = 'block';
+    }
+
+    if (ui.signalsHistoryTabTotalPnlTitleDisplay) {
+        ui.signalsHistoryTabTotalPnlTitleDisplay.textContent = `Total P/L: $${totalPnlForWeek.toFixed(2)}`;
+        ui.signalsHistoryTabTotalPnlTitleDisplay.className = ''; 
+        if (totalPnlForWeek > 0) {
+            ui.signalsHistoryTabTotalPnlTitleDisplay.classList.add('pnl-positive');
+        } else if (totalPnlForWeek < 0) {
+            ui.signalsHistoryTabTotalPnlTitleDisplay.classList.add('pnl-negative');
+        } else {
+            ui.signalsHistoryTabTotalPnlTitleDisplay.classList.add('pnl-neutral');
+        }
+    }
+    ui.signalsHistoryNextWeekBtn.disabled = weekOffset >= 0;
+}
+
+
+// --- Event Listeners ---
+window.addEventListener('load', () => {
+  if (ui.connectBtn) {
+      ui.connectBtn.addEventListener('click', window.connect);
+  }
+  if (ui.createDerivAccountBtn) { // Add listener for the new button
+      ui.createDerivAccountBtn.addEventListener('click', () => {
+          const affiliateLink = 'https://track.deriv.com/_7Nhiq0l96up0QQMXeD9If2Nd7ZgqdRLk/1/';
+          if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.openLink === 'function') {
+              window.Telegram.WebApp.openLink(affiliateLink, {try_instant_view: false});
+          } else {
+              window.open(affiliateLink, '_blank');
+              console.warn("Telegram.WebApp.openLink not available. Opened link in a new tab as fallback.");
+          }
+      });
+  }
+
+  const savedToken = localStorage.getItem("deriv_token");
+  if (savedToken) {
+    ui.tokenInput.value = savedToken;
+  }
+
+  if (ui.multiplierSelect) { 
+      setMultiplierSelectState("Select market & connect", true);
+  }
+  if (ui.symbolSelect) {
+    ui.symbolSelect.addEventListener('change', (event) => {
+        fetchAndPopulateMultipliers(event.target.value);
+    });
+  }
+
+  if (ui.historyPrevWeekBtn) {
+    ui.historyPrevWeekBtn.addEventListener('click', () => {
+        currentHistoryWeekOffset--;
+        renderHistoryTab(currentHistoryWeekOffset);
+    });
+  }
+  if (ui.historyNextWeekBtn) {
+    ui.historyNextWeekBtn.addEventListener('click', () => {
+        if (currentHistoryWeekOffset < 0) { 
+            currentHistoryWeekOffset++;
+            renderHistoryTab(currentHistoryWeekOffset); 
+        }
+    });
+  }
+
+  // Signals History Navigation
+  if (ui.signalsHistoryPrevWeekBtn) {
+    ui.signalsHistoryPrevWeekBtn.addEventListener('click', () => {
+        currentSignalsHistoryWeekOffset--;
+        renderSignalsHistoryTab(currentSignalsHistoryWeekOffset);
+    });
+  }
+  if (ui.signalsHistoryNextWeekBtn) {
+    ui.signalsHistoryNextWeekBtn.addEventListener('click', () => {
+        if (currentSignalsHistoryWeekOffset < 0) {
+            currentSignalsHistoryWeekOffset++;
+            renderSignalsHistoryTab(currentSignalsHistoryWeekOffset);
+        }
+    });
+  }
+
+  renderOpenPositionsTable();
+  renderHistoryTab(currentHistoryWeekOffset); 
+  renderSignalsOpenTradesTable(); // Initial render for signals open trades
+  renderSignalsHistoryTab(currentSignalsHistoryWeekOffset); // Initial render for signals history
+
+  const activeTabButton = document.querySelector('.tab-button.active');
+  if (activeTabButton) {
+      const tabId = activeTabButton.getAttribute('aria-controls');
+      if (tabId) {
+          const activeTabContent = document.getElementById(tabId);
+          if (activeTabContent) {
+              document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+              activeTabContent.classList.add('active');
+              if (tabId === 'signalsTab') { // Connect signals if it's the active tab on load
+                connectSignalsAccount();
+              }
+          }
+      }
+  } else { 
+      const firstTabButton = document.querySelector('.tab-button');
+      if (firstTabButton) {
+          const tabId = firstTabButton.getAttribute('aria-controls');
+          const tabContent = document.getElementById(tabId);
+          if (tabContent) {
+            tabContent.classList.add('active');
+            firstTabButton.classList.add('active');
+            if (tabId === 'signalsTab') { // Connect signals if it's the default tab
+                connectSignalsAccount();
+            }
+          }
+      }
+  }
+});
+  </script>
 </body>
 </html>
