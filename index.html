@@ -775,7 +775,10 @@ window.switchTab = function(evt, tabId) {
 };
 
 function sendToUserWs(data) { // Renamed for clarity
+  console.log("fn:sendToUserWs")
+  console.log({data})
   if (ws && ws.readyState === WS_READY_STATE.OPEN) {
+    console.log("ws.send called")
     ws.send(JSON.stringify(data));
   } else {
     console.warn("User WebSocket not ready or open. Message not sent:", data);
@@ -894,9 +897,10 @@ window.connect = function() {
     }
   };
 
-  ws.onmessage = function(msg) {
+  ws.onmessage = function(msg) { 
     const data = JSON.parse(msg.data);
-
+    // console.log("[ws.onmessage]")
+    // console.log({data})
     if (data.error) {
       let errorStringToLog = data.error.message || JSON.stringify(data.error);
       console.error("User WS Received API Error. Raw error object:", data.error);
@@ -966,8 +970,11 @@ window.connect = function() {
 
         case "proposal_open_contract":
             const c = data.proposal_open_contract;
-            if (!c || !c.contract_id) return;
+            if (!c || !c.contract_id) {
+              // console.log("!c || !c.contract_id")
+            };
             const existingIndexPOC = openContractsCache.findIndex(cached => cached.contract_id === c.contract_id);
+
             if (isActiveMultiplier(c)) {
                 if (existingIndexPOC !== -1) {
                     openContractsCache[existingIndexPOC] = { ...openContractsCache[existingIndexPOC], ...c };
@@ -982,6 +989,7 @@ window.connect = function() {
             renderOpenPositionsTable();
             break;
 
+        //////////
         case "buy":
              if (data.buy && data.buy.contract_id) {
                 flashMessage(ui.tradeResponse, `✅ Trade placed! ID: ${data.buy.contract_id}. View in 'Open Positions'.`, 'success-msg', 7000);
@@ -991,6 +999,60 @@ window.connect = function() {
              }
             break;
         
+        case "sell":
+            if (data.sell && data.sell.contract_id) {
+                const { contract_id, sold_for, transaction_id } = data.sell;
+                const soldContractId = contract_id;
+                const soldForPrice = parseFloat(sold_for);
+                const currency = 'USD'; // Sell response doesn't specify currency, assume USD as per app context
+
+                let profitLoss = 0;
+                const originalContractDetails = openContractsCache.find(c_1 => c_1.contract_id === soldContractId);
+
+                // Update caches and history
+                if (originalContractDetails) {
+                    const buyPrice = parseFloat(originalContractDetails.buy_price);
+                    if (!isNaN(soldForPrice) && !isNaN(buyPrice)) {
+                        profitLoss = soldForPrice - buyPrice;
+                    }
+
+                    const marketName = symbolNames[originalContractDetails.underlying] || originalContractDetails.underlying;
+                    const direction = ['CALL', 'MULTUP'].includes(originalContractDetails.contract_type) ? '📈 Up' : '🔻 Down';
+                    
+                    const newHistoryEntry = {
+                        contract_id: soldContractId,
+                        transaction_id: transaction_id,
+                        marketName: marketName,
+                        closeTime: Math.floor(Date.now() / 1000), // Use current time as sell response lacks a timestamp
+                        direction: direction,
+                        stake: buyPrice,
+                        valueAtClose: soldForPrice,
+                        pnl: profitLoss,
+                        currency: currency
+                    };
+
+                    if (!closedTradesHistory.some(h => h.transaction_id === newHistoryEntry.transaction_id)) {
+                        closedTradesHistory.unshift(newHistoryEntry);
+                    }
+                }
+
+                const cacheIndex = openContractsCache.findIndex(cached => cached.contract_id === soldContractId);
+                if (cacheIndex !== -1) {
+                    openContractsCache.splice(cacheIndex, 1);
+                }
+
+                // Update UI
+                renderOpenPositionsTable();
+                if (document.getElementById('historyTab').classList.contains('active')) {
+                    renderHistoryTab(currentHistoryWeekOffset);
+                }
+
+                // Show final confirmation in the modal
+                showModalMessage(`✅ Trade ${soldContractId} closed. P/L: ${profitLoss.toFixed(2)} ${currency}`, 'success');
+                setTimeout(closeModal, 2300);
+            }
+            break;
+        //////////
         case "profit_table":
             if (data.profit_table && Array.isArray(data.profit_table.transactions)) {
                 closedTradesHistory = data.profit_table.transactions.map(tx => {
@@ -1013,7 +1075,7 @@ window.connect = function() {
                         calculatedPnl = valueAtClose - stake;
                     } else if (!isNaN(buyPriceRaw) && isNaN(sellPriceRaw)) { 
                         calculatedPnl = -stake; 
-                    }
+                    } 
 
                     return {
                         contract_id: tx.contract_id,
@@ -1035,6 +1097,8 @@ window.connect = function() {
             break;
 
         case "transaction":
+          console.log("[transaction]")
+          console.log({data})
             if (data.transaction && data.transaction.action === 'sell') {
                 const soldContractId = data.transaction.contract_id;
                 const profitLossRaw = parseFloat(data.transaction.amount);
@@ -1116,7 +1180,7 @@ function createTradeRowElement(c) {
   // Robustly escape marketName for HTML attributes and JavaScript string literals
   const safeMarketNameForHtml = marketName.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
   const safeMarketNameForJs = JSON.stringify(marketName);
-
+// console.log(`<td><button class="close-trade-btn" onclick="window.openModal(${c.contract_id}, '${safeMarketNameForHtml}')" aria-label="Close trade for ${safeMarketNameForHtml}">Close</button></td>`)
   row.innerHTML = `
     <td data-label="Market">${marketName}</td>
     <td data-label="Buy Price">$${buyPrice.toFixed(2)}</td>
@@ -1125,16 +1189,18 @@ function createTradeRowElement(c) {
     <td data-label="Multiplier">${multiplier}x</td>
     <td data-label="Direction">${direction}</td>
     <td data-label="Start Time">${c.date_start ? new Date(c.date_start * 1000).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) : '-'}</td>
-    <td><button class="close-trade-btn" onclick="window.openModal(${c.contract_id}, ${safeMarketNameForJs})" aria-label="Close trade for ${safeMarketNameForHtml}">Close</button></td>
+    <td><button class="close-trade-btn" onclick="window.openModal(${c.contract_id}, '${safeMarketNameForHtml}')" aria-label="Close trade for ${safeMarketNameForHtml}">Close</button></td>
   `;
   return row;
 }
 
 window.openModal = function(contractId, marketName = '') {
+  console.log("(fn:openModal)")
   selectedContractId = contractId;
   let modalTextContent = `Close trade ${contractId}?`;
   // marketName is already a JS string (potentially from JSON.stringify), so direct usage is fine.
   const actualMarketName = marketName || (openContractsCache.find(c_1 => c_1.contract_id === contractId) ? (symbolNames[openContractsCache.find(c_1 => c_1.contract_id === contractId).underlying || openContractsCache.find(c_1 => c_1.contract_id === contractId).symbol] || openContractsCache.find(c_1 => c_1.contract_id === contractId).underlying || openContractsCache.find(c_1 => c_1.contract_id === contractId).symbol) : '');
+  console.log({actualMarketName})
   if (actualMarketName) {
       modalTextContent = `Are you sure you want to close the trade for ${actualMarketName} (ID: ${contractId})?`;
   } else {
@@ -1148,12 +1214,17 @@ window.openModal = function(contractId, marketName = '') {
   ui.confirmModal.style.display = 'flex';
 };
 
-window.confirmClose = function(confirm) {
+window.confirmClose = function(confirm) { 
+  console.log("(fn:confirmClose)")
+  console.log({confirmClose,selectedContractId})
   if (confirm && selectedContractId !== null) {
     ui.modalButtons.style.display = 'none';
     ui.modalLoading.style.display = 'block';
     ui.modalMessage.innerHTML = '';
+    console.log("sending: to sendToUserWs")
     sendToUserWs({ sell: selectedContractId, price: 0 }); 
+
+
   } else {
     closeModal();
   }
@@ -1455,6 +1526,72 @@ function connectSignalsAccount() {
                 }
                 renderSignalsOpenTradesTable();
                 break;
+            //////
+case "buy":
+             if (data.buy && data.buy.contract_id) {
+                flashMessage(ui.tradeResponse, `✅ Trade placed! ID: ${data.buy.contract_id}. View in 'Open Positions'.`, 'success-msg', 7000);
+                ui.stakeInput.value = '';
+             } else if (!data.error) {
+                flashMessage(ui.tradeResponse, `⚠️ Trade status uncertain. Please check 'Open Positions'.`, 'info-msg', 7000);
+             }
+            break;
+        
+        case "sell":
+            console.log("sell")
+            console.log({data})
+            if (data.sell && data.sell.contract_id) {
+                const { contract_id, sold_for, transaction_id } = data.sell;
+                const soldContractId = contract_id;
+                const soldForPrice = parseFloat(sold_for);
+                const currency = 'USD'; // Sell response doesn't specify currency, assume USD as per app context
+
+                let profitLoss = 0;
+                const originalContractDetails = openContractsCache.find(c_1 => c_1.contract_id === soldContractId);
+
+                // Update caches and history
+                if (originalContractDetails) {
+                    const buyPrice = parseFloat(originalContractDetails.buy_price);
+                    if (!isNaN(soldForPrice) && !isNaN(buyPrice)) {
+                        profitLoss = soldForPrice - buyPrice;
+                    }
+
+                    const marketName = symbolNames[originalContractDetails.underlying] || originalContractDetails.underlying;
+                    const direction = ['CALL', 'MULTUP'].includes(originalContractDetails.contract_type) ? '📈 Up' : '🔻 Down';
+                    
+                    const newHistoryEntry = {
+                        contract_id: soldContractId,
+                        transaction_id: transaction_id,
+                        marketName: marketName,
+                        closeTime: Math.floor(Date.now() / 1000), // Use current time as sell response lacks a timestamp
+                        direction: direction,
+                        stake: buyPrice,
+                        valueAtClose: soldForPrice,
+                        pnl: profitLoss,
+                        currency: currency
+                    };
+
+                    if (!closedTradesHistory.some(h => h.transaction_id === newHistoryEntry.transaction_id)) {
+                        closedTradesHistory.unshift(newHistoryEntry);
+                    }
+                }
+
+                const cacheIndex = openContractsCache.findIndex(cached => cached.contract_id === soldContractId);
+                if (cacheIndex !== -1) {
+                    openContractsCache.splice(cacheIndex, 1);
+                }
+
+                // Update UI
+                renderOpenPositionsTable();
+                if (document.getElementById('historyTab').classList.contains('active')) {
+                    renderHistoryTab(currentHistoryWeekOffset);
+                }
+
+                // Show final confirmation in the modal
+                showModalMessage(`✅ Trade ${soldContractId} closed. P/L: ${profitLoss.toFixed(2)} ${currency}`, 'success');
+                setTimeout(closeModal, 3000);
+            }
+            break;
+            //////
             case "profit_table":
                 if (data.profit_table && Array.isArray(data.profit_table.transactions)) {
                     signalsClosedTradesHistory = data.profit_table.transactions.map(tx => {
